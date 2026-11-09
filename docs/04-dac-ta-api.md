@@ -16,7 +16,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Mọi e
 | Bước chân | `GET/POST /steps`, `PATCH/DELETE /steps/{id}` | Phase 2 |
 | Bữa ăn | `GET/POST /meals`, `PATCH/DELETE /meals/{id}` | Phase 2 |
 | Mục tiêu | `GET/POST /goals`, `PATCH/DELETE /goals/{id}`; `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly`; mỗi chỉ số tối đa một mục tiêu đang hoạt động (trùng trả 409) | Đã có |
-| Thống kê | `GET /stats/summary`, `GET /stats/trend?metric=&range=` | Phase 4 |
+| Thống kê | `GET /stats/summary?date=` (số liệu trong ngày và tiến độ mục tiêu), `GET /stats/trend?metric=&range=` | `summary`: đã có; `trend`: Phase 4 |
 | Nhắc nhở | `GET/POST /reminders`, `PATCH/DELETE /reminders/{id}` | Phase 4 |
 
 ## Quy ước chung
@@ -70,3 +70,17 @@ curl -X POST /api/v1/weights -H "Authorization: Bearer $TOKEN" \
 ```
 
 **Giới hạn tốc độ và đo thời gian:** `POST /auth/login` giới hạn theo IP (mặc định 10 lượt/60 giây, cấu hình `LOGIN_RATE_LIMIT`, `LOGIN_RATE_WINDOW_SECONDS`); vượt ngưỡng trả `429` kèm header `Retry-After`. Giới hạn lưu trong bộ nhớ nên chỉ đúng khi chạy một instance. Mọi phản hồi có header `X-Process-Time-Ms`; request chậm hơn `SLOW_REQUEST_MS` (mặc định 500) bị ghi log cảnh báo.
+
+## Thống kê tổng quan
+
+`GET /stats/summary?date=YYYY-MM-DD` (mặc định hôm nay, ngày theo UTC) trả:
+
+| Trường | Ý nghĩa |
+|---|---|
+| `weight` | Cân nặng ghi cuối trong ngày (`latest_kg`, `bmi`, `logged_at`), `null` nếu chưa ghi |
+| `water_ml` | Tổng nước uống trong ngày |
+| `sleep_minutes` | Tổng phút các giấc ngủ kết thúc trong ngày |
+| `medications` | `taken` (đã uống) và `missed` (bỏ lỡ) trong ngày |
+| `goals` | Tiến độ từng mục tiêu đang hoạt động: `current_value`, `target_value`, `percent`, `achieved`, `unit` |
+
+Cách tính tiến độ mục tiêu: chu kỳ `daily` lấy trong ngày, `weekly` lấy 7 ngày gần nhất tính cả ngày đang xem. `water`, `steps`, `calories` cộng dồn; `sleep` lấy trung bình phút mỗi đêm có dữ liệu (mục tiêu ngủ là phút mỗi đêm); `percent` không giới hạn 100. Mục tiêu `weight` có `percent` và `achieved` là `null` vì không biết hướng tăng hay giảm, client so `current_value` với `target_value`. `steps` và `calories` chưa có bảng dữ liệu nên `current_value` là 0.
