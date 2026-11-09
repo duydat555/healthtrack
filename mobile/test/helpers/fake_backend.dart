@@ -119,6 +119,28 @@ Map<String, FakeHandler> defaultRoutes() {
         'duration_minutes': 480,
       },
     ]),
+    'GET /stats/summary': (_) => const FakeResponse(200, {
+      'date': '2026-11-09',
+      'weight': null,
+      'water_ml': 800,
+      'sleep_minutes': 480,
+      'medications': {'taken': 0, 'missed': 0},
+      'goals': <Object>[],
+    }),
+    'GET /stats/trend': (_) => FakeResponse(200, {
+      'metric': 'water',
+      'unit': 'ml',
+      'range': '7d',
+      'from_date': '2026-11-03',
+      'to_date': '2026-11-09',
+      'points': [
+        for (var i = 0; i < 7; i++)
+          {
+            'date': '2026-11-0${3 + i}',
+            'value': i == 6 ? 800 : (i == 0 ? null : 500),
+          },
+      ],
+    }),
     'GET /goals': (_) => const FakeResponse(200, <Object>[]),
     'GET /medications': (_) => const FakeResponse(200, [
       {

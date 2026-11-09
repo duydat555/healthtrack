@@ -59,64 +59,46 @@ final todaySummaryProvider = FutureProvider.autoDispose<TodaySummary>((
   ref,
 ) async {
   final repo = ref.watch(healthRepositoryProvider);
-  final today = startOfDay(DateTime.now());
-
   final results = await Future.wait<Object>([
-    repo.water(from: today),
-    repo.sleep(limit: 1),
-    repo.goals(),
+    repo.statsSummary(),
     repo.medications(),
   ]);
-  final water = results[0] as List<WaterLog>;
-  final sleeps = results[1] as List<SleepLog>;
-  final goals = results[2] as List<Goal>;
-  final meds = (results[3] as List<Medication>)
+  final stats = results[0] as StatsSummary;
+  final activeMeds = (results[1] as List<Medication>)
       .where((m) => m.isActive)
-      .toList();
+      .length;
 
   double goalOf(String metric, double fallback) =>
-      goals
+      stats.goals
           .where((g) => g.metric == metric)
           .map((g) => g.targetValue)
           .firstOrNull ??
       fallback;
 
-  // Thuốc: một liều mỗi ngày, tính đã uống nếu hôm nay có nhật ký taken=true
-  final logs = await Future.wait(
-    meds.map((m) => repo.medicationLogs(m.id, limit: 10)),
-  );
-  final taken = logs
-      .where((l) => l.any((e) => e.taken && sameDay(e.takenAt, DateTime.now())))
-      .length;
-
   return TodaySummary(
-    waterMl: water.fold(0, (a, b) => a + b.amountMl),
+    waterMl: stats.waterMl,
     waterGoalMl: goalOf('water', defaultWaterGoalMl),
-    sleepMinutes: sleeps.firstOrNull?.durationMinutes,
+    // Máy chủ cộng phút các giấc ngủ kết thúc hôm nay; 0 nghĩa là chưa ghi giấc nào
+    sleepMinutes: stats.sleepMinutes > 0 ? stats.sleepMinutes : null,
     sleepGoalMinutes: goalOf('sleep', defaultSleepGoalMinutes),
-    medsTaken: taken,
-    medsTotal: meds.length,
+    medsTaken: stats.medsTaken,
+    // Một liều mỗi ngày cho mỗi thuốc đang dùng; uống nhiều hơn thì tổng không nhỏ hơn số đã uống
+    medsTotal: activeMeds > stats.medsTaken ? activeMeds : stats.medsTaken,
   );
 });
 
 final bodyDataProvider = FutureProvider.autoDispose<BodyData>((ref) async {
   final repo = ref.watch(healthRepositoryProvider);
-  final from = startOfDay(DateTime.now()).subtract(const Duration(days: 6));
   final results = await Future.wait<Object>([
     repo.weights(limit: 30),
     repo.sleep(limit: 14),
-    repo.water(from: from),
+    repo.statsTrend('water'),
   ]);
-  final water = results[2] as List<WaterLog>;
-  final byDay = List<int>.filled(7, 0);
-  for (final w in water) {
-    final index = startOfDay(w.loggedAt).difference(from).inDays;
-    if (index >= 0 && index < 7) byDay[index] += w.amountMl;
-  }
+  final water = results[2] as List<double?>;
   return BodyData(
     weights: results[0] as List<WeightLog>,
     sleeps: results[1] as List<SleepLog>,
-    waterByDay: byDay,
+    waterByDay: [for (final v in water) (v ?? 0).round()],
   );
 });
 

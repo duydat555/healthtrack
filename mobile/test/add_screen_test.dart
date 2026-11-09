@@ -29,7 +29,7 @@ void main() {
     expect((post.data as Map)['amount_ml'], 330);
     expect(app.container.read(routerProvider).state.uri.path, '/');
     // dữ liệu Tổng quan được tải lại sau khi ghi
-    expect(app.backend.count('GET /water'), greaterThan(2));
+    expect(app.backend.count('GET /stats/summary'), greaterThan(1));
   });
 
   testWidgets('nhập số ml tùy ý ưu tiên hơn nút chọn sẵn', (tester) async {

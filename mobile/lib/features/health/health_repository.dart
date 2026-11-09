@@ -27,6 +27,34 @@ class HealthRepository {
 
   String _utc(DateTime t) => t.toUtc().toIso8601String();
 
+  /// Số phút lệch so với UTC của máy (Việt Nam là 420), để máy chủ chia ngày theo giờ địa phương.
+  int get _tzOffset => DateTime.now().timeZoneOffset.inMinutes;
+
+  /// Số liệu hôm nay (theo giờ máy) và tiến độ mục tiêu.
+  Future<StatsSummary> statsSummary() async {
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/stats/summary',
+      queryParameters: {'tz_offset': _tzOffset},
+    );
+    return StatsSummary.fromJson(res.data!);
+  }
+
+  /// Giá trị theo ngày của một chỉ số, cũ trước và hôm nay ở cuối; ngày không có dữ liệu là null.
+  Future<List<double?>> statsTrend(String metric, {String range = '7d'}) async {
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/stats/trend',
+      queryParameters: {
+        'metric': metric,
+        'range': range,
+        'tz_offset': _tzOffset,
+      },
+    );
+    return [
+      for (final p in res.data!['points'] as List<dynamic>)
+        ((p as Map<String, dynamic>)['value'] as num?)?.toDouble(),
+    ];
+  }
+
   Future<List<WeightLog>> weights({int limit = 30}) =>
       _list('/weights', WeightLog.fromJson, query: {'limit': limit});
 
