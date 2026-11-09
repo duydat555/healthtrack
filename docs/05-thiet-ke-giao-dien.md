@@ -27,3 +27,8 @@ Trên iOS 26+ dùng lớp kính Swift native; nơi khác dùng `BackdropFilter`.
 | Ngoài tab | Onboarding, Đăng ký, Đăng nhập |
 
 Wireframe chi tiết: cần bổ sung (issue Phase 0 của Thuận).
+
+## Ảnh chụp thực tế
+Thanh tab Liquid Glass, nút thêm nhanh và nhóm thẻ trên iPhone 13 (iOS 27.2 Simulator):
+
+![Màn hình chính](images/liquid-glass-home.png)
