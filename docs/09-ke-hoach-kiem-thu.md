@@ -20,3 +20,23 @@
 
 ## Mục tiêu
 Độ phủ backend từ 70%; CI chạy lint, test, build trên mọi PR. Ma trận đầy đủ do Tài hoàn thiện ở issue Phase 0.
+
+## Hiệu năng giao diện (issue #66)
+Bài đo tự động: `mobile/integration_test/dashboard_perf_test.dart`, chạy bằng
+`cd mobile && flutter test integration_test/dashboard_perf_test.dart -d <thiết bị>`.
+Bài đo cuộn màn Tổng quan lên xuống 3 lần, đếm số lần rebuild từng widget (`debugOnRebuildDirtyWidget`) và thu thời gian build/raster của từng khung hình (`FrameTiming`, cùng nguồn số liệu với DevTools).
+
+Kết quả trên iPhone 13 Simulator (iOS 27.2), chế độ debug, 271 khung hình:
+
+| Chỉ số | p50 | p90 | Lớn nhất | Ngân sách 60 fps |
+|---|---|---|---|---|
+| Build (ms) | 0,77 | 2,42 | 8,04 | 16,6 |
+| Raster (ms) | 0,74 | 1,09 | 4,74 | 16,6 |
+
+- Khi cuộn, `HomeScreen`, `_RingsCard`, `ActivityRings`, `MetricCard`, `_WeekChart` đều **rebuild 0 lần**. Chỉ có phần nội bộ của `ListView` (`KeepAlive`, `KeyedSubtree`) và vài `Text` được dựng lại. Test sẽ **thất bại** nếu một widget nặng bị rebuild, để chặn hồi quy.
+- Mọi khung hình đều dưới ngân sách ở chế độ debug (chậm hơn profile/release nhiều lần), nên có dư địa.
+
+Giới hạn cần biết:
+- Simulator không hỗ trợ chế độ profile; số tuyệt đối chỉ để so sánh tương đối. Số lần rebuild không phụ thuộc chế độ. Nên đo lại trên iPhone thật ở chế độ profile trước khi nghiệm thu.
+- Màn Tổng quan hiện dùng dữ liệu mẫu và chưa có provider Riverpod, nên chưa có gì để tối ưu bằng `select`. Khi nối API, dùng `ref.watch(provider.select((s) => s.field))` cho widget chỉ cần một phần trạng thái, rồi chạy lại bài đo này.
+- Vòng Activity Rings và biểu đồ cột có hoạt ảnh vào màn (khoảng 1 giây); `ActivityRings` dùng `TweenAnimationBuilder`, chỉ vẽ lại chính nó.

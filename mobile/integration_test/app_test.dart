@@ -7,9 +7,9 @@ import 'package:integration_test/integration_test.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('app khởi động và hiện màn hình chính', (tester) async {
+  testWidgets('app khởi động và hiện màn Tổng quan', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: HealthTrackApp()));
     await tester.pumpAndSettle();
-    expect(find.text('HealthTrack'), findsOneWidget);
+    expect(find.text('Hôm nay'), findsOneWidget);
   });
 }
