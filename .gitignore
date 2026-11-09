@@ -1,0 +1,27 @@
+.env
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+node_modules/
+.expo/
+dist/
+web-build/
+# Flutter / iOS
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/Flutter/ephemeral/
+xcuserdata/
+*.xcworkspace/xcuserdata/
+coverage/
+.idea/
+.vscode/
+.issue_map.json
