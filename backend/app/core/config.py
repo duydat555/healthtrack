@@ -19,6 +19,12 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # Giới hạn đăng nhập: tối đa N lượt mỗi IP trong cửa sổ thời gian
+    LOGIN_RATE_LIMIT: int = 10
+    LOGIN_RATE_WINDOW_SECONDS: int = 60
+    # Request chậm hơn ngưỡng này (ms) sẽ bị ghi cảnh báo
+    SLOW_REQUEST_MS: int = 500
+
     # Danh sách origin được gọi API, phân tách bằng dấu phẩy
     CORS_ORIGINS: str = "http://localhost:8080"
 
