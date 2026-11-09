@@ -7,7 +7,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Cần b
 | Hệ thống | `GET /health` | Đã có |
 | Xác thực | `POST /auth/register` (201, 409 nếu trùng email) | Đã có |
 | Xác thực | `POST /auth/login` (body `email`, `password`), `POST /auth/refresh` (body `refresh_token`); trả `access_token`, `refresh_token`; sai thông tin trả 401 | Đã có |
-| Người dùng | `GET /users/me`, `PATCH /users/me` | Phase 1 |
+| Người dùng | `GET /users/me`, `PATCH /users/me` (cần header `Authorization: Bearer <access_token>`, thiếu token trả 401) | Đã có |
 | Cân nặng/BMI | `GET/POST /weights`, `PATCH/DELETE /weights/{id}` | Phase 2 |
 | Nước uống | `GET/POST /water`, `PATCH/DELETE /water/{id}` | Phase 2 |
 | Giấc ngủ | `GET/POST /sleep`, `PATCH/DELETE /sleep/{id}` | Phase 2 |
