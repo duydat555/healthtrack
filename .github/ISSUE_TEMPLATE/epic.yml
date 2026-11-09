@@ -1,0 +1,14 @@
+name: Epic
+description: Nhóm các task cùng mục tiêu
+title: "Epic: "
+labels: ["epic"]
+body:
+  - type: textarea
+    id: goal
+    attributes: {label: Mục tiêu}
+    validations: {required: true}
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Danh sách task con
+      value: "- [ ] #"

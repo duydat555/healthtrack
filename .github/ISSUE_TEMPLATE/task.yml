@@ -1,0 +1,25 @@
+name: Task
+description: Một công việc trong WBS / User Story
+labels: ["task"]
+body:
+  - type: textarea
+    id: story
+    attributes:
+      label: User Story
+      placeholder: Là <vai trò>, tôi muốn <việc> để <lợi ích>
+    validations: {required: true}
+  - type: textarea
+    id: ac
+    attributes:
+      label: Tiêu chí chấp nhận (Acceptance Criteria)
+      value: "- [ ] \n- [ ] "
+    validations: {required: true}
+  - type: input
+    id: owner
+    attributes:
+      label: Người phụ trách
+  - type: dropdown
+    id: sp
+    attributes:
+      label: Story Points
+      options: ["1", "2", "3", "5", "8"]

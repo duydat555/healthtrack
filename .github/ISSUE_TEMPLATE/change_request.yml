@@ -1,0 +1,19 @@
+name: Change Request (thay đổi phạm vi)
+description: Yêu cầu thay đổi phạm vi, cần CCB phê duyệt
+labels: ["change-request"]
+title: "CR: "
+body:
+  - type: textarea
+    id: change
+    attributes: {label: Nội dung thay đổi và lý do}
+    validations: {required: true}
+  - type: textarea
+    id: impact
+    attributes:
+      label: Ảnh hưởng đến phạm vi, tiến độ, rủi ro
+    validations: {required: true}
+  - type: dropdown
+    id: decision
+    attributes:
+      label: Quyết định của CCB
+      options: ["Chờ duyệt", "Chấp thuận", "Từ chối"]
