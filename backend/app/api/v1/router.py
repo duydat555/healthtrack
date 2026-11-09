@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from app.api.v1 import auth, health, sleep, users, water, weights
+from app.api.v1 import auth, health, medications, sleep, users, water, weights
 
 api_router = APIRouter()
 api_router.include_router(health.router)
@@ -11,3 +11,4 @@ api_router.include_router(users.router)
 api_router.include_router(weights.router)
 api_router.include_router(water.router)
 api_router.include_router(sleep.router)
+api_router.include_router(medications.router)

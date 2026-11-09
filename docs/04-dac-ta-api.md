@@ -13,7 +13,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Cần b
 | Giấc ngủ | `GET/POST /sleep`, `PATCH/DELETE /sleep/{id}`; trả `duration_minutes`; `end_at` phải sau `start_at` (422); `quality` 1-5 | Đã có |
 | Bước chân | `GET/POST /steps`, `PATCH/DELETE /steps/{id}` | Phase 2 |
 | Bữa ăn | `GET/POST /meals`, `PATCH/DELETE /meals/{id}` | Phase 2 |
-| Thuốc | `GET/POST /medications`, `POST /medications/{id}/logs` | Phase 2 |
+| Thuốc | `GET/POST /medications`, `PATCH/DELETE /medications/{id}`, `POST/GET /medications/{id}/logs` (ghi `taken` true/false, lấy nhật ký mới nhất trước) | Đã có |
 | Mục tiêu | `GET/POST /goals`, `PATCH/DELETE /goals/{id}` | Phase 2 |
 | Thống kê | `GET /stats/summary`, `GET /stats/trend?metric=&range=` | Phase 4 |
 | Nhắc nhở | `GET/POST /reminders`, `PATCH/DELETE /reminders/{id}` | Phase 4 |
