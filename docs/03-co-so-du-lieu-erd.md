@@ -80,3 +80,35 @@ Chi tiết đã chốt khi triển khai:
 ## Quy ước
 
 Tên bảng số nhiều, snake_case, khóa chính `id` kiểu số nguyên tự tăng, có `created_at`. Mọi thay đổi cấu trúc phải đi kèm migration Alembic.
+
+## Chỉ mục và hiệu năng truy vấn (issue #63)
+
+### Chỉ mục hiện có
+Mọi truy vấn của API đều lọc theo `user_id` trước, rồi theo thời gian, nên mỗi bảng nhật ký có một chỉ mục kép `(user_id, <cột thời gian>)`. Tất cả tạo qua migration.
+
+| Bảng | Chỉ mục | Migration | Phục vụ |
+|---|---|---|---|
+| `users` | `ix_users_email` (unique) | `0001` | đăng nhập, kiểm tra trùng email |
+| `weight_logs` | `ix_weight_logs_user_id_logged_at` | `0002` | danh sách theo khoảng ngày, xu hướng cân nặng |
+| `water_logs` | `ix_water_logs_user_id_logged_at` | `0003` | danh sách, tổng nước theo ngày |
+| `sleep_logs` | `ix_sleep_logs_user_id_start_at` | `0004` | danh sách, thống kê giấc ngủ |
+| `medications` | `ix_medications_user_id` | `0005` | danh sách thuốc của người dùng |
+| `medication_logs` | `ix_medication_logs_medication_id_taken_at` | `0005` | nhật ký uống thuốc |
+| `goals` | `uq_goals_user_metric_active` (unique một phần, `WHERE is_active`) | `0006` | mỗi chỉ số một mục tiêu đang hoạt động |
+
+Các truy vấn `ORDER BY logged_at DESC, id DESC LIMIT n` dùng `Incremental Sort` trên chính chỉ mục này, nên chưa cần thêm cột `id` vào chỉ mục.
+
+### So sánh trước và sau
+PostgreSQL 16, 250 người dùng, 500.000 dòng `water_logs` và 500.000 dòng `weight_logs` trải trong 2 năm. Thời gian thực thi trung vị của 7 lần chạy `EXPLAIN ANALYZE`, đo cho một người dùng.
+
+| Truy vấn | Không có chỉ mục | Có chỉ mục | Nhanh hơn | Kiểu quét sau khi có chỉ mục |
+|---|---|---|---|---|
+| Q1: danh sách 30 ngày gần nhất, 50 dòng (nước) | 6,379 ms | 0,020 ms | khoảng 320 lần | Index Scan + Incremental Sort |
+| Q2: tổng nước trong 1 ngày | 6,404 ms | 0,009 ms | khoảng 710 lần | Index Scan |
+| Q3: xu hướng cân nặng theo ngày, 90 ngày | 6,714 ms | 0,077 ms | khoảng 87 lần | Index Scan + Aggregate |
+
+Nếu không có chỉ mục, PostgreSQL quét toàn bảng (`Seq Scan`) và thời gian tăng theo tổng số dòng của mọi người dùng; có chỉ mục thì chỉ đọc phần dữ liệu của chính người dùng đó.
+
+Lưu ý khi đọc số liệu: đo trên máy cá nhân với dữ liệu đã nằm trong bộ nhớ đệm, nên con số tuyệt đối chỉ để so sánh tương đối. Chưa có API thống kê thật (#61, #62), ba truy vấn trên mô phỏng đúng dạng truy vấn mà các endpoint đó sẽ dùng; nên chạy lại script sau khi các endpoint hoàn thành.
+
+Tái lập: tạo CSDL thử, chạy `alembic upgrade head`, rồi chạy `scripts/bench_indexes.sql` (cách chạy ghi ở đầu file).
