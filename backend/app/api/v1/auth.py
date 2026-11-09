@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_db
+from app.core.rate_limit import limit_login
 from app.schemas.user import LoginRequest, RefreshRequest, TokenPair, UserCreate, UserRead
 from app.services import auth as auth_service
 
@@ -19,7 +20,7 @@ async def register(data: UserCreate, db: Annotated[AsyncSession, Depends(get_db)
     return UserRead.model_validate(user)
 
 
-@router.post("/login", response_model=TokenPair)
+@router.post("/login", response_model=TokenPair, dependencies=[Depends(limit_login)])
 async def login(data: LoginRequest, db: Annotated[AsyncSession, Depends(get_db)]) -> TokenPair:
     try:
         return await auth_service.authenticate(db, data.email, data.password)

@@ -6,7 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.pool import StaticPool
 
 from app.core.db import Base, get_db
+from app.core.rate_limit import login_limiter
 from app.main import app
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limiter() -> None:
+    login_limiter.reset()
 
 
 @pytest.fixture
