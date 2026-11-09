@@ -51,6 +51,24 @@ erDiagram
 | `goals` | Mục tiêu theo chỉ số | `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly` |
 | `reminders` | Nhắc nhở | `kind`: `water`, `medication`, `sleep`, `meal`... |
 
+## Trạng thái triển khai (khớp migration thực tế)
+
+| Bảng | Migration | Model |
+|---|---|---|
+| `users` | `0001` | `app/models/user.py` |
+| `weight_logs` | `0002` | `app/models/weight_log.py` |
+| `water_logs` | `0003` | `app/models/water_log.py` |
+| `sleep_logs` | `0004` | `app/models/sleep_log.py` |
+| `medications`, `medication_logs` | `0005` | `app/models/medication.py` |
+| `step_logs`, `meal_logs`, `goals`, `reminders` | Chưa có | Sẽ bổ sung ở các issue tiếp theo |
+
+Chi tiết đã chốt khi triển khai:
+
+- `weight_logs.bmi` tính khi ghi từ `users.height_cm`; để `NULL` nếu hồ sơ chưa có chiều cao.
+- `sleep_logs.quality` cho phép `NULL`; thời lượng không lưu mà tính từ `end_at - start_at`.
+- `medication_logs` không có `user_id`; quyền sở hữu kiểm tra qua `medications.user_id`.
+- Chỉ mục: `ix_weight_logs_user_id_logged_at`, `ix_water_logs_user_id_logged_at`, `ix_sleep_logs_user_id_start_at`, `ix_medications_user_id`, `ix_medication_logs_medication_id_taken_at`, `ix_users_email` (duy nhất).
+
 ## Ràng buộc và chỉ mục
 
 - Mọi bảng dữ liệu của người dùng có `user_id` FK tới `users.id`, `ON DELETE CASCADE`. `medication_logs` có FK tới `medications.id`, cũng `ON DELETE CASCADE`.
