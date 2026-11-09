@@ -2,8 +2,8 @@ name: Mobile CI
 
 on:
   workflow_dispatch:
+  # Chạy trên mọi PR (không lọc đường dẫn) để check bắt buộc của branch protection luôn có kết quả
   pull_request:
-    paths: ["mobile/**", ".github/workflows/mobile-ci.yml"]
   push:
     branches: [main]
     paths: ["mobile/**"]
