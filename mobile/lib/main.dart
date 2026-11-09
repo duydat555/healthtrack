@@ -4,22 +4,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/router.dart';
 import 'core/theme.dart';
 
+/// Không tự thử lại provider lỗi: lỗi mạng hiện ra ngay để người dùng bấm "Thử lại".
+Duration? noRetry(int retryCount, Object error) => null;
+
 void main() {
-  runApp(const ProviderScope(child: HealthTrackApp()));
+  runApp(const ProviderScope(retry: noRetry, child: HealthTrackApp()));
 }
 
-class HealthTrackApp extends StatelessWidget {
+class HealthTrackApp extends ConsumerWidget {
   const HealthTrackApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: 'HealthTrack',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.dark,
-      routerConfig: appRouter,
+      routerConfig: ref.watch(routerProvider),
     );
   }
 }
