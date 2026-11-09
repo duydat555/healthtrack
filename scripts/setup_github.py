@@ -12,6 +12,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 REPO = "duydat555/healthtrack"
@@ -118,7 +119,8 @@ def cmd_issues(a):
                "-l", ",".join(labels_for(i)), "-m", PHASES[i["phase"]])
         nums[i["key"]] = int(r.stdout.strip().rsplit("/", 1)[1])
         MAP_FILE.write_text(json.dumps(nums))
-        print(f"#{nums[i['key']]} {i['title']}")
+        print(f"#{nums[i['key']]} {i['title']}", flush=True)
+        time.sleep(1)  # tránh giới hạn tạo nội dung của GitHub
     for i in items:  # lượt 2: thay {{key}} bằng số issue thật
         body = sub(render(i, nums, epics), nums)
         gh("issue", "edit", str(nums[i["key"]]), "-R", REPO, "-b", body)

@@ -1,6 +1,7 @@
 name: Mobile CI
 
 on:
+  workflow_dispatch:
   pull_request:
     paths: ["mobile/**", ".github/workflows/mobile-ci.yml"]
   push:
