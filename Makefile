@@ -1,7 +1,7 @@
 -include .env
 export
 
-.PHONY: setup up down logs migrate test lint mobile-setup mobile mobile-test mobile-lint
+.PHONY: setup up down logs migrate seed backup test lint mobile-setup mobile mobile-test mobile-lint
 
 ## ---------- Backend (Docker) ----------
 setup: ## Lần đầu: tạo .env và build image backend
@@ -22,6 +22,14 @@ logs:
 migrate: ## Tạo migration: make migrate m="them bang users"
 	docker compose exec backend alembic revision --autogenerate -m "$(m)"
 	docker compose exec backend alembic upgrade head
+
+seed: ## Nạp dữ liệu demo (tài khoản demo@healthtrack.example / demo12345)
+	docker compose exec backend python -m app.seed
+
+backup: ## Sao lưu CSDL ra backups/healthtrack-<thời gian>.sql
+	@mkdir -p backups
+	docker compose exec -T db pg_dump -U healthtrack healthtrack > backups/healthtrack-$$(date +%Y%m%d-%H%M%S).sql
+	@echo "Đã sao lưu vào thư mục backups/"
 
 test: ## Test backend
 	docker compose exec backend pytest -q
