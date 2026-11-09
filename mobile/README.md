@@ -4,7 +4,6 @@ Xem hướng dẫn cài đặt ở [README gốc](../README.md#2-app-ios-ngườ
 
 ```bash
 flutter pub get
-cd ios && pod install && cd ..
 flutter run --dart-define=API_URL=http://localhost:8000/api/v1
 flutter test                       # unit + widget test
 flutter test integration_test      # E2E, cần Simulator đang chạy

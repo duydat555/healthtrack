@@ -42,7 +42,7 @@ Nếu cổng bị trùng với dự án khác, đổi `BACKEND_PORT`, `DB_PORT`,
 Lệnh hay dùng: `make test`, `make lint`, `make migrate m="mô tả"`, `make logs`, `make down`.
 
 ### 2. App iOS (người làm mobile)
-Cần máy Mac có Xcode (kèm iOS Simulator), Flutter và CocoaPods:
+Cần máy Mac có Xcode (kèm iOS Simulator), Flutter và CocoaPods (một số package pub.dev vẫn cần):
 
 ```bash
 brew install --cask flutter
@@ -52,7 +52,7 @@ sudo xcode-select -s /Applications/Xcode.app && xcodebuild -runFirstLaunch
 flutter doctor         # kiểm tra môi trường
 
 make up                # backend phải chạy trước
-make mobile-setup      # flutter pub get + pod install
+make mobile-setup      # flutter pub get (plugin dùng Swift Package Manager)
 make mobile            # mở Simulator và chạy app
 ```
 
