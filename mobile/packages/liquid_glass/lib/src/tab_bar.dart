@@ -34,6 +34,7 @@ class LiquidGlassTabBar extends StatefulWidget {
     required this.onTap,
     this.onAdd,
     this.tint = const Color(0xFF10B981),
+    this.dark = false,
     @visibleForTesting this.forceFallback = false,
   });
 
@@ -47,6 +48,9 @@ class LiquidGlassTabBar extends StatefulWidget {
   /// Nút thêm nhanh; null thì không hiện nút.
   final VoidCallback? onAdd;
   final Color tint;
+
+  /// Vẽ kính ở chế độ tối (dùng khi nền app tối, bất kể cài đặt hệ thống).
+  final bool dark;
   final bool forceFallback;
 
   @override
@@ -101,6 +105,7 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
               'selected': widget.currentIndex,
               'showsAdd': widget.onAdd != null,
               'tint': widget.tint.toARGB32(),
+              'dark': widget.dark,
             },
             creationParamsCodec: const StandardMessageCodec(),
             onPlatformViewCreated: _onCreated,

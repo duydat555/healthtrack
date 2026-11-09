@@ -39,6 +39,7 @@ class LiquidGlassCardGroup extends StatefulWidget {
     required this.cards,
     required this.height,
     this.tint,
+    this.dark = false,
     this.onExpandedChanged,
     @visibleForTesting this.forceFallback = false,
   });
@@ -46,6 +47,9 @@ class LiquidGlassCardGroup extends StatefulWidget {
   final List<GlassCardData> cards;
   final double height;
   final Color? tint;
+
+  /// Vẽ kính ở chế độ tối (dùng khi nền app tối, bất kể cài đặt hệ thống).
+  final bool dark;
 
   /// Gọi khi người dùng mở rộng (id thẻ) hoặc thu lại (null).
   final ValueChanged<String?>? onExpandedChanged;
@@ -90,6 +94,7 @@ class _LiquidGlassCardGroupState extends State<LiquidGlassCardGroup> {
                   },
               ],
               if (widget.tint != null) 'tint': widget.tint!.toARGB32(),
+              'dark': widget.dark,
             },
             creationParamsCodec: const StandardMessageCodec(),
             onPlatformViewCreated: _onCreated,
