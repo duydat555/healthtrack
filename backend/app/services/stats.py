@@ -1,4 +1,5 @@
-"""Thống kê tổng hợp. Ngày được tính theo UTC.
+"""Thống kê tổng hợp. Ranh giới ngày tính theo múi giờ của người dùng: ``tz_offset`` là số
+phút so với UTC (ví dụ 420 cho Việt Nam), mặc định 0 = UTC. Dữ liệu vẫn lưu theo UTC.
 
 Quy ước "giá trị theo ngày" của từng chỉ số:
 - water: tổng ml theo ngày ghi (``logged_at``)
@@ -33,33 +34,43 @@ from app.schemas.stats import (
 WEEK_DAYS = 7
 
 
-def day_start(day: date) -> datetime:
-    return datetime.combine(day, time.min, tzinfo=UTC)
+def day_start(day: date, tz_offset: int = 0) -> datetime:
+    """Thời điểm 00:00 của ``day`` theo giờ địa phương, quy đổi sang UTC."""
+    return datetime.combine(day, time.min, tzinfo=UTC) - timedelta(minutes=tz_offset)
 
 
-def _day_of(value: datetime) -> date:
-    return as_utc(value).date()
+def _day_of(value: datetime, tz_offset: int = 0) -> date:
+    return (as_utc(value) + timedelta(minutes=tz_offset)).date()
+
+
+def local_today(tz_offset: int = 0) -> date:
+    return (datetime.now(UTC) + timedelta(minutes=tz_offset)).date()
 
 
 async def daily_values(
-    db: AsyncSession, user_id: int, metric: str, start: date, end: date
+    db: AsyncSession,
+    user_id: int,
+    metric: str,
+    start: date,
+    end: date,
+    tz_offset: int = 0,
 ) -> dict[date, float]:
     """Giá trị của ``metric`` theo từng ngày trong [start, end]; ngày không có dữ liệu bị bỏ qua."""
-    lo, hi = day_start(start), day_start(end + timedelta(days=1))
+    lo, hi = day_start(start, tz_offset), day_start(end + timedelta(days=1), tz_offset)
     totals: dict[date, float] = defaultdict(float)
     if metric == "water":
         stmt = select(WaterLog.logged_at, WaterLog.amount_ml).where(
             WaterLog.user_id == user_id, WaterLog.logged_at >= lo, WaterLog.logged_at < hi
         )
         for logged_at, amount in (await db.execute(stmt)).all():
-            totals[_day_of(logged_at)] += amount
+            totals[_day_of(logged_at, tz_offset)] += amount
     elif metric == "sleep":
         stmt = select(SleepLog.start_at, SleepLog.end_at).where(
             SleepLog.user_id == user_id, SleepLog.end_at >= lo, SleepLog.end_at < hi
         )
         for start_at, end_at in (await db.execute(stmt)).all():
             minutes = (as_utc(end_at) - as_utc(start_at)).total_seconds() // 60
-            totals[_day_of(end_at)] += minutes
+            totals[_day_of(end_at, tz_offset)] += minutes
     elif metric == "weight":
         stmt = (
             select(WeightLog.logged_at, WeightLog.weight_kg)
@@ -69,7 +80,7 @@ async def daily_values(
             .order_by(WeightLog.logged_at)
         )
         for logged_at, kg in (await db.execute(stmt)).all():
-            totals[_day_of(logged_at)] = kg  # bản ghi sau ghi đè bản ghi trước
+            totals[_day_of(logged_at, tz_offset)] = kg  # bản ghi sau ghi đè bản ghi trước
     return dict(totals)
 
 
@@ -98,8 +109,10 @@ def _progress(goal: Goal, values: dict[date, float], today: date) -> GoalProgres
     )
 
 
-async def build_summary(db: AsyncSession, user_id: int, today: date) -> StatsSummary:
-    lo, hi = day_start(today), day_start(today + timedelta(days=1))
+async def build_summary(
+    db: AsyncSession, user_id: int, today: date, tz_offset: int = 0
+) -> StatsSummary:
+    lo, hi = day_start(today, tz_offset), day_start(today + timedelta(days=1), tz_offset)
 
     latest = (
         await db.execute(
@@ -141,7 +154,7 @@ async def build_summary(db: AsyncSession, user_id: int, today: date) -> StatsSum
     start = today - timedelta(days=WEEK_DAYS - 1)
     cache: dict[str, dict[date, float]] = {}
     for metric in {g.metric for g in goals} | {"water", "sleep"}:
-        cache[metric] = await daily_values(db, user_id, metric, start, today)
+        cache[metric] = await daily_values(db, user_id, metric, start, today, tz_offset)
 
     return StatsSummary(
         date=today,
@@ -157,7 +170,7 @@ TREND_RANGES = {"7d": 7, "30d": 30, "90d": 90}
 
 
 async def build_trend(
-    db: AsyncSession, user_id: int, metric: str, range_: str, end: date
+    db: AsyncSession, user_id: int, metric: str, range_: str, end: date, tz_offset: int = 0
 ) -> StatsTrend:
     """Giá trị theo ngày của ``metric`` cho ``range_`` ngày kết thúc ở ``end``.
 
@@ -166,7 +179,7 @@ async def build_trend(
     """
     days = TREND_RANGES[range_]
     start = end - timedelta(days=days - 1)
-    values = await daily_values(db, user_id, metric, start, end)
+    values = await daily_values(db, user_id, metric, start, end, tz_offset)
     points = [
         TrendPoint(date=d, value=round(values[d], 1) if d in values else None)
         for d in (start + timedelta(days=i) for i in range(days))

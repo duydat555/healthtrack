@@ -73,7 +73,7 @@ curl -X POST /api/v1/weights -H "Authorization: Bearer $TOKEN" \
 
 ## Thống kê tổng quan
 
-`GET /stats/summary?date=YYYY-MM-DD` (mặc định hôm nay, ngày theo UTC) trả:
+`GET /stats/summary?date=YYYY-MM-DD&tz_offset=420` (`date` mặc định là hôm nay theo múi giờ `tz_offset`) trả:
 
 | Trường | Ý nghĩa |
 |---|---|
@@ -87,6 +87,10 @@ Cách tính tiến độ mục tiêu: chu kỳ `daily` lấy trong ngày, `weekl
 
 ## Xu hướng theo thời gian
 
-`GET /stats/trend?metric=weight|water|sleep|steps|calories&range=7d|30d|90d&date=YYYY-MM-DD` trả `points` gồm đúng một điểm `{date, value}` cho mỗi ngày trong `range` kết thúc ở `date` (mặc định hôm nay, UTC), kèm `unit`, `from_date`, `to_date`. Ngày không có dữ liệu có `value` là `null` để biểu đồ phân biệt "không ghi" với "bằng 0". Cách tính giá trị theo ngày giống `summary`: `water` cộng dồn, `sleep` tổng phút theo ngày thức dậy, `weight` lấy bản ghi cuối ngày; `steps`, `calories` chưa có dữ liệu nên toàn `null`.
+`GET /stats/trend?metric=weight|water|sleep|steps|calories&range=7d|30d|90d&date=YYYY-MM-DD&tz_offset=420` trả `points` gồm đúng một điểm `{date, value}` cho mỗi ngày trong `range` kết thúc ở `date` (mặc định hôm nay, UTC), kèm `unit`, `from_date`, `to_date`. Ngày không có dữ liệu có `value` là `null` để biểu đồ phân biệt "không ghi" với "bằng 0". Cách tính giá trị theo ngày giống `summary`: `water` cộng dồn, `sleep` tổng phút theo ngày thức dậy, `weight` lấy bản ghi cuối ngày; `steps`, `calories` chưa có dữ liệu nên toàn `null`.
 
 Truy vấn lọc theo khoảng thời gian trên chỉ mục `(user_id, logged_at)` của từng bảng; giấc ngủ thêm chỉ mục `(user_id, end_at)` (migration `0007`).
+
+## Múi giờ của thống kê
+
+Dữ liệu lưu theo UTC, nhưng ranh giới "ngày" của `/stats/summary` và `/stats/trend` tính theo múi giờ người dùng qua tham số `tz_offset`: số phút lệch so với UTC, từ `-720` đến `840`, mặc định `0` (UTC). Ví dụ Việt Nam là `420`: bản ghi lúc 23:30 UTC ngày 9/3 thuộc ngày 10/3, và `date` bỏ trống nghĩa là hôm nay theo giờ Việt Nam. Giá trị ngoài khoảng trả `422`. Client nên gửi offset hiện tại của thiết bị (ví dụ Dart: `DateTime.now().timeZoneOffset.inMinutes`). `/water/total` vẫn tính theo UTC.
