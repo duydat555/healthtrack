@@ -23,4 +23,4 @@ jobs:
           cache-dependency-path: backend/pyproject.toml
       - run: pip install -e ".[dev]"
       - run: ruff check .
-      - run: pytest -q --cov=app
+      - run: pytest -q --cov=app --cov-report=term-missing
