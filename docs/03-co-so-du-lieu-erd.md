@@ -91,7 +91,8 @@ Mọi truy vấn của API đều lọc theo `user_id` trước, rồi theo th�
 | `users` | `ix_users_email` (unique) | `0001` | đăng nhập, kiểm tra trùng email |
 | `weight_logs` | `ix_weight_logs_user_id_logged_at` | `0002` | danh sách theo khoảng ngày, xu hướng cân nặng |
 | `water_logs` | `ix_water_logs_user_id_logged_at` | `0003` | danh sách, tổng nước theo ngày |
-| `sleep_logs` | `ix_sleep_logs_user_id_start_at` | `0004` | danh sách, thống kê giấc ngủ |
+| `sleep_logs` | `ix_sleep_logs_user_id_start_at` | `0004` | danh sách theo giờ đi ngủ |
+| `sleep_logs` | `ix_sleep_logs_user_id_end_at` | `0007` | thống kê theo ngày thức dậy (`/stats/*`) |
 | `medications` | `ix_medications_user_id` | `0005` | danh sách thuốc của người dùng |
 | `medication_logs` | `ix_medication_logs_medication_id_taken_at` | `0005` | nhật ký uống thuốc |
 | `goals` | `uq_goals_user_metric_active` (unique một phần, `WHERE is_active`) | `0006` | mỗi chỉ số một mục tiêu đang hoạt động |
