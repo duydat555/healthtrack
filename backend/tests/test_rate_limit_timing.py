@@ -1,4 +1,5 @@
 import logging
+import time
 
 import pytest
 from httpx import AsyncClient
@@ -57,3 +58,19 @@ async def test_slow_request_logs_warning(
     assert any(
         r.levelno == logging.WARNING and "/api/v1/health" in r.message for r in caplog.records
     )
+
+
+def test_expired_ips_are_purged_so_memory_does_not_grow_forever(monkeypatch) -> None:
+    from app.core import rate_limit
+
+    monkeypatch.setattr(rate_limit, "MAX_TRACKED_KEYS", 5)
+    limiter = rate_limit.RateLimiter(max_requests=3, window_seconds=0)  # hết hạn ngay
+    for i in range(50):
+        assert limiter.hit(f"1.1.1.{i}") == 0
+    assert len(limiter._hits) <= 6  # không còn tích lũy 50 mục
+    # IP đang bị chặn (còn trong cửa sổ) không bị dọn nhầm
+    live = rate_limit.RateLimiter(max_requests=1, window_seconds=60)
+    for i in range(20):
+        live.hit(f"2.2.2.{i}")
+    live._purge(time.monotonic())
+    assert len(live._hits) == 20

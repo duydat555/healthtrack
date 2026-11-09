@@ -10,6 +10,9 @@ from fastapi import HTTPException, Request, status
 
 from app.core.config import settings
 
+# Quá số IP này thì dọn các mục đã hết hạn, để bộ nhớ không tăng mãi theo số IP từng gọi
+MAX_TRACKED_KEYS = 10_000
+
 
 class RateLimiter:
     def __init__(self, max_requests: int, window_seconds: int) -> None:
@@ -20,6 +23,8 @@ class RateLimiter:
     def hit(self, key: str) -> int:
         """Ghi một lượt gọi; trả 0 nếu được phép, ngược lại trả số giây cần chờ."""
         now = time.monotonic()
+        if len(self._hits) > MAX_TRACKED_KEYS:
+            self._purge(now)
         hits = self._hits[key]
         while hits and now - hits[0] >= self.window_seconds:
             hits.popleft()
@@ -27,6 +32,12 @@ class RateLimiter:
             return max(1, int(self.window_seconds - (now - hits[0])) + 1)
         hits.append(now)
         return 0
+
+    def _purge(self, now: float) -> None:
+        """Xóa các IP không còn lượt gọi nào trong cửa sổ thời gian."""
+        expired = [k for k, h in self._hits.items() if not h or now - h[-1] >= self.window_seconds]
+        for k in expired:
+            del self._hits[k]
 
     def reset(self) -> None:
         self._hits.clear()
