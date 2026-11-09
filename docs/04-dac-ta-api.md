@@ -15,7 +15,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Mọi e
 | Thuốc | `GET/POST /medications`, `PATCH/DELETE /medications/{id}`, `POST/GET /medications/{id}/logs` | Đã có |
 | Bước chân | `GET/POST /steps`, `PATCH/DELETE /steps/{id}` | Phase 2 |
 | Bữa ăn | `GET/POST /meals`, `PATCH/DELETE /meals/{id}` | Phase 2 |
-| Mục tiêu | `GET/POST /goals`, `PATCH/DELETE /goals/{id}` | Phase 2 |
+| Mục tiêu | `GET/POST /goals`, `PATCH/DELETE /goals/{id}`; `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly`; mỗi chỉ số tối đa một mục tiêu đang hoạt động (trùng trả 409) | Đã có |
 | Thống kê | `GET /stats/summary`, `GET /stats/trend?metric=&range=` | Phase 4 |
 | Nhắc nhở | `GET/POST /reminders`, `PATCH/DELETE /reminders/{id}` | Phase 4 |
 
