@@ -16,8 +16,9 @@ class HealthTrackApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'HealthTrack',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
+      theme: AppTheme.dark,
       darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.dark,
       routerConfig: appRouter,
     );
   }

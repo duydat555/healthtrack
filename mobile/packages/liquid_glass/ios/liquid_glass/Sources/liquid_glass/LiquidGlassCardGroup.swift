@@ -75,11 +75,10 @@ struct LiquidGlassCardGroupView: View {
                     Text(card.detail).font(.body).foregroundStyle(.primary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, 6)
-                    Spacer(minLength: 0)
                 }
             }
             .padding(16)
-            .frame(maxWidth: .infinity, maxHeight: isExpanded ? .infinity : nil, alignment: .topLeading)
+            .frame(maxWidth: .infinity, maxHeight: isExpanded ? 260 : nil, alignment: .topLeading)
         }
         .buttonStyle(.plain)
         .modifier(GlassBackground(tint: model.tint, shape: .rect(cornerRadius: 24), id: card.id, space: glassSpace))
@@ -137,7 +136,8 @@ final class LiquidGlassCardGroupFactory: NSObject, FlutterPlatformViewFactory {
         model.expandedId = params["expandedId"] as? String
         let channel = FlutterMethodChannel(name: "\(Self.viewType)/\(viewId)", binaryMessenger: messenger)
         model.onExpand = { channel.invokeMethod("onExpand", arguments: $0) }
-        return HostedPlatformView(frame: frame, rootView: LiquidGlassCardGroupView(model: model))
+        return HostedPlatformView(
+            frame: frame, rootView: LiquidGlassCardGroupView(model: model), dark: params["dark"] as? Bool ?? false)
     }
 
     func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {

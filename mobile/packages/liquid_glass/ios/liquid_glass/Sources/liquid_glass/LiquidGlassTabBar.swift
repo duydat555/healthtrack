@@ -121,7 +121,8 @@ final class LiquidGlassTabBarFactory: NSObject, FlutterPlatformViewFactory {
                 result(FlutterMethodNotImplemented)
             }
         }
-        return HostedPlatformView(frame: frame, rootView: LiquidGlassTabBarView(model: model))
+        return HostedPlatformView(
+            frame: frame, rootView: LiquidGlassTabBarView(model: model), dark: params["dark"] as? Bool ?? false)
     }
 
     func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
