@@ -66,3 +66,23 @@ Cách dùng trong tính năng mới: tạo `crud/<tên>.py` với `x = CRUDBase(
 
 ## Bảo mật
 Mật khẩu băm bcrypt; JWT access token (30 phút) + refresh token (7 ngày), lưu trong Keychain qua `flutter_secure_storage`; mọi endpoint dữ liệu yêu cầu đăng nhập và chỉ trả dữ liệu của chính người dùng đó.
+
+### Checklist bảo mật JWT và CORS (issue #36)
+Mỗi dòng đều có test trong `backend/tests/test_security.py`.
+
+| Hạng mục | Trạng thái |
+|---|---|
+| Secret lấy từ biến môi trường `JWT_SECRET`, không hard-code trong code | Đạt |
+| Production từ chối khởi động nếu secret là giá trị mặc định hoặc ngắn hơn 32 ký tự | Đạt |
+| Chỉ chấp nhận đúng thuật toán đã cấu hình (chặn đổi thuật toán, `alg: none`) | Đạt |
+| Bắt buộc có `exp` và `sub`; token hết hạn bị từ chối | Đạt |
+| Chỉ nhận token loại `access` (không nhận refresh token ở endpoint thường) | Đạt |
+| Claim bổ sung (`extra`) không ghi đè được `sub`, `type`, `exp` | Đạt |
+| Mật khẩu băm bcrypt có salt; hỗ trợ mật khẩu dài hơn 72 byte (SHA-256 trước bcrypt) | Đạt |
+| Hash sai định dạng trong CSDL trả về `False`, không làm lỗi 500 | Đạt |
+| CORS chỉ cho origin trong `CORS_ORIGINS`; production cấm `*` | Đạt |
+| CORS chỉ mở các method và header cần dùng (`Authorization`, `Content-Type`) | Đạt |
+| Thu hồi token (refresh token xoay vòng, danh sách chặn) | Chưa, làm cùng #34 (đăng nhập, refresh) |
+| Giới hạn số lần đăng nhập sai (rate limit) | Chưa, đề xuất thêm ở Phase 5 |
+
+Ghi chú: app iOS gốc không phải trình duyệt nên CORS không áp dụng cho app; CORS phục vụ Swagger UI và nếu sau này có bản web.

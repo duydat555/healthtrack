@@ -2,7 +2,11 @@
 
 from functools import lru_cache
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+DEFAULT_JWT_SECRET = "change-me-in-production"
+MIN_JWT_SECRET_LENGTH = 32
 
 
 class Settings(BaseSettings):
@@ -14,13 +18,26 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = "postgresql+asyncpg://healthtrack:healthtrack@db:5432/healthtrack"
 
-    JWT_SECRET: str = "change-me-in-production"
+    JWT_SECRET: str = DEFAULT_JWT_SECRET
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # Danh sách origin được gọi API, phân tách bằng dấu phẩy
     CORS_ORIGINS: str = "http://localhost:8080"
+
+    @model_validator(mode="after")
+    def _check_production_security(self) -> "Settings":
+        """Môi trường production không được chạy với cấu hình bảo mật mặc định."""
+        if self.ENV != "production":
+            return self
+        if self.JWT_SECRET == DEFAULT_JWT_SECRET or len(self.JWT_SECRET) < MIN_JWT_SECRET_LENGTH:
+            raise ValueError(
+                f"JWT_SECRET phải riêng và dài từ {MIN_JWT_SECRET_LENGTH} ký tự ở production"
+            )
+        if "*" in self.cors_origins_list:
+            raise ValueError("CORS_ORIGINS không được dùng '*' ở production")
+        return self
 
     @property
     def cors_origins_list(self) -> list[str]:
