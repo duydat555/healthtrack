@@ -13,6 +13,7 @@ abstract final class AppColors {
 
   // Màu nhấn của từng chỉ số (cũng là màu của vòng Activity Rings)
   static const steps = Color(0xFFFA114F); // bước chân
+  static const meds = Color(0xFFFA114F); // thuốc (cùng màu vòng thứ nhất)
   static const sleep = Color(0xFFA3F73B); // giấc ngủ
   static const water = Color(0xFF1EEAEF); // nước uống
   static const weight = Color(0xFFBF5AF2); // cân nặng

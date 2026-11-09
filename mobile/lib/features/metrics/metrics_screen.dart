@@ -1,42 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_glass/liquid_glass.dart';
 
+import '../../core/api_client.dart';
+import '../../core/format.dart';
 import '../../core/theme.dart';
+import '../health/health_providers.dart';
 
-/// Màn Chỉ số. Tạm dùng nhóm thẻ Liquid Glass (có hiệu ứng morph) với dữ liệu mẫu;
-/// sẽ thay bằng danh sách chỉ số thật ở Phase 3.
-class MetricsScreen extends StatelessWidget {
+/// Màn Chỉ số: các thẻ Liquid Glass (chạm để mở rộng, hiệu ứng morph) với số liệu thật.
+class MetricsScreen extends ConsumerWidget {
   const MetricsScreen({super.key});
 
-  static const _cards = [
-    GlassCardData(
-      id: 'water',
-      title: 'Nước uống',
-      subtitle: '1,2 / 2 lít hôm nay',
-      detail: 'Bạn đã uống 60% mục tiêu. Uống thêm 800 ml trước 21:00 để đạt mục tiêu ngày.',
-      symbol: 'drop.fill',
-      icon: Icons.water_drop,
-    ),
-    GlassCardData(
-      id: 'sleep',
-      title: 'Giấc ngủ',
-      subtitle: '7 giờ 20 phút đêm qua',
-      detail: 'Ngủ đủ giấc 3 đêm liên tiếp. Giờ đi ngủ trung bình 23:10.',
-      symbol: 'bed.double.fill',
-      icon: Icons.bedtime,
-    ),
-    GlassCardData(
-      id: 'steps',
-      title: 'Bước chân',
-      subtitle: '6.480 bước',
-      detail: 'Còn 3.520 bước nữa là đạt 10.000 bước. Một vòng đi bộ 30 phút là đủ.',
-      symbol: 'figure.walk',
-      icon: Icons.directions_walk,
-    ),
-  ];
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final body = ref.watch(bodyDataProvider);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -56,12 +33,88 @@ class MetricsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: LayoutBuilder(
-                  builder: (context, c) => LiquidGlassCardGroup(
-                    cards: _cards,
-                    height: c.maxHeight,
-                    dark: true,
+                child: body.when(
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(color: AppColors.brand),
                   ),
+                  error: (e, _) => Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          apiErrorMessage(e),
+                          style: const TextStyle(color: AppColors.inkSoft),
+                        ),
+                        TextButton(
+                          onPressed: () => ref.invalidate(bodyDataProvider),
+                          child: const Text(
+                            'Thử lại',
+                            style: TextStyle(color: AppColors.brand),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  data: (b) {
+                    final w = b.weights.firstOrNull;
+                    final s = b.sleeps.firstOrNull;
+                    final avgSleep = b.sleeps.isEmpty
+                        ? null
+                        : b.sleeps.fold<int>(
+                                0,
+                                (a, e) => a + e.durationMinutes,
+                              ) ~/
+                              b.sleeps.length;
+                    final cards = [
+                      GlassCardData(
+                        id: 'water',
+                        title: 'Nước uống',
+                        subtitle:
+                            '${formatNumber(b.waterByDay.last / 1000)} lít hôm nay',
+                        detail:
+                            'Trung bình ${formatNumber(b.waterByDay.fold<int>(0, (a, e) => a + e) / 7000)} lít mỗi ngày trong 7 ngày qua.',
+                        symbol: 'drop.fill',
+                        icon: Icons.water_drop,
+                      ),
+                      GlassCardData(
+                        id: 'sleep',
+                        title: 'Giấc ngủ',
+                        subtitle: s == null
+                            ? 'Chưa có dữ liệu'
+                            : formatDuration(s.durationMinutes),
+                        detail: avgSleep == null
+                            ? 'Ghi giấc ngủ bằng nút + để xem thống kê.'
+                            : 'Trung bình ${formatDuration(avgSleep)} mỗi đêm qua ${b.sleeps.length} lần ghi gần nhất.',
+                        symbol: 'bed.double.fill',
+                        icon: Icons.bedtime,
+                      ),
+                      GlassCardData(
+                        id: 'weight',
+                        title: 'Cân nặng',
+                        subtitle: w == null
+                            ? 'Chưa có dữ liệu'
+                            : '${formatNumber(w.weightKg)} kg',
+                        detail: w == null
+                            ? 'Ghi cân nặng bằng nút + để theo dõi xu hướng.'
+                            : w.bmi == null
+                            ? 'Thêm chiều cao trong Hồ sơ để tính BMI.'
+                            : 'BMI ${formatNumber(w.bmi!)}: ${bmiLabel(w.bmi!)}.',
+                        symbol: 'scalemass.fill',
+                        icon: Icons.monitor_weight,
+                      ),
+                    ];
+                    return LayoutBuilder(
+                      // Nội dung thẻ do native vẽ nên dựng lại view khi số liệu đổi
+                      key: ValueKey(
+                        cards.map((c) => '${c.subtitle}|${c.detail}').join('#'),
+                      ),
+                      builder: (context, c) => LiquidGlassCardGroup(
+                        cards: cards,
+                        height: c.maxHeight,
+                        dark: true,
+                      ),
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: LiquidGlassTabBar.height + 24),

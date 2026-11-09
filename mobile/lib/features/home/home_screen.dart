@@ -1,90 +1,181 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_glass/liquid_glass.dart';
 
+import '../../core/api_client.dart';
+import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/activity_rings.dart';
 import '../../widgets/metric_card.dart';
 import '../../widgets/section_header.dart';
+import '../auth/auth_controller.dart';
+import '../health/health_providers.dart';
 
-/// Màn Tổng quan, bố cục theo app Fitness của Apple.
-/// Số liệu bên dưới là DỮ LIỆU MẪU để dựng giao diện; sẽ thay bằng API ở Phase 4.
-class HomeScreen extends StatelessWidget {
+/// Màn Tổng quan, bố cục theo app Fitness của Apple, dữ liệu lấy từ backend.
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  // Dữ liệu mẫu hôm nay: (đã đạt, mục tiêu)
-  static const _steps = (6480.0, 10000.0);
-  static const _sleep = (7.3, 8.0);
-  static const _water = (1.2, 2.0);
-
-  static const _weekSteps = [
-    8200.0,
-    10400.0,
-    6100.0,
-    9800.0,
-    11200.0,
-    7300.0,
-    6480.0,
-  ];
-  static const _weekDays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authProvider).value;
+    final summary = ref.watch(todaySummaryProvider);
+    final body = ref.watch(bodyDataProvider);
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
         bottom: false,
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            12,
-            16,
-            LiquidGlassTabBar.height + 48,
+        child: RefreshIndicator(
+          color: AppColors.brand,
+          onRefresh: () async {
+            refreshHealthData(ref);
+            await ref
+                .read(todaySummaryProvider.future)
+                .catchError((_) => _empty);
+          },
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(
+              16,
+              12,
+              16,
+              LiquidGlassTabBar.height + 48,
+            ),
+            children: [
+              Text(
+                formatHeaderDate(DateTime.now()),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.inkSoft,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Tổng quan',
+                      style: TextStyle(
+                        fontSize: 34,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                  ),
+                  if (user != null)
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: AppColors.cardHigh,
+                      child: Text(
+                        user.initial,
+                        style: const TextStyle(
+                          color: AppColors.ink,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SectionHeader('Hôm nay'),
+              summary.when(
+                data: (s) => _RingsCard(summary: s),
+                loading: () => const _Loading(height: 172),
+                error: (e, _) => _ErrorCard(
+                  message: apiErrorMessage(e),
+                  onRetry: () => ref.invalidate(todaySummaryProvider),
+                ),
+              ),
+              const SectionHeader('Chỉ số cơ thể'),
+              body.when(
+                data: (b) => _MetricGrid(data: b),
+                loading: () => const _Loading(height: 220),
+                error: (e, _) => _ErrorCard(
+                  message: apiErrorMessage(e),
+                  onRetry: () => ref.invalidate(bodyDataProvider),
+                ),
+              ),
+              const SectionHeader('7 ngày qua'),
+              body.when(
+                data: (b) => _WaterWeekChart(values: b.waterByDay),
+                loading: () => const _Loading(height: 220),
+                error: (_, _) => const SizedBox.shrink(),
+              ),
+            ],
           ),
-          children: [
-            const Text(
-              'THỨ HAI, 9 THÁNG 11',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.inkSoft,
-              ),
-            ),
-            const SizedBox(height: 2),
-            const Text(
-              'Tổng quan',
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.w800,
-                color: AppColors.ink,
-              ),
-            ),
-            const SectionHeader('Hôm nay'),
-            _RingsCard(steps: _steps, sleep: _sleep, water: _water),
-            const SectionHeader('Chỉ số cơ thể'),
-            const _MetricGrid(),
-            const SectionHeader('7 ngày qua'),
-            const _WeekChart(values: _weekSteps, labels: _weekDays),
-          ],
         ),
       ),
     );
   }
 }
 
-class _RingsCard extends StatelessWidget {
-  const _RingsCard({
-    required this.steps,
-    required this.sleep,
-    required this.water,
-  });
+const _empty = TodaySummary(
+  waterMl: 0,
+  waterGoalMl: defaultWaterGoalMl,
+  sleepMinutes: null,
+  sleepGoalMinutes: defaultSleepGoalMinutes,
+  medsTaken: 0,
+  medsTotal: 0,
+);
 
-  final (double, double) steps;
-  final (double, double) sleep;
-  final (double, double) water;
+class _Loading extends StatelessWidget {
+  const _Loading({required this.height});
+
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    height: height,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: AppColors.card,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+    ),
+    child: const CircularProgressIndicator(color: AppColors.brand),
+  );
+}
+
+class _ErrorCard extends StatelessWidget {
+  const _ErrorCard({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(18),
+    decoration: BoxDecoration(
+      color: AppColors.card,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+    ),
+    child: Column(
+      children: [
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
+        ),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: onRetry,
+          child: const Text(
+            'Thử lại',
+            style: TextStyle(color: AppColors.brand, fontSize: 16),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _RingsCard extends StatelessWidget {
+  const _RingsCard({required this.summary});
+
+  final TodaySummary summary;
 
   @override
   Widget build(BuildContext context) {
-    double p((double, double) v) => v.$1 / v.$2;
+    final s = summary;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.card,
@@ -98,9 +189,9 @@ class _RingsCard extends StatelessWidget {
               size: 124,
               strokeWidth: 16,
               rings: [
-                RingData(color: AppColors.steps, progress: p(steps)),
-                RingData(color: AppColors.sleep, progress: p(sleep)),
-                RingData(color: AppColors.water, progress: p(water)),
+                RingData(color: AppColors.water, progress: s.waterProgress),
+                RingData(color: AppColors.sleep, progress: s.sleepProgress),
+                RingData(color: AppColors.meds, progress: s.medsProgress),
               ],
             ),
             const SizedBox(width: 22),
@@ -109,16 +200,27 @@ class _RingsCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _Legend(
-                    'Bước chân',
-                    '6.480',
-                    '/10.000',
-                    'BƯỚC',
-                    AppColors.steps,
+                    'Nước uống',
+                    formatNumber(s.waterMl / 1000),
+                    '/${formatNumber(s.waterGoalMl / 1000)} LÍT',
+                    AppColors.water,
                   ),
                   const SizedBox(height: 12),
-                  _Legend('Giấc ngủ', '7,3', '/8', 'GIỜ', AppColors.sleep),
+                  _Legend(
+                    'Giấc ngủ',
+                    s.sleepMinutes == null
+                        ? '--'
+                        : formatNumber(s.sleepMinutes! / 60),
+                    '/${formatNumber(s.sleepGoalMinutes / 60)} GIỜ',
+                    AppColors.sleep,
+                  ),
                   const SizedBox(height: 12),
-                  _Legend('Nước uống', '1,2', '/2', 'LÍT', AppColors.water),
+                  _Legend(
+                    'Thuốc',
+                    '${s.medsTaken}',
+                    '/${s.medsTotal} LIỀU',
+                    AppColors.meds,
+                  ),
                 ],
               ),
             ),
@@ -130,12 +232,11 @@ class _RingsCard extends StatelessWidget {
 }
 
 class _Legend extends StatelessWidget {
-  const _Legend(this.label, this.value, this.goal, this.unit, this.color);
+  const _Legend(this.label, this.value, this.goal, this.color);
 
   final String label;
   final String value;
   final String goal;
-  final String unit;
   final Color color;
 
   @override
@@ -163,7 +264,7 @@ class _Legend extends StatelessWidget {
                 ),
               ),
               TextSpan(
-                text: '$goal $unit',
+                text: goal,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -179,46 +280,71 @@ class _Legend extends StatelessWidget {
 }
 
 class _MetricGrid extends StatelessWidget {
-  const _MetricGrid();
+  const _MetricGrid({required this.data});
+
+  final BodyData data;
+
+  List<double> _trend(Iterable<double> newestFirst) =>
+      newestFirst.toList().reversed.take(7).toList();
 
   @override
   Widget build(BuildContext context) {
-    const cards = [
+    final weights = data.weights;
+    final sleeps = data.sleeps;
+    final latestW = weights.firstOrNull;
+    final prevW = weights.length > 1 ? weights[1] : null;
+    final bmi = weights.map((w) => w.bmi).whereType<double>().firstOrNull;
+    final latestSleep = sleeps.firstOrNull;
+    final today = data.waterByDay.last;
+
+    String weightCaption() {
+      if (latestW == null) return 'Chưa có dữ liệu, bấm + để ghi';
+      if (prevW == null) return 'Lần ghi đầu tiên';
+      final d = latestW.weightKg - prevW.weightKg;
+      if (d.abs() < 0.05) return 'Không đổi so với lần trước';
+      return '${d < 0 ? 'Giảm' : 'Tăng'} ${formatNumber(d.abs())} kg so với lần trước';
+    }
+
+    final cards = [
       MetricCard(
         title: 'Cân nặng',
         icon: Icons.monitor_weight,
         color: AppColors.weight,
-        value: '68,4',
+        value: latestW == null ? '--' : formatNumber(latestW.weightKg),
         unit: 'kg',
-        caption: 'Giảm 0,6 kg tuần này',
-        trend: [69.4, 69.2, 69.0, 68.9, 68.7, 68.6, 68.4],
+        caption: weightCaption(),
+        trend: _trend(weights.map((w) => w.weightKg)),
       ),
       MetricCard(
         title: 'BMI',
         icon: Icons.accessibility_new,
         color: AppColors.medicine,
-        value: '22,1',
+        value: bmi == null ? '--' : formatNumber(bmi),
         unit: '',
-        caption: 'Bình thường',
-        trend: [22.4, 22.4, 22.3, 22.3, 22.2, 22.2, 22.1],
+        caption: bmi == null ? 'Cần chiều cao trong Hồ sơ' : bmiLabel(bmi),
+        trend: _trend(weights.map((w) => w.bmi).whereType<double>()),
       ),
       MetricCard(
-        title: 'Bữa ăn',
-        icon: Icons.restaurant,
-        color: AppColors.meal,
-        value: '1.850',
-        unit: 'kcal',
-        caption: 'Còn 350 kcal',
-        trend: [2100, 1900, 2050, 1700, 2200, 1950, 1850],
-      ),
-      MetricCard(
-        title: 'Thuốc',
-        icon: Icons.medication,
+        title: 'Giấc ngủ',
+        icon: Icons.bedtime,
         color: AppColors.sleep,
-        value: '2/3',
-        unit: 'liều',
-        caption: 'Liều kế tiếp 21:00',
-        trend: [3, 3, 2, 3, 3, 3, 2],
+        value: latestSleep == null
+            ? '--'
+            : formatNumber(latestSleep.durationMinutes / 60),
+        unit: 'giờ',
+        caption: latestSleep == null
+            ? 'Chưa có dữ liệu'
+            : 'Dậy lúc ${formatTime(latestSleep.endAt)}',
+        trend: _trend(sleeps.map((s) => s.durationMinutes / 60)),
+      ),
+      MetricCard(
+        title: 'Nước uống',
+        icon: Icons.water_drop,
+        color: AppColors.water,
+        value: formatNumber(today / 1000),
+        unit: 'lít',
+        caption: 'Hôm nay',
+        trend: [for (final v in data.waterByDay) v / 1000],
       ),
     ];
     return LayoutBuilder(
@@ -234,15 +360,20 @@ class _MetricGrid extends StatelessWidget {
   }
 }
 
-class _WeekChart extends StatelessWidget {
-  const _WeekChart({required this.values, required this.labels});
+class _WaterWeekChart extends StatelessWidget {
+  const _WaterWeekChart({required this.values});
 
-  final List<double> values;
-  final List<String> labels;
+  final List<int> values;
 
   @override
   Widget build(BuildContext context) {
-    final max = values.reduce((a, b) => a > b ? a : b);
+    final max = values.fold<int>(1, (a, b) => b > a ? b : a);
+    final total = values.fold<int>(0, (a, b) => a + b);
+    final now = DateTime.now();
+    // Ngày của cột i: hôm nay là cột cuối
+    String label(int i) =>
+        weekdayShort[now.subtract(Duration(days: 6 - i)).weekday - 1];
+
     return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.card,
@@ -254,27 +385,27 @@ class _WeekChart extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Bước chân',
+              'Nước uống',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: AppColors.steps,
+                color: AppColors.water,
               ),
             ),
             const SizedBox(height: 2),
-            const Text.rich(
+            Text.rich(
               TextSpan(
                 children: [
                   TextSpan(
-                    text: '8.511',
-                    style: TextStyle(
+                    text: formatNumber(total / 7 / 1000),
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                       color: AppColors.ink,
                     ),
                   ),
-                  TextSpan(
-                    text: ' bước/ngày',
+                  const TextSpan(
+                    text: ' lít/ngày',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -304,15 +435,15 @@ class _WeekChart extends StatelessWidget {
                               width: 18,
                               decoration: BoxDecoration(
                                 color: i == values.length - 1
-                                    ? AppColors.steps
-                                    : AppColors.steps.withValues(alpha: 0.45),
+                                    ? AppColors.water
+                                    : AppColors.water.withValues(alpha: 0.45),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            labels[i],
+                            label(i),
                             style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.inkSoft,
