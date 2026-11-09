@@ -1,0 +1,1780 @@
+[
+ {
+  "key": "E0",
+  "type": "epic",
+  "phase": 0,
+  "area": "pm",
+  "title": "Epic: Khởi tạo & Lập kế hoạch",
+  "goal": "Hoàn thành bộ tài liệu quản trị dự án nền tảng: Charter, WBS, rủi ro, board GitHub Projects."
+ },
+ {
+  "key": "E1",
+  "type": "epic",
+  "phase": 0,
+  "area": "devops",
+  "title": "Epic: Hạ tầng, Docker & CI/CD",
+  "goal": "Môi trường chạy nhanh bằng Docker cho mọi thành viên và pipeline CI trên mỗi PR."
+ },
+ {
+  "key": "E2",
+  "type": "epic",
+  "phase": 1,
+  "area": "backend",
+  "title": "Epic: Xác thực & Hồ sơ người dùng",
+  "goal": "Đăng ký, đăng nhập JWT, refresh token và hồ sơ cá nhân."
+ },
+ {
+  "key": "E3",
+  "type": "epic",
+  "phase": 2,
+  "area": "backend",
+  "title": "Epic: API Chỉ số sức khỏe",
+  "goal": "CRUD cân nặng/BMI, nước uống, giấc ngủ, bước chân, bữa ăn."
+ },
+ {
+  "key": "E4",
+  "type": "epic",
+  "phase": 2,
+  "area": "backend",
+  "title": "Epic: API Mục tiêu & Thuốc",
+  "goal": "Mục tiêu theo chỉ số và quản lý thuốc, nhật ký uống thuốc."
+ },
+ {
+  "key": "E5",
+  "type": "epic",
+  "phase": 3,
+  "area": "mobile",
+  "title": "Epic: Design System & Điều hướng (Flutter)",
+  "goal": "Theme, bộ widget nền, điều hướng tab theo phong cách iOS 26."
+ },
+ {
+  "key": "E6",
+  "type": "epic",
+  "phase": 3,
+  "area": "mobile",
+  "title": "Epic: Xác thực & Ghi chỉ số (Flutter)",
+  "goal": "Màn hình đăng ký/đăng nhập và các form ghi chỉ số, nối API thật."
+ },
+ {
+  "key": "E7",
+  "type": "epic",
+  "phase": 4,
+  "area": "mobile",
+  "title": "Epic: Dashboard & Biểu đồ",
+  "goal": "Trang chủ tổng quan và biểu đồ xu hướng bằng fl_chart."
+ },
+ {
+  "key": "E8",
+  "type": "epic",
+  "phase": 4,
+  "area": "backend",
+  "title": "Epic: API Thống kê",
+  "goal": "Tổng hợp số liệu và xu hướng theo khoảng thời gian."
+ },
+ {
+  "key": "E9",
+  "type": "epic",
+  "phase": 4,
+  "area": "mobile",
+  "title": "Epic: Nhắc nhở & Thông báo",
+  "goal": "Người dùng đặt lịch nhắc, app gửi thông báo cục bộ đúng giờ."
+ },
+ {
+  "key": "E10",
+  "type": "epic",
+  "phase": 4,
+  "area": "pm",
+  "title": "Epic: Xử lý Change Request",
+  "goal": "Quy trình kiểm soát thay đổi phạm vi với bằng chứng CR được duyệt."
+ },
+ {
+  "key": "E11",
+  "type": "epic",
+  "phase": 5,
+  "area": "qa",
+  "title": "Epic: Kiểm thử tự động & Chất lượng",
+  "goal": "Độ phủ test, E2E, kiểm thử hiệu năng và bảo mật."
+ },
+ {
+  "key": "E12",
+  "type": "epic",
+  "phase": 5,
+  "area": "devops",
+  "title": "Epic: Triển khai Cloud & Bảo mật",
+  "goal": "Chạy thật trên HTTPS, secrets an toàn, giám sát cơ bản."
+ },
+ {
+  "key": "E13",
+  "type": "epic",
+  "phase": 6,
+  "area": "pm",
+  "title": "Epic: Nghiệm thu UAT & Đóng dự án",
+  "goal": "UAT với stakeholder, báo cáo tổng kết và gói bằng chứng."
+ },
+ {
+  "key": "E14",
+  "type": "epic",
+  "phase": 3,
+  "area": "ios",
+  "title": "Epic: Liquid Glass (Swift)",
+  "goal": "Hiệu ứng Liquid Glass thật bằng SwiftUI glassEffect, nhúng vào Flutter qua platform view, có bản dự phòng."
+ },
+ {
+  "key": "T1",
+  "type": "task",
+  "epic": "E0",
+  "phase": 0,
+  "owner": "dat",
+  "area": "pm",
+  "title": "[PM] Soạn Điều lệ dự án (Project Charter) 13 mục",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là PM, tôi muốn có Charter chuẩn để cả nhóm và giảng viên thống nhất mục tiêu, phạm vi.",
+  "ac": [
+   "Đủ 13 mục theo mẫu",
+   "Có mục tiêu SMART, vai trò, rủi ro",
+   "Cập nhật docs/01-dieu-le-du-an.md",
+   "Có chữ ký PO và giảng viên (bản PDF)"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T2",
+  "type": "task",
+  "epic": "E0",
+  "phase": 0,
+  "owner": "dat",
+  "area": "pm",
+  "title": "[PM] Xác nhận stakeholder và yêu cầu với CLB sinh viên VKU",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là PM, tôi muốn làm việc với stakeholder thật để có người nghiệm thu.",
+  "ac": [
+   "Có tên, liên hệ stakeholder trong Charter",
+   "Có biên bản/email xác nhận yêu cầu chính",
+   "Lưu bằng chứng vào docs/"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T3",
+  "type": "task",
+  "epic": "E0",
+  "phase": 0,
+  "owner": "dat",
+  "area": "pm",
+  "title": "[PM] Thiết lập GitHub Projects board và quy trình Kanban",
+  "sp": 2,
+  "prio": "P0",
+  "story": "Là PM, tôi muốn board theo dõi công việc để cả nhóm thấy tiến độ.",
+  "ac": [
+   "Board có 5 cột Backlog/Ready/In Progress/In Review/Done",
+   "Tất cả issue đã vào board",
+   "Bật biểu đồ Burndown/Insights"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T4",
+  "type": "task",
+  "epic": "E0",
+  "phase": 0,
+  "owner": "dat",
+  "area": "pm",
+  "title": "[PM] Bật branch protection cho main và CODEOWNERS",
+  "sp": 1,
+  "prio": "P0",
+  "story": "Là Tech Lead, tôi muốn main được bảo vệ để mọi code qua review.",
+  "ac": [
+   "Bắt buộc PR và 1 approval",
+   "Bắt buộc CI xanh",
+   "Cấm push thẳng vào main"
+  ],
+  "deps": [
+   "Khung Docker & CI hoàn tất"
+  ],
+  "done": false
+ },
+ {
+  "key": "T5",
+  "type": "task",
+  "epic": "E0",
+  "phase": 0,
+  "owner": "dat",
+  "area": "pm",
+  "title": "[PM] Lập WBS (100% Rule) và Từ điển WBS",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là PM, tôi muốn WBS đầy đủ để kiểm soát phạm vi.",
+  "ac": [
+   "Cây WBS tuân thủ 100% Rule",
+   "Từ điển WBS cho các gói 1-2 tuần",
+   "Cập nhật docs/06-wbs-va-tu-dien-wbs.md"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T6",
+  "type": "task",
+  "epic": "E0",
+  "phase": 0,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Lập bảng rủi ro ban đầu (Risk Register v1)",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là QA, tôi muốn nhận diện rủi ro sớm để có biện pháp phòng ngừa.",
+  "ac": [
+   "Ít nhất 8 rủi ro có xác suất, tác động, biện pháp",
+   "Mỗi rủi ro có chủ sở hữu",
+   "Cập nhật docs/08-bang-rui-ro.md và bản .xlsx"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T7",
+  "type": "task",
+  "epic": "E0",
+  "phase": 0,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Soạn kế hoạch kiểm thử và ma trận Test Matrix",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là QA, tôi muốn ma trận kiểm thử để mọi chức năng đều có cách kiểm.",
+  "ac": [
+   "Ma trận ánh xạ chức năng, AC, loại test",
+   "Cập nhật docs/09-ke-hoach-kiem-thu.md"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T8",
+  "type": "task",
+  "epic": "E0",
+  "phase": 0,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Soạn Definition of Done và mẫu biên bản Retro",
+  "sp": 2,
+  "prio": "P1",
+  "story": "Là QA, tôi muốn DoD rõ ràng để quyết định task đã xong.",
+  "ac": [
+   "DoD đủ các tiêu chí kỹ thuật và quy trình",
+   "Có mẫu họp Sprint và Retro 4Ls trong docs/bien-ban/"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T9",
+  "type": "task",
+  "epic": "E0",
+  "phase": 0,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] Thiết kế ERD ban đầu cho CSDL",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là Backend, tôi muốn ERD rõ ràng trước khi code model.",
+  "ac": [
+   "ERD gồm users, các bảng chỉ số, goals, reminders",
+   "Cập nhật docs/03-co-so-du-lieu-erd.md",
+   "Tech Lead review và chốt"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T10",
+  "type": "task",
+  "epic": "E0",
+  "phase": 0,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Thiết kế wireframe các màn hình chính theo phong cách iOS 26",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là Mobile dev, tôi muốn wireframe để thống nhất giao diện trước khi code.",
+  "ac": [
+   "Wireframe cho 8 màn hình chính (iPhone)",
+   "Đánh dấu chỗ dùng Liquid Glass (tab bar, thẻ, nút nổi)",
+   "Cập nhật docs/05-thiet-ke-giao-dien.md",
+   "Dùng skill baoyu-design để chọn phong cách"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T11",
+  "type": "task",
+  "epic": "E1",
+  "phase": 0,
+  "owner": "dat",
+  "area": "devops",
+  "title": "[DevOps] Dựng khung repo: Docker backend, app Flutter và README",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là Tech Lead, tôi muốn mọi người chạy được dự án nhanh.",
+  "ac": [
+   "docker compose up chạy db, backend, adminer",
+   "GET /api/v1/health trả ok",
+   "App Flutter có màn hình tạm, flutter test pass",
+   "README hướng dẫn chạy nhanh"
+  ],
+  "deps": [],
+  "done": true
+ },
+ {
+  "key": "T12",
+  "type": "task",
+  "epic": "E1",
+  "phase": 0,
+  "owner": "dat",
+  "area": "devops",
+  "title": "[DevOps] Thiết lập GitHub Actions CI cho backend và frontend",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là Tech Lead, tôi muốn CI tự chạy lint, test, build trên mỗi PR.",
+  "ac": [
+   "Backend CI: ruff + pytest",
+   "Mobile CI: flutter analyze + flutter test, build iOS simulator trên macOS",
+   "CI chạy trên PR"
+  ],
+  "deps": [],
+  "done": true
+ },
+ {
+  "key": "T13",
+  "type": "task",
+  "epic": "E1",
+  "phase": 0,
+  "owner": "dat",
+  "area": "docs",
+  "title": "[Docs] Viết AGENTS.md, CLAUDE.md, CONTRIBUTING và mẫu issue/PR",
+  "sp": 2,
+  "prio": "P1",
+  "story": "Là Tech Lead, tôi muốn quy ước rõ để người và AI agent cùng làm đúng.",
+  "ac": [
+   "AGENTS.md và CLAUDE.md đầy đủ",
+   "Mẫu issue (epic, task, bug, CR) và mẫu PR"
+  ],
+  "deps": [],
+  "done": true
+ },
+ {
+  "key": "T14",
+  "type": "task",
+  "epic": "E1",
+  "phase": 0,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] Cấu hình logging, xử lý lỗi chuẩn và endpoint /health/ready",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là Backend, tôi muốn lỗi trả về thống nhất và có kiểm tra kết nối DB.",
+  "ac": [
+   "Handler lỗi trả {detail} nhất quán",
+   "/health/ready kiểm tra được DB",
+   "Có test"
+  ],
+  "deps": [
+   "Khung Docker & CI hoàn tất"
+  ],
+  "done": false
+ },
+ {
+  "key": "T15",
+  "type": "task",
+  "epic": "E1",
+  "phase": 0,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Cài môi trường Flutter, chạy app trên Simulator và chốt cấu trúc feature-first",
+  "sp": 2,
+  "prio": "P1",
+  "story": "Là Mobile dev, tôi muốn môi trường chạy ổn định và cấu trúc thư mục rõ ràng.",
+  "ac": [
+   "flutter doctor không lỗi",
+   "App chạy trên iOS Simulator (hoặc Android emulator nếu không có Mac)",
+   "Mô tả cấu trúc lib/ trong docs/05"
+  ],
+  "deps": [
+   "Khung Docker & CI hoàn tất"
+  ],
+  "done": false
+ },
+ {
+  "key": "T16",
+  "type": "task",
+  "epic": "E1",
+  "phase": 0,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Cài pytest-cov, flutter integration_test và báo cáo coverage trong CI",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là QA, tôi muốn đo được độ phủ và chạy E2E.",
+  "ac": [
+   "Báo cáo coverage backend trong CI",
+   "integration_test chạy được một test mẫu trên Simulator",
+   "Hướng dẫn trong docs/09"
+  ],
+  "deps": [
+   "Khung Docker & CI hoàn tất"
+  ],
+  "done": false
+ },
+ {
+  "key": "T17",
+  "type": "task",
+  "epic": "E2",
+  "phase": 1,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] Model User và migration Alembic đầu tiên",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là Backend, tôi muốn bảng users để lưu tài khoản.",
+  "ac": [
+   "Model User theo ERD",
+   "Migration tạo bảng users",
+   "Chạy upgrade/downgrade thành công"
+  ],
+  "deps": [
+   "Thiết kế ERD ban đầu"
+  ],
+  "done": false
+ },
+ {
+  "key": "T18",
+  "type": "task",
+  "epic": "E2",
+  "phase": 1,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] Endpoint đăng ký và băm mật khẩu bcrypt",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn đăng ký bằng email và mật khẩu.",
+  "ac": [
+   "POST /auth/register trả 201",
+   "Email trùng trả 409",
+   "Mật khẩu lưu dạng băm"
+  ],
+  "deps": [
+   "Model User"
+  ],
+  "done": false
+ },
+ {
+  "key": "T19",
+  "type": "task",
+  "epic": "E2",
+  "phase": 1,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] Endpoint đăng nhập, access token và refresh token",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn đăng nhập và giữ phiên.",
+  "ac": [
+   "POST /auth/login trả access và refresh token",
+   "POST /auth/refresh cấp token mới",
+   "Sai mật khẩu trả 401"
+  ],
+  "deps": [
+   "Endpoint đăng ký"
+  ],
+  "done": false
+ },
+ {
+  "key": "T20",
+  "type": "task",
+  "epic": "E2",
+  "phase": 1,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] Dependency lấy user hiện tại và endpoint /users/me",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn xem và sửa hồ sơ của mình.",
+  "ac": [
+   "GET /users/me cần token",
+   "PATCH /users/me cập nhật tên, ngày sinh, giới tính, chiều cao",
+   "Không có token trả 401"
+  ],
+  "deps": [
+   "Endpoint đăng nhập"
+  ],
+  "done": false
+ },
+ {
+  "key": "T21",
+  "type": "task",
+  "epic": "E2",
+  "phase": 1,
+  "owner": "dat",
+  "area": "backend",
+  "title": "[BE] Review bảo mật JWT và cấu hình CORS",
+  "sp": 2,
+  "prio": "P1",
+  "story": "Là Tech Lead, tôi muốn xác thực an toàn trước khi mở rộng.",
+  "ac": [
+   "Checklist bảo mật JWT hoàn tất",
+   "Secret lấy từ biến môi trường",
+   "CORS chỉ cho phép origin cấu hình"
+  ],
+  "deps": [
+   "Endpoint đăng nhập"
+  ],
+  "done": false
+ },
+ {
+  "key": "T22",
+  "type": "task",
+  "epic": "E2",
+  "phase": 1,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Viết test tích hợp cho xác thực",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là QA, tôi muốn test bao phủ luồng đăng ký, đăng nhập, refresh.",
+  "ac": [
+   "Test đăng ký thành công và trùng email",
+   "Test đăng nhập đúng/sai",
+   "Test truy cập khi không có token",
+   "Dùng CSDL test riêng"
+  ],
+  "deps": [
+   "Endpoint đăng nhập"
+  ],
+  "done": false
+ },
+ {
+  "key": "T23",
+  "type": "task",
+  "epic": "E2",
+  "phase": 1,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] API client Dio có gắn token và tự làm mới phiên",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là Mobile dev, tôi muốn gọi API an toàn với token.",
+  "ac": [
+   "Interceptor Dio gắn Authorization",
+   "Tự refresh khi gặp 401 một lần",
+   "Lưu token bằng flutter_secure_storage (Keychain)",
+   "Có unit test cho AuthRepository"
+  ],
+  "deps": [
+   "Endpoint đăng nhập"
+  ],
+  "done": false
+ },
+ {
+  "key": "T24",
+  "type": "task",
+  "epic": "E3",
+  "phase": 2,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] CRUD cân nặng và tính BMI",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn ghi cân nặng và xem BMI.",
+  "ac": [
+   "CRUD /weights chỉ trên dữ liệu của mình",
+   "BMI tính từ chiều cao hồ sơ",
+   "Lọc theo from/to, phân trang",
+   "Có migration và test"
+  ],
+  "deps": [
+   "Model User"
+  ],
+  "done": false
+ },
+ {
+  "key": "T25",
+  "type": "task",
+  "epic": "E3",
+  "phase": 2,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] CRUD nước uống",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn ghi lượng nước đã uống.",
+  "ac": [
+   "CRUD /water",
+   "Tổng theo ngày trả đúng",
+   "Có migration và test"
+  ],
+  "deps": [
+   "Model User"
+  ],
+  "done": false
+ },
+ {
+  "key": "T26",
+  "type": "task",
+  "epic": "E3",
+  "phase": 2,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] CRUD giấc ngủ",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn ghi giờ ngủ và chất lượng.",
+  "ac": [
+   "CRUD /sleep",
+   "Tính thời lượng ngủ",
+   "Từ chối end trước start",
+   "Có migration và test"
+  ],
+  "deps": [
+   "Model User"
+  ],
+  "done": false
+ },
+ {
+  "key": "T27",
+  "type": "task",
+  "epic": "E3",
+  "phase": 2,
+  "owner": "tai",
+  "area": "backend",
+  "title": "[BE] CRUD bước chân",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn ghi số bước mỗi ngày.",
+  "ac": [
+   "CRUD /steps, mỗi ngày một bản ghi (upsert)",
+   "Có migration và test"
+  ],
+  "deps": [
+   "Model User"
+  ],
+  "done": false
+ },
+ {
+  "key": "T28",
+  "type": "task",
+  "epic": "E3",
+  "phase": 2,
+  "owner": "tai",
+  "area": "backend",
+  "title": "[BE] CRUD bữa ăn và calories",
+  "sp": 5,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn ghi bữa ăn và calories.",
+  "ac": [
+   "CRUD /meals với loại bữa (sáng/trưa/tối/phụ)",
+   "Tổng calories theo ngày",
+   "Có migration và test"
+  ],
+  "deps": [
+   "Model User"
+  ],
+  "done": false
+ },
+ {
+  "key": "T29",
+  "type": "task",
+  "epic": "E3",
+  "phase": 2,
+  "owner": "dat",
+  "area": "backend",
+  "title": "[BE] Thiết kế lớp service/crud dùng chung và phân quyền theo user",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là Tech Lead, tôi muốn tái sử dụng logic CRUD, tránh lặp code.",
+  "ac": [
+   "Lớp CRUD generic có lọc theo user_id",
+   "Áp dụng vào ít nhất 1 chỉ số",
+   "Tài liệu trong docs/02-kien-truc-he-thong.md"
+  ],
+  "deps": [
+   "Model User"
+  ],
+  "done": false
+ },
+ {
+  "key": "T30",
+  "type": "task",
+  "epic": "E3",
+  "phase": 2,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Test tích hợp cho các API chỉ số",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là QA, tôi muốn đảm bảo dữ liệu chỉ thuộc về chủ sở hữu.",
+  "ac": [
+   "Test người A không đọc/sửa dữ liệu người B",
+   "Test lọc, phân trang, validate đầu vào",
+   "Coverage phần chỉ số từ 80%"
+  ],
+  "deps": [
+   "CRUD cân nặng",
+   "CRUD nước uống",
+   "CRUD giấc ngủ"
+  ],
+  "done": false
+ },
+ {
+  "key": "T31",
+  "type": "task",
+  "epic": "E4",
+  "phase": 2,
+  "owner": "dat",
+  "area": "backend",
+  "title": "[BE] API mục tiêu (goals)",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn đặt mục tiêu cho từng chỉ số.",
+  "ac": [
+   "CRUD /goals theo metric và chu kỳ (ngày/tuần)",
+   "Mỗi metric có tối đa một mục tiêu đang hoạt động",
+   "Có migration và test"
+  ],
+  "deps": [
+   "Model User"
+  ],
+  "done": false
+ },
+ {
+  "key": "T32",
+  "type": "task",
+  "epic": "E4",
+  "phase": 2,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] API thuốc và nhật ký uống thuốc",
+  "sp": 5,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn quản lý thuốc và đánh dấu đã uống.",
+  "ac": [
+   "CRUD /medications",
+   "POST /medications/{id}/logs",
+   "Có migration và test"
+  ],
+  "deps": [
+   "Model User"
+  ],
+  "done": false
+ },
+ {
+  "key": "T33",
+  "type": "task",
+  "epic": "E4",
+  "phase": 2,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Test API mục tiêu và thuốc",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là QA, tôi muốn bao phủ mục tiêu và thuốc.",
+  "ac": [
+   "Test ràng buộc mục tiêu",
+   "Test nhật ký thuốc",
+   "Cập nhật ma trận kiểm thử"
+  ],
+  "deps": [
+   "API mục tiêu",
+   "API thuốc"
+  ],
+  "done": false
+ },
+ {
+  "key": "T34",
+  "type": "task",
+  "epic": "E4",
+  "phase": 2,
+  "owner": "tan",
+  "area": "docs",
+  "title": "[Docs] Cập nhật đặc tả API và ERD thực tế",
+  "sp": 2,
+  "prio": "P2",
+  "story": "Là Backend, tôi muốn tài liệu khớp với code.",
+  "ac": [
+   "docs/03 và docs/04 khớp với code",
+   "Swagger mô tả đủ endpoint"
+  ],
+  "deps": [
+   "CRUD cân nặng"
+  ],
+  "done": false
+ },
+ {
+  "key": "T35",
+  "type": "task",
+  "epic": "E5",
+  "phase": 3,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Hoàn thiện theme và bộ widget nền",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là Mobile dev, tôi muốn bộ widget dùng chung để giao diện đồng nhất.",
+  "ac": [
+   "Button, TextField, Card, Badge, BottomSheet, Skeleton",
+   "Dùng màu, chữ từ lib/core/theme.dart",
+   "Hỗ trợ trạng thái loading/error/rỗng"
+  ],
+  "deps": [
+   "Thiết kế wireframe"
+  ],
+  "done": false
+ },
+ {
+  "key": "T36",
+  "type": "task",
+  "epic": "E5",
+  "phase": 3,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Điều hướng go_router với thanh tab dưới",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn chuyển nhanh giữa các mục chính.",
+  "ac": [
+   "StatefulShellRoute 4 tab: Trang chủ, Ghi chỉ số, Nhắc nhở, Hồ sơ",
+   "Giữ trạng thái từng tab",
+   "Hiển thị đúng trên iPhone SE và iPhone Pro Max"
+  ],
+  "deps": [
+   "Bộ widget nền"
+  ],
+  "done": false
+ },
+ {
+  "key": "T37",
+  "type": "task",
+  "epic": "E5",
+  "phase": 3,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Chế độ sáng/tối và Dynamic Type",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn giao diện dễ nhìn trong mọi điều kiện.",
+  "ac": [
+   "Theme sáng/tối theo hệ thống",
+   "Chữ co giãn theo cỡ chữ hệ thống",
+   "Tương phản đạt AA"
+  ],
+  "deps": [
+   "Bộ widget nền"
+  ],
+  "done": false
+ },
+ {
+  "key": "T38",
+  "type": "task",
+  "epic": "E5",
+  "phase": 3,
+  "owner": "dat",
+  "area": "mobile",
+  "title": "[Mobile] Review giao diện và UX với skill baoyu-design",
+  "sp": 2,
+  "prio": "P1",
+  "story": "Là Tech Lead, tôi muốn giao diện nhất quán và đẹp.",
+  "ac": [
+   "Có nhận xét UX trên PR",
+   "Danh sách chỉnh sửa được tạo thành issue"
+  ],
+  "deps": [
+   "Layout responsive"
+  ],
+  "done": false
+ },
+ {
+  "key": "T39",
+  "type": "task",
+  "epic": "E5",
+  "phase": 3,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Widget test và golden test cho bộ widget nền",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là QA, tôi muốn widget được test và không vỡ giao diện.",
+  "ac": [
+   "Widget test cho các widget nền",
+   "Golden test ở 2 cỡ màn hình",
+   "Báo lỗi bằng issue"
+  ],
+  "deps": [
+   "Bộ widget nền"
+  ],
+  "done": false
+ },
+ {
+  "key": "T40",
+  "type": "task",
+  "epic": "E6",
+  "phase": 3,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Màn hình đăng ký và đăng nhập",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn tạo tài khoản và đăng nhập trên app.",
+  "ac": [
+   "Form có validate",
+   "Hiển thị lỗi từ API",
+   "Chuyển hướng sau đăng nhập, ghi nhớ phiên"
+  ],
+  "deps": [
+   "API client Dio",
+   "Endpoint đăng nhập"
+  ],
+  "done": false
+ },
+ {
+  "key": "T41",
+  "type": "task",
+  "epic": "E6",
+  "phase": 3,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Onboarding và hồ sơ cá nhân",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là người dùng mới, tôi muốn nhập chiều cao, cân nặng ban đầu.",
+  "ac": [
+   "Luồng onboarding 3 bước",
+   "Màn hình hồ sơ chỉnh sửa được"
+  ],
+  "deps": [
+   "Màn hình đăng nhập",
+   "Endpoint /users/me"
+  ],
+  "done": false
+ },
+ {
+  "key": "T42",
+  "type": "task",
+  "epic": "E6",
+  "phase": 3,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Form ghi cân nặng, nước uống, giấc ngủ",
+  "sp": 8,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn ghi nhanh các chỉ số hằng ngày.",
+  "ac": [
+   "Form từng chỉ số có validate",
+   "Gọi API thật, cập nhật danh sách",
+   "Hiển thị BMI sau khi ghi cân nặng"
+  ],
+  "deps": [
+   "CRUD cân nặng",
+   "CRUD nước uống",
+   "CRUD giấc ngủ"
+  ],
+  "done": false
+ },
+ {
+  "key": "T43",
+  "type": "task",
+  "epic": "E6",
+  "phase": 3,
+  "owner": "tai",
+  "area": "mobile",
+  "title": "[Mobile] Form ghi bước chân và bữa ăn",
+  "sp": 5,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn ghi bước chân và bữa ăn.",
+  "ac": [
+   "Form bước chân và bữa ăn có validate",
+   "Cập nhật danh sách sau khi lưu",
+   "Có widget test"
+  ],
+  "deps": [
+   "CRUD bước chân",
+   "CRUD bữa ăn",
+   "Bộ widget nền"
+  ],
+  "done": false
+ },
+ {
+  "key": "T44",
+  "type": "task",
+  "epic": "E6",
+  "phase": 3,
+  "owner": "tan",
+  "area": "mobile",
+  "title": "[Mobile] Màn hình mục tiêu và quản lý thuốc",
+  "sp": 5,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn đặt mục tiêu và đánh dấu đã uống thuốc.",
+  "ac": [
+   "Danh sách và form mục tiêu",
+   "Danh sách thuốc, nút đã uống",
+   "Nối API thật"
+  ],
+  "deps": [
+   "API mục tiêu",
+   "API thuốc"
+  ],
+  "done": false
+ },
+ {
+  "key": "T45",
+  "type": "task",
+  "epic": "E6",
+  "phase": 3,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Test E2E luồng đăng ký, đăng nhập, ghi chỉ số",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là QA, tôi muốn luồng chính chạy đúng từ đầu đến cuối.",
+  "ac": [
+   "integration_test: đăng ký, đăng nhập, ghi 1 chỉ số",
+   "Chạy trên Simulator với backend local",
+   "Ghi kết quả vào docs/09"
+  ],
+  "deps": [
+   "Màn hình đăng nhập",
+   "Form ghi cân nặng"
+  ],
+  "done": false
+ },
+ {
+  "key": "T46",
+  "type": "task",
+  "epic": "E8",
+  "phase": 4,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] Endpoint thống kê tổng quan (summary)",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn xem tóm tắt hôm nay so với mục tiêu.",
+  "ac": [
+   "GET /stats/summary trả số liệu hôm nay",
+   "Có phần trăm hoàn thành mục tiêu",
+   "Có test"
+  ],
+  "deps": [
+   "API mục tiêu",
+   "CRUD nước uống"
+  ],
+  "done": false
+ },
+ {
+  "key": "T47",
+  "type": "task",
+  "epic": "E8",
+  "phase": 4,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] Endpoint xu hướng theo thời gian (trend)",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn xem biểu đồ xu hướng.",
+  "ac": [
+   "GET /stats/trend?metric=&range=7d|30d|90d",
+   "Gom dữ liệu theo ngày",
+   "Tối ưu truy vấn bằng index"
+  ],
+  "deps": [
+   "Endpoint summary"
+  ],
+  "done": false
+ },
+ {
+  "key": "T48",
+  "type": "task",
+  "epic": "E8",
+  "phase": 4,
+  "owner": "dat",
+  "area": "backend",
+  "title": "[BE] Thiết kế chỉ mục CSDL và tối ưu truy vấn thống kê",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là Tech Lead, tôi muốn thống kê nhanh khi dữ liệu lớn.",
+  "ac": [
+   "Có index phù hợp qua migration",
+   "So sánh thời gian trước và sau"
+  ],
+  "deps": [
+   "Endpoint xu hướng"
+  ],
+  "done": false
+ },
+ {
+  "key": "T49",
+  "type": "task",
+  "epic": "E7",
+  "phase": 4,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Trang chủ Dashboard tổng quan",
+  "sp": 8,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn thấy tình trạng sức khỏe hôm nay ngay khi mở app.",
+  "ac": [
+   "Thẻ tóm tắt Liquid Glass (nước, ngủ, bước, calories, cân nặng)",
+   "Kéo để làm mới",
+   "Trạng thái loading và rỗng"
+  ],
+  "deps": [
+   "Endpoint summary",
+   "Widget LiquidGlass"
+  ],
+  "done": false
+ },
+ {
+  "key": "T50",
+  "type": "task",
+  "epic": "E7",
+  "phase": 4,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Biểu đồ xu hướng (fl_chart)",
+  "sp": 8,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn xem xu hướng theo 7/30/90 ngày.",
+  "ac": [
+   "Biểu đồ đường/cột cho từng chỉ số",
+   "Chọn khoảng thời gian bằng segmented control",
+   "Chạm để xem giá trị"
+  ],
+  "deps": [
+   "Endpoint xu hướng"
+  ],
+  "done": false
+ },
+ {
+  "key": "T51",
+  "type": "task",
+  "epic": "E7",
+  "phase": 4,
+  "owner": "dat",
+  "area": "mobile",
+  "title": "[Mobile] Review hiệu năng Dashboard với Flutter DevTools",
+  "sp": 2,
+  "prio": "P2",
+  "story": "Là Tech Lead, tôi muốn dashboard mượt 60fps.",
+  "ac": [
+   "Không rebuild thừa (Riverpod select)",
+   "Đo bằng DevTools, ghi kết quả trên PR"
+  ],
+  "deps": [
+   "Trang chủ Dashboard"
+  ],
+  "done": false
+ },
+ {
+  "key": "T52",
+  "type": "task",
+  "epic": "E7",
+  "phase": 4,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Test Dashboard và biểu đồ",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là QA, tôi muốn kiểm tra số liệu hiển thị đúng.",
+  "ac": [
+   "Test dữ liệu mẫu cho kết quả biểu đồ đúng",
+   "E2E xem dashboard",
+   "Cập nhật ma trận kiểm thử"
+  ],
+  "deps": [
+   "Biểu đồ xu hướng"
+  ],
+  "done": false
+ },
+ {
+  "key": "T53",
+  "type": "task",
+  "epic": "E9",
+  "phase": 4,
+  "owner": "tai",
+  "area": "backend",
+  "title": "[BE] Model và API nhắc nhở (reminders)",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn đặt giờ nhắc uống nước, uống thuốc, đi ngủ.",
+  "ac": [
+   "CRUD /reminders",
+   "Mỗi nhắc có loại, giờ, bật/tắt",
+   "Có migration và test"
+  ],
+  "deps": [
+   "Model User"
+  ],
+  "done": false
+ },
+ {
+  "key": "T54",
+  "type": "task",
+  "epic": "E9",
+  "phase": 4,
+  "owner": "tai",
+  "area": "backend",
+  "title": "[Mobile] Lên lịch thông báo cục bộ từ danh sách nhắc nhở",
+  "sp": 8,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn nhận nhắc đúng giờ kể cả khi không mở app.",
+  "ac": [
+   "Dùng flutter_local_notifications, xin quyền thông báo iOS",
+   "Đồng bộ lịch khi nhắc nhở thay đổi",
+   "Có unit test cho bộ lập lịch"
+  ],
+  "deps": [
+   "API nhắc nhở"
+  ],
+  "done": false
+ },
+ {
+  "key": "T55",
+  "type": "task",
+  "epic": "E9",
+  "phase": 4,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Màn hình cài đặt nhắc nhở",
+  "sp": 5,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn quản lý nhắc nhở.",
+  "ac": [
+   "Danh sách và form nhắc nhở (chọn giờ kiểu iOS)",
+   "Bật/tắt từng nhắc",
+   "Nối API thật"
+  ],
+  "deps": [
+   "API nhắc nhở"
+  ],
+  "done": false
+ },
+ {
+  "key": "T56",
+  "type": "task",
+  "epic": "E10",
+  "phase": 4,
+  "owner": "dat",
+  "area": "pm",
+  "title": "[PM] Thiết lập quy trình Change Request và CCB",
+  "sp": 2,
+  "prio": "P0",
+  "story": "Là PM, tôi muốn kiểm soát thay đổi phạm vi.",
+  "ac": [
+   "Mẫu issue CR hoạt động",
+   "Quy định CCB trong docs/13",
+   "Mọi CR có quyết định ghi rõ"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T57",
+  "type": "task",
+  "epic": "E10",
+  "phase": 4,
+  "owner": "dat",
+  "area": "pm",
+  "title": "[PM] Xử lý Change Request thực tế từ stakeholder",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là PM, tôi muốn xử lý đúng một thay đổi yêu cầu thật trong dự án.",
+  "ac": [
+   "Có issue CR với phân tích ảnh hưởng",
+   "CCB quyết định và lưu bằng chứng",
+   "Cập nhật WBS, rủi ro theo CR",
+   "Xuất hồ sơ 06_Scope_Change_Control_Record"
+  ],
+  "deps": [
+   "Quy trình Change Request"
+  ],
+  "done": false
+ },
+ {
+  "key": "T58",
+  "type": "task",
+  "epic": "E10",
+  "phase": 4,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Cập nhật bảng rủi ro lần 2 (Risk Register v2)",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là QA, tôi muốn ghi lại rủi ro thực tế đã xảy ra.",
+  "ac": [
+   "Ghi các rủi ro đã xảy ra và cách xử lý",
+   "Điểm rủi ro cập nhật",
+   "Xuất 04_Risk_Register_Evolution.xlsx"
+  ],
+  "deps": [
+   "Lập bảng rủi ro ban đầu"
+  ],
+  "done": false
+ },
+ {
+  "key": "T59",
+  "type": "task",
+  "epic": "E11",
+  "phase": 5,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Nâng độ phủ test backend lên từ 70%",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là QA, tôi muốn độ phủ đạt mục tiêu của Charter.",
+  "ac": [
+   "Coverage backend từ 70%",
+   "Bổ sung test cho các nhánh lỗi",
+   "CI hiển thị báo cáo coverage"
+  ],
+  "deps": [
+   "Test tích hợp cho các API chỉ số"
+  ],
+  "done": false
+ },
+ {
+  "key": "T60",
+  "type": "task",
+  "epic": "E11",
+  "phase": 5,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] E2E toàn bộ luồng lõi với backend cloud",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là QA, tôi muốn kiểm tra app với backend chạy thật.",
+  "ac": [
+   "integration_test trỏ tới API cloud",
+   "Luồng đăng ký, ghi, xem biểu đồ, đặt nhắc",
+   "Ghi lại kết quả"
+  ],
+  "deps": [
+   "Triển khai backend"
+  ],
+  "done": false
+ },
+ {
+  "key": "T61",
+  "type": "task",
+  "epic": "E11",
+  "phase": 5,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Kiểm thử bảo mật cơ bản (OWASP checklist)",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là QA, tôi muốn phát hiện lỗ hổng phổ biến.",
+  "ac": [
+   "Kiểm tra IDOR, SQL injection, XSS, rate limit",
+   "Báo cáo và issue cho lỗi tìm thấy"
+  ],
+  "deps": [
+   "Review bảo mật JWT"
+  ],
+  "done": false
+ },
+ {
+  "key": "T62",
+  "type": "task",
+  "epic": "E11",
+  "phase": 5,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] Rate limiting và tối ưu hiệu năng API",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là Backend, tôi muốn API chịu tải và chống lạm dụng.",
+  "ac": [
+   "Giới hạn tốc độ cho đăng nhập",
+   "Đo thời gian phản hồi các endpoint chính",
+   "Có test"
+  ],
+  "deps": [
+   "Endpoint đăng nhập"
+  ],
+  "done": false
+ },
+ {
+  "key": "T63",
+  "type": "task",
+  "epic": "E11",
+  "phase": 5,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Hoàn thiện UI: trạng thái lỗi, rỗng, VoiceOver",
+  "sp": 5,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn app thân thiện và dễ tiếp cận.",
+  "ac": [
+   "Mọi màn hình có trạng thái loading/lỗi/rỗng",
+   "Nhãn Semantics cho VoiceOver",
+   "Kiểm tra tương phản"
+  ],
+  "deps": [
+   "Dashboard"
+  ],
+  "done": false
+ },
+ {
+  "key": "T64",
+  "type": "task",
+  "epic": "E12",
+  "phase": 5,
+  "owner": "dat",
+  "area": "devops",
+  "title": "[DevOps] Triển khai backend và CSDL lên Render và Neon",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là Tech Lead, tôi muốn backend chạy thật qua HTTPS.",
+  "ac": [
+   "Backend chạy HTTPS",
+   "Migration tự chạy khi khởi động",
+   "Biến môi trường an toàn",
+   "Cập nhật docs/12-trien-khai.md"
+  ],
+  "deps": [
+   "Test tích hợp cho các API chỉ số"
+  ],
+  "done": false
+ },
+ {
+  "key": "T65",
+  "type": "task",
+  "epic": "E12",
+  "phase": 5,
+  "owner": "dat",
+  "area": "ios",
+  "title": "[iOS] Ký app và phát hành bản thử qua TestFlight",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là Tech Lead, tôi muốn stakeholder cài được app thật trên iPhone.",
+  "ac": [
+   "Bundle ID, chứng chỉ, provisioning profile",
+   "Bản build tải lên TestFlight (hoặc cài qua Xcode nếu chưa có tài khoản Developer)",
+   "App gọi API cloud qua HTTPS"
+  ],
+  "deps": [
+   "Triển khai backend"
+  ],
+  "done": false
+ },
+ {
+  "key": "T66",
+  "type": "task",
+  "epic": "E12",
+  "phase": 5,
+  "owner": "dat",
+  "area": "devops",
+  "title": "[DevOps] Tự động deploy bằng GitHub Actions và giám sát cơ bản",
+  "sp": 3,
+  "prio": "P2",
+  "story": "Là Tech Lead, tôi muốn phát hành lặp lại được.",
+  "ac": [
+   "Workflow deploy backend khi merge main",
+   "Có endpoint kiểm tra sống để giám sát"
+  ],
+  "deps": [
+   "Triển khai backend"
+  ],
+  "done": false
+ },
+ {
+  "key": "T67",
+  "type": "task",
+  "epic": "E12",
+  "phase": 5,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] Sao lưu dữ liệu, seed dữ liệu demo sạch",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là Backend, tôi muốn dữ liệu mẫu sạch để demo.",
+  "ac": [
+   "Script seed dữ liệu demo (make seed)",
+   "Hướng dẫn sao lưu CSDL"
+  ],
+  "deps": [
+   "Triển khai backend"
+  ],
+  "done": false
+ },
+ {
+  "key": "T68",
+  "type": "task",
+  "epic": "E13",
+  "phase": 6,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Lập kế hoạch và thực hiện UAT với stakeholder",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là QA, tôi muốn stakeholder xác nhận sản phẩm đáp ứng nhu cầu.",
+  "ac": [
+   "Kịch bản UAT theo Acceptance Criteria",
+   "Ít nhất 10 người dùng thử (TestFlight hoặc máy demo)",
+   "Ghi nhận phản hồi và lỗi"
+  ],
+  "deps": [
+   "Phát hành TestFlight"
+  ],
+  "done": false
+ },
+ {
+  "key": "T69",
+  "type": "task",
+  "epic": "E13",
+  "phase": 6,
+  "owner": "tan",
+  "area": "backend",
+  "title": "[BE] Sửa lỗi backend sau UAT",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là Backend, tôi muốn xử lý lỗi phát hiện khi UAT.",
+  "ac": [
+   "Mọi lỗi mức cao đã sửa hoặc có kế hoạch",
+   "Có test hồi quy"
+  ],
+  "deps": [
+   "Thực hiện UAT"
+  ],
+  "done": false
+ },
+ {
+  "key": "T70",
+  "type": "task",
+  "epic": "E13",
+  "phase": 6,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Sửa lỗi giao diện sau UAT và quay video demo trên Simulator",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là Mobile dev, tôi muốn giao diện hoàn thiện và có video dự phòng khi demo.",
+  "ac": [
+   "Mọi lỗi UI mức cao đã sửa",
+   "Video demo luồng lõi (dự phòng)"
+  ],
+  "deps": [
+   "Thực hiện UAT"
+  ],
+  "done": false
+ },
+ {
+  "key": "T71",
+  "type": "task",
+  "epic": "E13",
+  "phase": 6,
+  "owner": "dat",
+  "area": "pm",
+  "title": "[PM] Viết Báo cáo tổng kết kỹ thuật 7 chương (thì quá khứ)",
+  "sp": 8,
+  "prio": "P0",
+  "story": "Là PM, tôi muốn báo cáo đúng cấu trúc để nộp.",
+  "ac": [
+   "15-25 trang, 7 chương, viết ở thì quá khứ",
+   "Dẫn chứng commit, PR, số liệu thực",
+   "Xuất 01_Final_Technical_Report.pdf"
+  ],
+  "deps": [
+   "Thực hiện UAT"
+  ],
+  "done": false
+ },
+ {
+  "key": "T72",
+  "type": "task",
+  "epic": "E13",
+  "phase": 6,
+  "owner": "dat",
+  "area": "pm",
+  "title": "[PM] Làm slide bảo vệ 8-10 trang và luyện demo 16 phút",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là PM, tôi muốn bảo vệ đúng thời lượng 6+5+5 phút.",
+  "ac": [
+   "Slide theo 7 mục khuyến nghị",
+   "Chạy thử demo 5 phút không lỗi",
+   "Xuất 08_Presentation_Slide_Deck.pdf"
+  ],
+  "deps": [
+   "Viết báo cáo tổng kết"
+  ],
+  "done": false
+ },
+ {
+  "key": "T73",
+  "type": "task",
+  "epic": "E13",
+  "phase": 6,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Tổng hợp biên bản nghiệm thu và Gói bằng chứng 8 hạng mục",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là QA, tôi muốn gói bằng chứng đầy đủ để nộp qua Google Drive.",
+  "ac": [
+   "Đủ 8 file theo cấu trúc chuẩn",
+   "Thư mục Drive mở quyền xem cho người có liên kết",
+   "Có biên bản nghiệm thu của stakeholder"
+  ],
+  "deps": [
+   "Thực hiện UAT"
+  ],
+  "done": false
+ },
+ {
+  "key": "T74",
+  "type": "task",
+  "epic": "E13",
+  "phase": 6,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Tổ chức Sprint Retro cuối và biên bản 4Ls",
+  "sp": 2,
+  "prio": "P0",
+  "story": "Là QA, tôi muốn rút bài học kinh nghiệm cho cả nhóm.",
+  "ac": [
+   "Biên bản Retro 4Ls",
+   "Xuất 05_Sprint_Retrospectives.pdf"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T75",
+  "type": "task",
+  "epic": "E13",
+  "phase": 6,
+  "owner": "tan",
+  "area": "docs",
+  "title": "[Docs] Hoàn thiện docs kỹ thuật cuối cùng (API, ERD, kiến trúc)",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là Backend, tôi muốn tài liệu khớp sản phẩm cuối.",
+  "ac": [
+   "docs/02, 03, 04 khớp code"
+  ],
+  "deps": [
+   "Sửa lỗi backend sau UAT"
+  ],
+  "done": false
+ },
+ {
+  "key": "T76",
+  "type": "task",
+  "epic": "E14",
+  "phase": 3,
+  "owner": "dat",
+  "area": "ios",
+  "title": "[iOS] Cầu nối platform view Liquid Glass (SwiftUI glassEffect)",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là Tech Lead, tôi muốn Flutter dùng được Liquid Glass thật của iOS 26.",
+  "ac": [
+   "LiquidGlassView dùng .glassEffect()",
+   "Đăng ký FlutterPlatformViewFactory healthtrack/liquid_glass",
+   "MethodChannel supportsLiquidGlass",
+   "Widget Dart LiquidGlass có bản dự phòng BackdropFilter"
+  ],
+  "deps": [],
+  "done": true
+ },
+ {
+  "key": "T77",
+  "type": "task",
+  "epic": "E14",
+  "phase": 3,
+  "owner": "dat",
+  "area": "ios",
+  "title": "[iOS] Thanh tab và nút nổi Liquid Glass native",
+  "sp": 5,
+  "prio": "P1",
+  "story": "Là người dùng iOS 26, tôi muốn thanh tab kính lỏng đúng chuẩn Apple.",
+  "ac": [
+   "Thanh tab dưới dùng lớp Liquid Glass",
+   "Nút thêm nhanh nổi có hiệu ứng interactive",
+   "Đồng bộ chọn tab với go_router"
+  ],
+  "deps": [
+   "Cầu nối platform view",
+   "Điều hướng go_router"
+  ],
+  "done": false
+ },
+ {
+  "key": "T78",
+  "type": "task",
+  "epic": "E14",
+  "phase": 3,
+  "owner": "dat",
+  "area": "ios",
+  "title": "[iOS] GlassEffectContainer và hiệu ứng morph khi chuyển trạng thái",
+  "sp": 5,
+  "prio": "P2",
+  "story": "Là người dùng, tôi muốn chuyển cảnh mượt với kính lỏng hợp nhất.",
+  "ac": [
+   "Nhóm nhiều thẻ trong GlassEffectContainer",
+   "Hiệu ứng morph khi mở rộng thẻ",
+   "Truyền tham số qua creationParams"
+  ],
+  "deps": [
+   "Cầu nối platform view"
+  ],
+  "done": false
+ },
+ {
+  "key": "T79",
+  "type": "task",
+  "epic": "E14",
+  "phase": 3,
+  "owner": "thuan",
+  "area": "mobile",
+  "title": "[Mobile] Áp dụng widget LiquidGlass vào các màn hình",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là Mobile dev, tôi muốn giao diện thống nhất phong cách Liquid Glass.",
+  "ac": [
+   "Thẻ, sheet, header dùng LiquidGlass",
+   "Chữ và icon đọc rõ trên nền kính",
+   "Không đặt quá nhiều platform view trong danh sách cuộn dài"
+  ],
+  "deps": [
+   "Cầu nối platform view",
+   "Bộ widget nền"
+  ],
+  "done": false
+ },
+ {
+  "key": "T80",
+  "type": "task",
+  "epic": "E14",
+  "phase": 3,
+  "owner": "tai",
+  "area": "qa",
+  "title": "[QA] Kiểm thử Liquid Glass trên iOS 26 và bản dự phòng iOS cũ",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là QA, tôi muốn hiệu ứng chạy đúng và có dự phòng.",
+  "ac": [
+   "Kiểm tra trên Simulator iOS 26 và iOS 18",
+   "Kiểm tra bật Reduce Transparency",
+   "Đo FPS khi cuộn, ghi vào docs/09"
+  ],
+  "deps": [
+   "Áp dụng widget LiquidGlass"
+  ],
+  "done": false
+ }
+]
