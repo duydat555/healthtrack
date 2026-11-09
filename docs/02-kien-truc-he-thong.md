@@ -59,6 +59,13 @@ Tham số truyền qua `creationParams` (ví dụ `items`, `selected`, `tint`, `
 
 Tab đang chọn do go_router quyết định (`StatefulNavigationShell.currentIndex`), thanh tab chỉ hiển thị và báo sự kiện chạm. Nội dung thẻ trong `LiquidGlassCardGroup` do Swift vẽ nên chiều cao phải truyền cố định.
 
+## App kết nối backend
+Chi tiết lớp token, HTTP, đăng nhập, điều hướng và dữ liệu ở [mobile/README.md](../mobile/README.md#kết-nối-backend). Điểm chính:
+- Access token ngắn hạn (30 phút) và refresh token (7 ngày) lưu trong Keychain. Interceptor tự làm mới phiên khi gặp 401 và chỉ thử lại một lần, nên hết hạn token không làm người dùng bị đăng xuất đột ngột.
+- Mở app: nếu có token thì gọi `/users/me` để khôi phục phiên; token hỏng thì về màn đăng nhập.
+- Màn Tổng quan lấy dữ liệu từ `/water`, `/sleep`, `/weights`, `/goals`, `/medications`; vòng Activity Rings tính từ mục tiêu của người dùng (mặc định 2 lít nước, 8 giờ ngủ).
+- Chưa có API bước chân và bữa ăn nên app chưa hiển thị hai chỉ số này.
+
 ## Phân lớp backend
 `router (api/v1)` → `service (services)` → `crud` → `model (SQLAlchemy)`. Schema Pydantic ở `schemas/`.
 
