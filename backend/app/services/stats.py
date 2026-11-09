@@ -21,7 +21,14 @@ from app.models.water_log import WaterLog
 from app.models.weight_log import WeightLog
 from app.schemas.goal import METRIC_UNITS
 from app.schemas.sleep import as_utc
-from app.schemas.stats import GoalProgress, MedicationToday, StatsSummary, WeightToday
+from app.schemas.stats import (
+    GoalProgress,
+    MedicationToday,
+    StatsSummary,
+    StatsTrend,
+    TrendPoint,
+    WeightToday,
+)
 
 WEEK_DAYS = 7
 
@@ -143,4 +150,32 @@ async def build_summary(db: AsyncSession, user_id: int, today: date) -> StatsSum
         sleep_minutes=int(cache["sleep"].get(today, 0)),
         medications=medications,
         goals=[_progress(g, cache[g.metric], today) for g in goals],
+    )
+
+
+TREND_RANGES = {"7d": 7, "30d": 30, "90d": 90}
+
+
+async def build_trend(
+    db: AsyncSession, user_id: int, metric: str, range_: str, end: date
+) -> StatsTrend:
+    """Giá trị theo ngày của ``metric`` cho ``range_`` ngày kết thúc ở ``end``.
+
+    Mỗi ngày có đúng một điểm; ngày không có dữ liệu có ``value`` là null để biểu đồ
+    phân biệt được "không ghi" với "bằng 0".
+    """
+    days = TREND_RANGES[range_]
+    start = end - timedelta(days=days - 1)
+    values = await daily_values(db, user_id, metric, start, end)
+    points = [
+        TrendPoint(date=d, value=round(values[d], 1) if d in values else None)
+        for d in (start + timedelta(days=i) for i in range(days))
+    ]
+    return StatsTrend(
+        metric=metric,
+        unit=METRIC_UNITS[metric],
+        range=range_,
+        from_date=start,
+        to_date=end,
+        points=points,
     )

@@ -16,7 +16,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Mọi e
 | Bước chân | `GET/POST /steps`, `PATCH/DELETE /steps/{id}` | Phase 2 |
 | Bữa ăn | `GET/POST /meals`, `PATCH/DELETE /meals/{id}` | Phase 2 |
 | Mục tiêu | `GET/POST /goals`, `PATCH/DELETE /goals/{id}`; `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly`; mỗi chỉ số tối đa một mục tiêu đang hoạt động (trùng trả 409) | Đã có |
-| Thống kê | `GET /stats/summary?date=` (số liệu trong ngày và tiến độ mục tiêu), `GET /stats/trend?metric=&range=` | `summary`: đã có; `trend`: Phase 4 |
+| Thống kê | `GET /stats/summary?date=` (số liệu trong ngày và tiến độ mục tiêu), `GET /stats/trend?metric=&range=` | Đã có |
 | Nhắc nhở | `GET/POST /reminders`, `PATCH/DELETE /reminders/{id}` | Phase 4 |
 
 ## Quy ước chung
@@ -84,3 +84,9 @@ curl -X POST /api/v1/weights -H "Authorization: Bearer $TOKEN" \
 | `goals` | Tiến độ từng mục tiêu đang hoạt động: `current_value`, `target_value`, `percent`, `achieved`, `unit` |
 
 Cách tính tiến độ mục tiêu: chu kỳ `daily` lấy trong ngày, `weekly` lấy 7 ngày gần nhất tính cả ngày đang xem. `water`, `steps`, `calories` cộng dồn; `sleep` lấy trung bình phút mỗi đêm có dữ liệu (mục tiêu ngủ là phút mỗi đêm); `percent` không giới hạn 100. Mục tiêu `weight` có `percent` và `achieved` là `null` vì không biết hướng tăng hay giảm, client so `current_value` với `target_value`. `steps` và `calories` chưa có bảng dữ liệu nên `current_value` là 0.
+
+## Xu hướng theo thời gian
+
+`GET /stats/trend?metric=weight|water|sleep|steps|calories&range=7d|30d|90d&date=YYYY-MM-DD` trả `points` gồm đúng một điểm `{date, value}` cho mỗi ngày trong `range` kết thúc ở `date` (mặc định hôm nay, UTC), kèm `unit`, `from_date`, `to_date`. Ngày không có dữ liệu có `value` là `null` để biểu đồ phân biệt "không ghi" với "bằng 0". Cách tính giá trị theo ngày giống `summary`: `water` cộng dồn, `sleep` tổng phút theo ngày thức dậy, `weight` lấy bản ghi cuối ngày; `steps`, `calories` chưa có dữ liệu nên toàn `null`.
+
+Truy vấn lọc theo khoảng thời gian trên chỉ mục `(user_id, logged_at)` của từng bảng; giấc ngủ thêm chỉ mục `(user_id, end_at)` (migration `0007`).
