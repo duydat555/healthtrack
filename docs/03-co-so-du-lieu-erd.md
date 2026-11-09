@@ -60,7 +60,8 @@ erDiagram
 | `water_logs` | `0003` | `app/models/water_log.py` |
 | `sleep_logs` | `0004` | `app/models/sleep_log.py` |
 | `medications`, `medication_logs` | `0005` | `app/models/medication.py` |
-| `step_logs`, `meal_logs`, `goals`, `reminders` | Chưa có | Sẽ bổ sung ở các issue tiếp theo |
+| `goals` | `0006` | `app/models/goal.py`; chỉ mục unique một phần `(user_id, metric) WHERE is_active` đảm bảo mỗi chỉ số một mục tiêu đang hoạt động |
+| `step_logs`, `meal_logs`, `reminders` | Chưa có | Sẽ bổ sung ở các issue tiếp theo |
 
 Chi tiết đã chốt khi triển khai:
 
