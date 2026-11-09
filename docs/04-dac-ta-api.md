@@ -4,7 +4,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Cần b
 
 | Nhóm | Endpoint | Trạng thái |
 |---|---|---|
-| Hệ thống | `GET /health` | Đã có |
+| Hệ thống | `GET /health`, `GET /health/ready` (kiểm tra DB, 503 nếu lỗi) | Đã có |
 | Xác thực | `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh` | Phase 1 |
 | Người dùng | `GET /users/me`, `PATCH /users/me` | Phase 1 |
 | Cân nặng/BMI | `GET/POST /weights`, `PATCH/DELETE /weights/{id}` | Phase 2 |
