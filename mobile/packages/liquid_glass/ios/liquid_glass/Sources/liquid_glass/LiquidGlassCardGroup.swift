@@ -64,6 +64,7 @@ struct LiquidGlassCardGroupView: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 12) {
                     Image(systemName: card.symbol).font(.title2.weight(.semibold))
+                        .frame(width: 32) // cùng bề rộng để chữ các thẻ thẳng hàng
                     VStack(alignment: .leading, spacing: 2) {
                         Text(card.title).font(.headline)
                         Text(card.subtitle).font(.subheadline).foregroundStyle(.secondary)
