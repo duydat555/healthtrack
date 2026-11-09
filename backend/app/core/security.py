@@ -38,11 +38,18 @@ def create_access_token(subject: str | int, extra: dict[str, Any] | None = None)
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
 
-def decode_access_token(token: str) -> str | None:
-    """Trả về `sub` (id người dùng) nếu token hợp lệ, ngược lại None.
+def create_refresh_token(subject: str | int) -> str:
+    now = datetime.now(UTC)
+    expire = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    payload = {"sub": str(subject), "iat": now, "exp": expire, "type": "refresh"}
+    return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
-    Chỉ chấp nhận đúng thuật toán đã cấu hình (chặn tấn công đổi thuật toán/`none`),
-    bắt buộc có `exp` và `sub`, và chỉ nhận token loại `access` (không nhận refresh token).
+
+def decode_token(token: str, expected_type: str) -> int | None:
+    """Giải mã JWT, trả về user id nếu hợp lệ, chưa hết hạn và đúng loại; ngược lại None.
+
+    Chỉ chấp nhận đúng thuật toán đã cấu hình (chặn đổi thuật toán/`none`) và bắt buộc có
+    `exp` và `sub`. `expected_type` là `access` hoặc `refresh`, chặn dùng nhầm loại token.
     """
     try:
         payload = jwt.decode(
@@ -53,6 +60,15 @@ def decode_access_token(token: str) -> str | None:
         )
     except JWTError:
         return None
-    if payload.get("type") != "access":
+    if payload.get("type") != expected_type:
         return None
-    return str(payload["sub"])
+    try:
+        return int(payload["sub"])
+    except (KeyError, ValueError):
+        return None
+
+
+def decode_access_token(token: str) -> str | None:
+    """Trả về `sub` dạng chuỗi nếu là access token hợp lệ, ngược lại None."""
+    user_id = decode_token(token, "access")
+    return None if user_id is None else str(user_id)

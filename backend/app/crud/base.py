@@ -1,5 +1,6 @@
 """Lớp CRUD generic: dùng lại cho mọi model, tự lọc theo chủ sở hữu (user_id)."""
 
+import builtins
 from typing import Any
 
 from sqlalchemy import select
@@ -72,3 +73,25 @@ class CRUDBase[ModelT: Base]:
         await db.delete(obj)
         await db.commit()
         return True
+
+    async def list_in_range(
+        self,
+        db: AsyncSession,
+        owner_id: int | None,
+        time_field: str,
+        start: Any = None,
+        end: Any = None,
+        *,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> builtins.list[ModelT]:
+        """Liệt kê bản ghi có ``time_field`` trong [start, end], mới nhất trước."""
+        column = getattr(self.model, time_field)
+        stmt = self._scope(select(self.model), owner_id)
+        if start is not None:
+            stmt = stmt.where(column >= start)
+        if end is not None:
+            stmt = stmt.where(column <= end)
+        stmt = stmt.order_by(column.desc(), self.model.id.desc())  # type: ignore[attr-defined]
+        stmt = stmt.offset(skip).limit(min(limit, 200))
+        return builtins.list((await db.execute(stmt)).scalars().all())
