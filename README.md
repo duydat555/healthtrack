@@ -54,6 +54,7 @@ flutter doctor         # kiểm tra môi trường
 make up                # backend phải chạy trước
 make mobile-setup      # flutter pub get (plugin dùng Swift Package Manager)
 make mobile            # mở Simulator và chạy app
+make mobile-dev        # như trên, và TỰ hot reload khi lưu file Dart (đổi máy: make mobile-dev DEVICE="iPhone 16 Pro")
 ```
 
 Không có Mac thì vẫn viết UI Flutter được trên Android emulator; khi đó Liquid Glass tự dùng bản dự phòng (`BackdropFilter`).
