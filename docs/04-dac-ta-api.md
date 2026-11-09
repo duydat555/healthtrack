@@ -10,7 +10,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Cần b
 | Người dùng | `GET /users/me`, `PATCH /users/me` (cần header `Authorization: Bearer <access_token>`, thiếu token trả 401) | Đã có |
 | Cân nặng/BMI | `GET/POST /weights`, `PATCH/DELETE /weights/{id}`; BMI tự tính từ chiều cao hồ sơ; `GET` hỗ trợ `from`, `to`, `limit`, `offset`; chỉ thấy dữ liệu của mình (người khác trả 404) | Đã có |
 | Nước uống | `GET/POST /water`, `PATCH/DELETE /water/{id}`, `GET /water/total?date=YYYY-MM-DD` (tổng ml theo ngày UTC, mặc định hôm nay) | Đã có |
-| Giấc ngủ | `GET/POST /sleep`, `PATCH/DELETE /sleep/{id}` | Phase 2 |
+| Giấc ngủ | `GET/POST /sleep`, `PATCH/DELETE /sleep/{id}`; trả `duration_minutes`; `end_at` phải sau `start_at` (422); `quality` 1-5 | Đã có |
 | Bước chân | `GET/POST /steps`, `PATCH/DELETE /steps/{id}` | Phase 2 |
 | Bữa ăn | `GET/POST /meals`, `PATCH/DELETE /meals/{id}` | Phase 2 |
 | Thuốc | `GET/POST /medications`, `POST /medications/{id}/logs` | Phase 2 |
