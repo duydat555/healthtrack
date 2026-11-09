@@ -33,7 +33,10 @@ mobile/packages/liquid_glass/          # plugin Flutter cục bộ
 └── ios/liquid_glass/Sources/liquid_glass/
     ├── LiquidGlassPlugin.swift        # đăng ký platform view và kênh
     ├── LiquidGlassPlatformView.swift  # UIHostingController bọc view SwiftUI
-    └── LiquidGlassView.swift          # .glassEffect() (iOS 26+)
+    ├── LiquidGlassView.swift          # .glassEffect() (iOS 26+)
+    ├── LiquidGlassTabBar.swift        # thanh tab + nút thêm nhanh, GlassEffectContainer
+    ├── LiquidGlassCardGroup.swift     # nhóm thẻ, morph bằng glassEffectID
+    └── ColorARGB.swift                # Color(argb:) và HostedPlatformView dùng chung
 ```
 Dùng plugin cục bộ thay vì thêm file vào `ios/Runner` để: Flutter tự đăng ký qua `GeneratedPluginRegistrant`, không phải sửa `project.pbxproj` (dễ xung đột khi merge), và test được riêng.
 
@@ -44,6 +47,17 @@ Dùng plugin cục bộ thay vì thêm file vào `ios/Runner` để: Flutter t�
 4. Nếu `false` (iOS cũ, Android, test), widget dùng `BackdropFilter` + nền trong suốt làm bản dự phòng.
 
 Tham số truyền qua `creationParams`: `cornerRadius`, `tint` (ARGB), `interactive`.
+
+## Các widget Liquid Glass
+| Widget Dart | viewType Swift | Mô tả |
+|---|---|---|
+| `LiquidGlass` | `healthtrack/liquid_glass` | Một lớp kính, nội dung Flutter vẽ phía trên |
+| `LiquidGlassTabBar` | `healthtrack/liquid_glass_tab_bar` | Thanh tab dưới và nút thêm nhanh nổi (`.interactive()`), kính hòa vào nhau trong `GlassEffectContainer` |
+| `LiquidGlassCardGroup` | `healthtrack/liquid_glass_card_group` | Nhiều thẻ trong một `GlassEffectContainer`; chạm một thẻ thì nó mở rộng, các thẻ khác co thành nút tròn, kính morph nhờ `glassEffectID` cùng namespace |
+
+Tham số truyền qua `creationParams` (ví dụ `items`, `selected`, `tint`, `cards`). Hai widget mới còn có một `MethodChannel` riêng cho từng view tên `<viewType>/<viewId>`: Swift gửi `onSelect`, `onAdd`, `onExpand` lên Dart; Dart gửi `setSelected` xuống khi tab đổi do go_router.
+
+Tab đang chọn do go_router quyết định (`StatefulNavigationShell.currentIndex`), thanh tab chỉ hiển thị và báo sự kiện chạm. Nội dung thẻ trong `LiquidGlassCardGroup` do Swift vẽ nên chiều cao phải truyền cố định.
 
 ## Phân lớp backend
 `router (api/v1)` → `service (services)` → `crud` → `model (SQLAlchemy)`. Schema Pydantic ở `schemas/`.

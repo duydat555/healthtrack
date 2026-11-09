@@ -30,9 +30,8 @@ lint:
 	docker compose exec backend ruff check .
 
 ## ---------- Mobile (Flutter, chạy trực tiếp trên Mac) ----------
-mobile-setup: ## Cài package Flutter và CocoaPods
+mobile-setup: ## Cài package Flutter (plugin iOS dùng Swift Package Manager, không cần pod install)
 	cd mobile && flutter pub get
-	cd mobile/ios && pod install
 
 mobile: ## Chạy app trên iOS Simulator đang mở
 	open -a Simulator

@@ -7,6 +7,10 @@ import UIKit
 public class LiquidGlassPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
     registrar.register(LiquidGlassViewFactory(), withId: LiquidGlassViewFactory.viewType)
+    registrar.register(
+      LiquidGlassTabBarFactory(messenger: registrar.messenger()), withId: LiquidGlassTabBarFactory.viewType)
+    registrar.register(
+      LiquidGlassCardGroupFactory(messenger: registrar.messenger()), withId: LiquidGlassCardGroupFactory.viewType)
 
     let channel = FlutterMethodChannel(name: "liquid_glass", binaryMessenger: registrar.messenger())
     registrar.addMethodCallDelegate(LiquidGlassPlugin(), channel: channel)

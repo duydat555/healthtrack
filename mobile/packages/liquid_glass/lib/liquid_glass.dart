@@ -4,6 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+export 'src/card_group.dart';
+export 'src/tab_bar.dart';
+
 const _channel = MethodChannel('liquid_glass');
 const _viewType = 'healthtrack/liquid_glass';
 
