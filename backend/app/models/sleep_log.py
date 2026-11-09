@@ -8,7 +8,10 @@ from app.core.db import Base
 
 class SleepLog(Base):
     __tablename__ = "sleep_logs"
-    __table_args__ = (Index("ix_sleep_logs_user_id_start_at", "user_id", "start_at"),)
+    __table_args__ = (
+        Index("ix_sleep_logs_user_id_start_at", "user_id", "start_at"),
+        Index("ix_sleep_logs_user_id_end_at", "user_id", "end_at"),  # thống kê theo ngày thức dậy
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
