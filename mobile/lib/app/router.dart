@@ -1,8 +1,47 @@
 import 'package:go_router/go_router.dart';
 
 import '../features/home/home_screen.dart';
+import '../features/placeholder/placeholder_screen.dart';
+import 'app_shell.dart';
 
-/// Điều hướng của app. Các tab (StatefulShellRoute) thêm ở issue Phase 3.
+/// Điều hướng của app: 4 tab trong [AppShell] và màn hình thêm nhanh phủ toàn màn hình.
 final appRouter = GoRouter(
-  routes: [GoRoute(path: '/', builder: (context, state) => const HomeScreen())],
+  routes: [
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, shell) => AppShell(navigationShell: shell),
+      branches: [
+        StatefulShellBranch(
+          routes: [GoRoute(path: '/', builder: (c, s) => const HomeScreen())],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/metrics',
+              builder: (c, s) => const PlaceholderScreen('Chỉ số'),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/goals',
+              builder: (c, s) => const PlaceholderScreen('Mục tiêu'),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/profile',
+              builder: (c, s) => const PlaceholderScreen('Hồ sơ'),
+            ),
+          ],
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/add',
+      builder: (c, s) => const PlaceholderScreen('Thêm nhanh'),
+    ),
+  ],
 );
