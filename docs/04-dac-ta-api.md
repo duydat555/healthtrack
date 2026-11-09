@@ -19,3 +19,5 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Cần b
 | Nhắc nhở | `GET/POST /reminders`, `PATCH/DELETE /reminders/{id}` | Phase 4 |
 
 **Quy ước:** JSON; lỗi trả `{"detail": "..."}` kèm mã HTTP đúng (400, 401, 403, 404, 422); danh sách hỗ trợ `limit`, `offset`, `from`, `to`.
+
+**Giới hạn tốc độ và đo thời gian:** `POST /auth/login` giới hạn theo IP (mặc định 10 lượt/60 giây, cấu hình `LOGIN_RATE_LIMIT`, `LOGIN_RATE_WINDOW_SECONDS`); vượt ngưỡng trả `429` kèm header `Retry-After`. Giới hạn lưu trong bộ nhớ nên chỉ đúng khi chạy một instance. Mọi phản hồi có header `X-Process-Time-Ms`; request chậm hơn `SLOW_REQUEST_MS` (mặc định 500) bị ghi log cảnh báo.

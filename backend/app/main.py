@@ -5,6 +5,7 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.errors import register_exception_handlers
 from app.core.logging import setup_logging
+from app.core.timing import TimingMiddleware
 
 setup_logging()
 
@@ -16,6 +17,7 @@ app = FastAPI(
 )
 
 register_exception_handlers(app)
+app.add_middleware(TimingMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
