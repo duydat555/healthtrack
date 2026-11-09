@@ -1,0 +1,63 @@
+name: Deploy Backend
+
+# Tự động deploy backend lên Render khi code backend vào main.
+# Cần cấu hình một lần (Settings > Secrets and variables > Actions):
+#   secret   RENDER_DEPLOY_HOOK_URL : Deploy Hook của service trên Render
+#   variable BACKEND_URL            : địa chỉ gốc của backend, ví dụ https://healthtrack-api.onrender.com
+# Nếu chưa có secret, workflow báo bỏ qua và KHÔNG làm CI đỏ.
+on:
+  push:
+    branches: [main]
+    paths: ["backend/**", ".github/workflows/deploy-backend.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      BACKEND_URL: ${{ vars.BACKEND_URL }}
+    steps:
+      - name: Kiểm tra cấu hình
+        id: cfg
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Chưa đặt secret RENDER_DEPLOY_HOOK_URL, bỏ qua deploy."
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Kích hoạt deploy trên Render
+        if: steps.cfg.outputs.enabled == 'true'
+        run: curl --fail --silent --show-error -X POST "$DEPLOY_HOOK"
+
+      - name: Chờ backend sẵn sàng (/health/ready)
+        if: steps.cfg.outputs.enabled == 'true' && env.BACKEND_URL != ''
+        run: |
+          url="${BACKEND_URL%/}/api/v1/health/ready"
+          echo "Kiểm tra $url"
+          # Render cần thời gian build và khởi động; thử tối đa 40 lần, cách nhau 15 giây
+          for i in $(seq 1 40); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$url" || true)
+            echo "Lần $i: HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "Backend đã sẵn sàng."
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::Backend không sẵn sàng sau 10 phút. Xem log trên Render."
+          exit 1
+
+      - name: Nhắc đặt BACKEND_URL
+        if: steps.cfg.outputs.enabled == 'true' && env.BACKEND_URL == ''
+        run: echo "::warning::Chưa đặt biến BACKEND_URL nên không kiểm tra được /health/ready sau deploy."
