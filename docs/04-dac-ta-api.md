@@ -4,7 +4,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Cần b
 
 | Nhóm | Endpoint | Trạng thái |
 |---|---|---|
-| Hệ thống | `GET /health` | Đã có |
+| Hệ thống | `GET /health`, `GET /health/ready` (kiểm tra DB, 503 nếu lỗi) | Đã có |
 | Xác thực | `POST /auth/register` (201, 409 nếu trùng email) | Đã có |
 | Xác thực | `POST /auth/login` (body `email`, `password`), `POST /auth/refresh` (body `refresh_token`); trả `access_token`, `refresh_token`; sai thông tin trả 401 | Đã có |
 | Người dùng | `GET /users/me`, `PATCH /users/me` (cần header `Authorization: Bearer <access_token>`, thiếu token trả 401) | Đã có |
