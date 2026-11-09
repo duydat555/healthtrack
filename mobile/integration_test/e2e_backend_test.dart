@@ -7,7 +7,7 @@ import 'package:healthtrack/main.dart';
 import 'package:integration_test/integration_test.dart';
 
 /// E2E thật: app trên Simulator nói chuyện với backend đang chạy (`make up`) và đã seed (`make seed`).
-///   cd mobile && flutter test integration_test/e2e_backend_test.dart -d <thiết bị> \
+///   cd mobile && flutter test integration_test/e2e_backend_test.dart -d THIET_BI \
 ///     --dart-define=API_URL=http://localhost:8200/api/v1
 /// CẢNH BÁO: bài test xóa token đã lưu trong Keychain của app trên thiết bị đó.
 void main() {
