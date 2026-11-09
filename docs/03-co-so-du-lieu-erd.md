@@ -1,6 +1,6 @@
 # Thiết kế cơ sở dữ liệu
 
-Bản nháp ban đầu, Tân hoàn thiện và chốt ở issue Phase 1.
+ERD ban đầu cho PostgreSQL, hoàn thiện ở issue #24. Tech Lead review và chốt trong PR.
 
 ```mermaid
 erDiagram
@@ -21,17 +21,43 @@ erDiagram
         date birth_date
         string gender
         float height_cm
+        bool is_active
         datetime created_at
+        datetime updated_at
     }
-    WEIGHT_LOGS { int id PK  int user_id FK  float weight_kg  datetime logged_at }
-    WATER_LOGS { int id PK  int user_id FK  int amount_ml  datetime logged_at }
-    SLEEP_LOGS { int id PK  int user_id FK  datetime start_at  datetime end_at  int quality }
-    STEP_LOGS { int id PK  int user_id FK  int steps  date day }
-    MEAL_LOGS { int id PK  int user_id FK  string meal_type  string name  int calories  datetime logged_at }
-    MEDICATIONS { int id PK  int user_id FK  string name  string dosage  string schedule }
-    MEDICATION_LOGS { int id PK  int medication_id FK  datetime taken_at  bool taken }
-    GOALS { int id PK  int user_id FK  string metric  float target  string period }
-    REMINDERS { int id PK  int user_id FK  string kind  time at_time  bool enabled }
+    WEIGHT_LOGS { int id PK  int user_id FK  float weight_kg  float bmi  datetime logged_at  datetime created_at }
+    WATER_LOGS { int id PK  int user_id FK  int amount_ml  datetime logged_at  datetime created_at }
+    SLEEP_LOGS { int id PK  int user_id FK  datetime start_at  datetime end_at  int quality  datetime created_at }
+    STEP_LOGS { int id PK  int user_id FK  int steps  date day  datetime created_at }
+    MEAL_LOGS { int id PK  int user_id FK  string meal_type  string name  int calories  datetime logged_at  datetime created_at }
+    MEDICATIONS { int id PK  int user_id FK  string name  string dosage  string schedule  bool is_active  datetime created_at }
+    MEDICATION_LOGS { int id PK  int medication_id FK  datetime taken_at  bool taken  datetime created_at }
+    GOALS { int id PK  int user_id FK  string metric  float target  string period  datetime created_at }
+    REMINDERS { int id PK  int user_id FK  string kind  time at_time  bool enabled  datetime created_at }
 ```
 
-Quy ước: tên bảng số nhiều, snake_case, khóa chính `id`, có `created_at`. Mọi thay đổi cấu trúc phải đi kèm migration Alembic.
+## Mô tả bảng
+
+| Bảng | Mục đích | Ghi chú |
+|---|---|---|
+| `users` | Tài khoản và hồ sơ | `email` duy nhất; `password_hash` băm bcrypt, không lưu mật khẩu thô |
+| `weight_logs` | Nhật ký cân nặng | `bmi` tính từ `weight_kg` và `users.height_cm` khi ghi |
+| `water_logs` | Lượng nước uống mỗi lần | `amount_ml` > 0 |
+| `sleep_logs` | Giấc ngủ | `end_at` > `start_at`; `quality` từ 1 đến 5 |
+| `step_logs` | Số bước chân theo ngày | duy nhất theo (`user_id`, `day`) |
+| `meal_logs` | Bữa ăn | `meal_type`: `breakfast`, `lunch`, `dinner`, `snack` |
+| `medications` | Thuốc đang dùng | `schedule` mô tả lịch uống |
+| `medication_logs` | Nhật ký uống thuốc | liên kết `medications`, xóa thuốc thì xóa nhật ký |
+| `goals` | Mục tiêu theo chỉ số | `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly` |
+| `reminders` | Nhắc nhở | `kind`: `water`, `medication`, `sleep`, `meal`... |
+
+## Ràng buộc và chỉ mục
+
+- Mọi bảng dữ liệu của người dùng có `user_id` FK tới `users.id`, `ON DELETE CASCADE`. `medication_logs` có FK tới `medications.id`, cũng `ON DELETE CASCADE`.
+- Mọi truy vấn lọc theo `user_id` để người dùng chỉ thấy dữ liệu của mình (xem `CRUDBase`).
+- Chỉ mục: `users(email)` duy nhất; các bảng log có chỉ mục ghép (`user_id`, `logged_at`) hoặc (`user_id`, `day`) vì truy vấn thường lọc theo người dùng và khoảng thời gian.
+- Thời gian lưu dạng UTC (`timestamptz`).
+
+## Quy ước
+
+Tên bảng số nhiều, snake_case, khóa chính `id` kiểu số nguyên tự tăng, có `created_at`. Mọi thay đổi cấu trúc phải đi kèm migration Alembic.
