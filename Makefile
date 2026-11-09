@@ -1,7 +1,7 @@
 -include .env
 export
 
-.PHONY: setup up down logs migrate seed backup test lint mobile-setup mobile mobile-test mobile-lint
+.PHONY: setup up down logs migrate seed backup test lint mobile-setup mobile mobile-dev mobile-test mobile-lint
 
 ## ---------- Backend (Docker) ----------
 setup: ## Lần đầu: tạo .env và build image backend
@@ -44,6 +44,10 @@ mobile-setup: ## Cài package Flutter (plugin iOS dùng Swift Package Manager, k
 mobile: ## Chạy app trên iOS Simulator đang mở
 	open -a Simulator
 	cd mobile && flutter run --dart-define=API_URL=http://localhost:$${BACKEND_PORT:-8000}/api/v1
+
+DEVICE ?= iPhone 13
+mobile-dev: ## Chạy app trên Simulator và tự hot reload khi lưu file Dart
+	./scripts/dev-mobile.sh "$(DEVICE)"
 
 mobile-test:
 	cd mobile && flutter test
