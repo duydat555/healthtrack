@@ -48,5 +48,21 @@ Tham số truyền qua `creationParams`: `cornerRadius`, `tint` (ARGB), `interac
 ## Phân lớp backend
 `router (api/v1)` → `service (services)` → `crud` → `model (SQLAlchemy)`. Schema Pydantic ở `schemas/`.
 
+## Lớp CRUD generic và phân quyền theo user
+`app/crud/base.py` có `CRUDBase[Model]` dùng chung cho mọi model, để không lặp code `get/list/create/update/delete`.
+
+```python
+metrics = CRUDBase(Metric)            # mặc định lọc theo cột user_id
+shared  = CRUDBase(Unit, owner_field=None)  # model dùng chung, không thuộc user nào
+await metrics.list(db, owner_id=current_user.id)
+```
+Quy tắc an toàn đã có test (`tests/test_crud_base.py`):
+- Model có cột `user_id` thì **bắt buộc** truyền `owner_id`, thiếu sẽ báo `ValueError`.
+- `create` luôn ghi đè `user_id` bằng `owner_id`, bỏ qua giá trị client gửi.
+- `get/update/delete` bản ghi của người khác trả về `None`/`False`. Router đổi thành **404**, không dùng 403 để không lộ bản ghi có tồn tại.
+- `update` không cho đổi `id` và `user_id`; `list` giới hạn tối đa 200 dòng.
+
+Cách dùng trong tính năng mới: tạo `crud/<tên>.py` với `x = CRUDBase(Model)`, gọi từ `services/`, và luôn truyền `current_user.id` làm `owner_id`.
+
 ## Bảo mật
 Mật khẩu băm bcrypt; JWT access token (30 phút) + refresh token (7 ngày), lưu trong Keychain qua `flutter_secure_storage`; mọi endpoint dữ liệu yêu cầu đăng nhập và chỉ trả dữ liệu của chính người dùng đó.
