@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liquid_glass/liquid_glass.dart';
 import 'package:healthtrack/app/router.dart';
+import 'package:healthtrack/features/metrics/metrics_screen.dart';
 import 'package:healthtrack/main.dart';
 
 void main() {
@@ -31,7 +32,7 @@ void main() {
     await tester.pumpAndSettle();
     appRouter.go('/metrics');
     await tester.pumpAndSettle();
-    expect(find.text('Đang phát triển'), findsOneWidget);
+    expect(find.byType(MetricsScreen), findsOneWidget);
     final bar = tester.widget<LiquidGlassTabBar>(
       find.byType(LiquidGlassTabBar),
     );

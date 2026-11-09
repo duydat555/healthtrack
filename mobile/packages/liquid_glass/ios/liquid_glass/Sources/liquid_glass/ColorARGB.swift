@@ -18,10 +18,11 @@ extension Color {
 final class HostedPlatformView<Content: View>: NSObject, FlutterPlatformView {
     private let host: UIHostingController<Content>
 
-    init(frame: CGRect, rootView: Content) {
+    init(frame: CGRect, rootView: Content, dark: Bool = false) {
         host = UIHostingController(rootView: rootView)
         host.view.frame = frame
         host.view.backgroundColor = .clear
+        if dark { host.overrideUserInterfaceStyle = .dark }
         if #available(iOS 16.4, *) { host.safeAreaRegions = [] }
         super.init()
     }
