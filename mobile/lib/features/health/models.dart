@@ -128,3 +128,51 @@ class MedicationLog {
   final DateTime takenAt;
   final bool taken;
 }
+
+/// Tiến độ một mục tiêu do máy chủ tính (`/stats/summary`).
+@immutable
+class GoalProgress {
+  const GoalProgress({
+    required this.metric,
+    required this.targetValue,
+    required this.currentValue,
+  });
+
+  factory GoalProgress.fromJson(Map<String, dynamic> j) => GoalProgress(
+    metric: j['metric'] as String,
+    targetValue: (j['target_value'] as num).toDouble(),
+    currentValue: (j['current_value'] as num).toDouble(),
+  );
+
+  final String metric;
+  final double targetValue;
+  final double currentValue;
+}
+
+/// Số liệu một ngày theo múi giờ của máy (`/stats/summary`).
+@immutable
+class StatsSummary {
+  const StatsSummary({
+    required this.waterMl,
+    required this.sleepMinutes,
+    required this.medsTaken,
+    required this.goals,
+  });
+
+  factory StatsSummary.fromJson(Map<String, dynamic> j) => StatsSummary(
+    waterMl: j['water_ml'] as int,
+    sleepMinutes: j['sleep_minutes'] as int,
+    medsTaken: (j['medications'] as Map<String, dynamic>)['taken'] as int,
+    goals: [
+      for (final g in j['goals'] as List<dynamic>)
+        GoalProgress.fromJson(g as Map<String, dynamic>),
+    ],
+  );
+
+  final int waterMl;
+
+  /// Tổng phút ngủ của các giấc kết thúc trong ngày.
+  final int sleepMinutes;
+  final int medsTaken;
+  final List<GoalProgress> goals;
+}
