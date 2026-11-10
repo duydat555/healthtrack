@@ -109,3 +109,27 @@ async def test_cors_allows_only_configured_origin() -> None:
     allowed = settings.cors_origins_list[0]
     assert (await _preflight(allowed)).get("access-control-allow-origin") == allowed
     assert "access-control-allow-origin" not in await _preflight("https://evil.example.com")
+
+
+def test_database_url_from_neon_is_converted_for_asyncpg() -> None:
+    from app.core.config import normalize_database_url
+
+    neon = "postgresql://u:p@ep-x.ap-southeast-1.aws.neon.tech/db?sslmode=require&channel_binding=require"
+    assert normalize_database_url(neon) == (
+        "postgresql+asyncpg://u:p@ep-x.ap-southeast-1.aws.neon.tech/db?ssl=require"
+    )
+    assert normalize_database_url("postgres://u:p@h/db").startswith("postgresql+asyncpg://u:p@h/db")
+
+
+def test_database_url_already_asyncpg_is_unchanged() -> None:
+    from app.core.config import normalize_database_url
+
+    url = "postgresql+asyncpg://healthtrack:healthtrack@db:5432/healthtrack"
+    assert normalize_database_url(url) == url
+    assert Settings(DATABASE_URL=url).DATABASE_URL == url
+
+
+def test_settings_normalizes_database_url_and_keeps_other_params() -> None:
+    url = "postgresql://u:p%40ss@h:5432/db?sslmode=verify-full&application_name=ht"
+    got = Settings(DATABASE_URL=url).DATABASE_URL
+    assert got == "postgresql+asyncpg://u:p%40ss@h:5432/db?ssl=verify-full&application_name=ht"
