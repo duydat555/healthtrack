@@ -28,3 +28,5 @@ coverage/
 
 # Bản sao lưu CSDL
 backups/
+.coverage
+mobile/test/failures/
