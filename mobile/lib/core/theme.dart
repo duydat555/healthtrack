@@ -9,9 +9,11 @@ abstract final class AppColors {
   static const cardHigh = Color(0xFF2C2C2E);
   static const separator = Color(0xFF38383A);
   static const ink = Color(0xFFFFFFFF);
-  static const inkSoft = Color(0xFF8E8E93);
 
-  // Màu nhấn của từng chỉ số (cũng là màu của vòng Activity Rings)
+  // Issue #100: Tăng độ tương phản chữ phụ/nhãn tab (xám sáng hơn đạt contrast >= 4.5:1)
+  static const inkSoft = Color(0xFFD1D1D6);
+
+  // Issue #101: Màu nhấn của từng chỉ số (cũng là màu của vòng Activity Rings)
   static const steps = Color(0xFFFA114F); // bước chân
   static const meds = Color(0xFFFA114F); // thuốc (cùng màu vòng thứ nhất)
   static const sleep = Color(0xFFA3F73B); // giấc ngủ
