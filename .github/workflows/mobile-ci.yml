@@ -2,7 +2,7 @@ name: Mobile CI
 
 on:
   workflow_dispatch:
-  # Chạy trên mọi PR (không lọc đường dẫn) để check bắt buộc của branch protection luôn có kết quả
+  # Chạy trên mọi PR để check bắt buộc của branch protection luôn có kết quả
   pull_request:
   push:
     branches: [main]

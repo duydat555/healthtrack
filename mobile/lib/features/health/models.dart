@@ -69,6 +69,46 @@ class SleepLog {
 }
 
 @immutable
+class StepLog {
+  const StepLog({required this.id, required this.steps, required this.day});
+
+  factory StepLog.fromJson(Map<String, dynamic> json) => StepLog(
+    id: json['id'] as int,
+    steps: json['steps'] as int,
+    day: json['day'] as String,
+  );
+
+  final int id;
+  final int steps;
+  final String day;
+}
+
+@immutable
+class MealLog {
+  const MealLog({
+    required this.id,
+    required this.mealType,
+    required this.name,
+    required this.calories,
+    required this.loggedAt,
+  });
+
+  factory MealLog.fromJson(Map<String, dynamic> json) => MealLog(
+    id: json['id'] as int,
+    mealType: json['meal_type'] as String,
+    name: json['name'] as String,
+    calories: json['calories'] as int,
+    loggedAt: _time(json['logged_at']),
+  );
+
+  final int id;
+  final String mealType;
+  final String name;
+  final int calories;
+  final DateTime loggedAt;
+}
+
+@immutable
 class Goal {
   const Goal({
     required this.id,

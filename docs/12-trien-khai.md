@@ -6,6 +6,20 @@
 | CSDL | Neon hoặc Supabase (PostgreSQL) | Backend tự chạy `alembic upgrade head` khi khởi động |
 | App iOS | TestFlight (cần Apple Developer) hoặc cài trực tiếp qua Xcode | Build: `flutter build ipa --dart-define=API_URL=https://<backend>/api/v1` |
 
+## Triển khai từng bước (khoảng 10 phút, cần tài khoản của bạn)
+Đã chuẩn bị sẵn: `render.yaml` (Render Blueprint), backend tự chuẩn hóa chuỗi kết nối Neon, kiểm tra cấu hình production khi khởi động, workflow deploy. Việc còn lại cần đăng nhập bằng tài khoản thật:
+
+1. **Neon (CSDL):** vào neon.tech, đăng nhập bằng GitHub, tạo project (vùng Singapore cho gần Việt Nam). Mở *Connection Details*, bấm sao chép chuỗi kết nối `postgresql://...`. Dán nguyên dạng, không cần sửa: backend tự đổi sang `postgresql+asyncpg://` và đổi `sslmode` thành `ssl`.
+2. **Render (backend):** vào render.com, đăng nhập bằng GitHub. Chọn *New > Blueprint*, chọn repo `duydat555/healthtrack`, bấm *Apply*. Khi Render hỏi `DATABASE_URL`, dán chuỗi từ Neon. `JWT_SECRET` do Render tự sinh. Đợi build xong (vài phút).
+3. **Kiểm tra:** mở `https://<tên-service>.onrender.com/api/v1/health/ready`, thấy `{"status":"ready","database":"ok"}` là xong. Nếu địa chỉ khác `healthtrack-api.onrender.com`, sửa biến `CORS_ORIGINS` trên Render cho khớp.
+4. **Bật deploy tự động:** trong service trên Render, *Settings > Deploy Hook*, sao chép URL. Trên GitHub repo, *Settings > Secrets and variables > Actions*: tạo secret `RENDER_DEPLOY_HOOK_URL` (dán URL hook) và variable `BACKEND_URL` (địa chỉ gốc của backend). Từ đó mỗi lần code `backend/**` vào `main`, workflow `Deploy Backend` tự deploy và chờ `/health/ready`.
+5. **Nạp dữ liệu demo (không bắt buộc):** trên máy bạn, `cd backend && DATABASE_URL='<chuỗi Neon>' ENV=development python -m app.seed`. Tài khoản `demo@healthtrack.example` / `demo12345`.
+6. **Trỏ app tới cloud:** `cd mobile && flutter run --dart-define=API_URL=https://<tên-service>.onrender.com/api/v1`.
+
+Lưu ý về gói miễn phí: Render ngủ sau khoảng 15 phút không có request, request đầu tiên mất 30 đến 60 giây để thức dậy; Neon cũng tự tạm dừng khi rảnh. Trước buổi demo hãy mở `/health/ready` một lần để làm nóng.
+
+Đã kiểm tra cục bộ: chạy backend với `ENV=production`, chuỗi kết nối dạng Neon và secret ngẫu nhiên thì migration chạy đến `0009` và `/health/ready` trả `ready`; secret mặc định bị từ chối khởi động. Chưa kiểm tra được trên Render và Neon thật vì chưa có tài khoản.
+
 ## Cấu hình bắt buộc khi triển khai (#79)
 Backend tự từ chối khởi động ở `ENV=production` nếu cấu hình yếu (xem checklist trong docs/02):
 
@@ -48,4 +62,15 @@ psql "postgresql://<user>:<pass>@<host>/<db>" -f healthtrack.sql   # khôi phụ
 ```
 Neon và Supabase còn có sao lưu/khôi phục theo thời điểm trong trang quản trị; nên tạo một bản sao lưu trước khi nghiệm thu (UAT) và trước mỗi lần thay đổi cấu trúc CSDL.
 
-Cần bổ sung địa chỉ triển khai thật ở issue Phase 5.
+## Địa chỉ đang chạy
+| Thành phần | Nơi chạy |
+|---|---|
+| Backend (HTTPS) | https://healthtrack-api-w0sm.onrender.com (Swagger: `/docs`, sống: `/api/v1/health`, sẵn sàng: `/api/v1/health/ready`) |
+| CSDL | Neon PostgreSQL, vùng Singapore, database `healthtrack_db` (qua pooler) |
+
+Đã kiểm tra trên cloud (10/11/2026): `/health/ready` trả `ready`; đăng ký, đăng nhập, ghi nước và `/stats/summary` chạy qua HTTPS; CORS từ chối origin lạ; migration chạy đến `0009`. Chạy app tới cloud: `cd mobile && flutter run --dart-define=API_URL=https://healthtrack-api-w0sm.onrender.com/api/v1`.
+
+### Lỗi đã gặp khi triển khai lần đầu
+- **Dán chuỗi Neon bị xuống dòng thành dấu cách**: `...ap-southeast 1.aws...` thay vì `ap-southeast-1`. Backend báo `socket.gaierror: Name or service not known`, Render báo "Port scan timeout" và deploy `update_failed`. Khi dán `DATABASE_URL`, kiểm tra chuỗi nằm trên một dòng, không có dấu cách.
+- **Địa chỉ Render có hậu tố ngẫu nhiên** (`-w0sm`), nên `CORS_ORIGINS` đặt theo `healthtrack-api.onrender.com` là sai. Dùng địa chỉ thật hiển thị trên Render.
+- **Deploy Hook không lấy được qua API Render**, phải sao chép từ *Settings > Deploy Hook* trong giao diện.
