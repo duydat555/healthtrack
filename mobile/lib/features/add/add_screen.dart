@@ -283,8 +283,14 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                     for (final item in items)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: Text('${formatNumber(item.steps)} bước'),
-                        subtitle: Text(item.day),
+                        title: Text(
+                          '${formatNumber(item.steps)} bước',
+                          style: const TextStyle(color: AppColors.ink),
+                        ),
+                        subtitle: Text(
+                          item.day,
+                          style: const TextStyle(color: AppColors.inkSoft),
+                        ),
                       ),
                   ],
                 ),
@@ -394,12 +400,19 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                     for (final item in items)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: Text(item.name),
+                        title: Text(
+                          item.name,
+                          style: const TextStyle(color: AppColors.ink),
+                        ),
                         subtitle: Text(
                           '${types[item.mealType] ?? item.mealType} · '
                           '${_formatDay(item.loggedAt)} ${formatTime(item.loggedAt)}',
+                          style: const TextStyle(color: AppColors.inkSoft),
                         ),
-                        trailing: Text('${formatNumber(item.calories)} kcal'),
+                        trailing: Text(
+                          '${formatNumber(item.calories)} kcal',
+                          style: const TextStyle(color: AppColors.inkSoft),
+                        ),
                       ),
                   ],
                 ),
@@ -626,6 +639,12 @@ class _Medicines extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.card,
+        titleTextStyle: const TextStyle(
+          color: AppColors.ink,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        contentTextStyle: const TextStyle(color: AppColors.inkSoft),
         title: const Text('Thêm thuốc'),
         content: Column(
           mainAxisSize: MainAxisSize.min,

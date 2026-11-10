@@ -24,6 +24,12 @@ class ProfileScreen extends ConsumerWidget {
         context: context,
         builder: (ctx) => AlertDialog(
           backgroundColor: AppColors.card,
+          titleTextStyle: const TextStyle(
+            color: AppColors.ink,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+          contentTextStyle: const TextStyle(color: AppColors.inkSoft),
           title: const Text('Chiều cao'),
           content: AppTextField(
             controller: c,
@@ -66,6 +72,11 @@ class ProfileScreen extends ConsumerWidget {
         context: context,
         builder: (ctx) => AlertDialog(
           backgroundColor: AppColors.card,
+          titleTextStyle: const TextStyle(
+            color: AppColors.ink,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
           title: const Text('Đăng xuất?'),
           actions: [
             TextButton(

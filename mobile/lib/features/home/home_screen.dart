@@ -86,6 +86,7 @@ class HomeScreen extends ConsumerWidget {
                   onRetry: () => ref.invalidate(todaySummaryProvider),
                 ),
               ),
+              const SizedBox(height: 8),
               const SectionHeader('Chỉ số cơ thể'),
               body.when(
                 data: (b) => _MetricGrid(data: b),
@@ -95,6 +96,7 @@ class HomeScreen extends ConsumerWidget {
                   onRetry: () => ref.invalidate(bodyDataProvider),
                 ),
               ),
+              const SizedBox(height: 8),
               const SectionHeader('7 ngày qua'),
               body.when(
                 data: (b) => _WaterWeekChart(values: b.waterByDay),

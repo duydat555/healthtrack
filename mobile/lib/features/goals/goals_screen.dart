@@ -146,6 +146,12 @@ class _GoalTile extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.card,
+        titleTextStyle: const TextStyle(
+          color: AppColors.ink,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        contentTextStyle: const TextStyle(color: AppColors.inkSoft),
         title: Text('Mục tiêu ${type.title.toLowerCase()}'),
         content: AppTextField(
           controller: c,
@@ -213,7 +219,7 @@ class _GoalTile extends ConsumerWidget {
             target == null
                 ? 'Chưa đặt${type.metric == 'weight' ? '' : ', đang dùng mặc định ${formatNumber(type.fallback)} ${type.unit}'}'
                 : '${formatNumber(target)} ${type.unit}',
-            style: const TextStyle(color: AppColors.ink, fontSize: 17),
+            style: const TextStyle(color: AppColors.inkSoft, fontSize: 17),
           ),
           trailing: Text(
             target == null ? 'Đặt' : 'Sửa',
