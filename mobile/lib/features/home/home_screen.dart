@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/activity_rings.dart';
+import '../../widgets/liquid_glass_surfaces.dart';
 import '../../widgets/metric_card.dart';
 import '../../widgets/section_header.dart';
 import '../auth/auth_controller.dart';
@@ -42,40 +43,22 @@ class HomeScreen extends ConsumerWidget {
               LiquidGlassTabBar.height + 48,
             ),
             children: [
-              Text(
-                formatHeaderDate(DateTime.now()),
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.inkSoft,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Tổng quan',
-                      style: TextStyle(
-                        fontSize: 34,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.ink,
-                      ),
-                    ),
-                  ),
-                  if (user != null)
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: AppColors.cardHigh,
-                      child: Text(
-                        user.initial,
-                        style: const TextStyle(
-                          color: AppColors.ink,
-                          fontWeight: FontWeight.w700,
+              LiquidGlassHeader(
+                eyebrow: formatHeaderDate(DateTime.now()),
+                title: 'Tổng quan',
+                trailing: user == null
+                    ? null
+                    : CircleAvatar(
+                        radius: 20,
+                        backgroundColor: AppColors.cardHigh,
+                        child: Text(
+                          user.initial,
+                          style: const TextStyle(
+                            color: AppColors.ink,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                    ),
-                ],
               ),
               const SectionHeader('Hôm nay'),
               summary.when(
@@ -124,14 +107,14 @@ class _Loading extends StatelessWidget {
   final double height;
 
   @override
-  Widget build(BuildContext context) => Container(
-    height: height,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: AppColors.card,
-      borderRadius: BorderRadius.circular(AppRadius.card),
+  Widget build(BuildContext context) => LiquidGlassCard(
+    padding: EdgeInsets.zero,
+    child: SizedBox(
+      height: height,
+      child: const Center(
+        child: CircularProgressIndicator(color: AppColors.brand),
+      ),
     ),
-    child: const CircularProgressIndicator(color: AppColors.brand),
   );
 }
 
@@ -142,12 +125,7 @@ class _ErrorCard extends StatelessWidget {
   final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(18),
-    decoration: BoxDecoration(
-      color: AppColors.card,
-      borderRadius: BorderRadius.circular(AppRadius.card),
-    ),
+  Widget build(BuildContext context) => LiquidGlassCard(
     child: Column(
       children: [
         Text(
@@ -176,56 +154,49 @@ class _RingsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = summary;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Row(
-          children: [
-            ActivityRings(
-              size: 124,
-              strokeWidth: 16,
-              rings: [
-                RingData(color: AppColors.water, progress: s.waterProgress),
-                RingData(color: AppColors.sleep, progress: s.sleepProgress),
-                RingData(color: AppColors.meds, progress: s.medsProgress),
+    return LiquidGlassCard(
+      child: Row(
+        children: [
+          ActivityRings(
+            size: 124,
+            strokeWidth: 16,
+            rings: [
+              RingData(color: AppColors.water, progress: s.waterProgress),
+              RingData(color: AppColors.sleep, progress: s.sleepProgress),
+              RingData(color: AppColors.meds, progress: s.medsProgress),
+            ],
+          ),
+          const SizedBox(width: 22),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _Legend(
+                  'Nước uống',
+                  formatNumber(s.waterMl / 1000),
+                  '/${formatNumber(s.waterGoalMl / 1000)} LÍT',
+                  AppColors.water,
+                ),
+                const SizedBox(height: 12),
+                _Legend(
+                  'Giấc ngủ',
+                  s.sleepMinutes == null
+                      ? '--'
+                      : formatNumber(s.sleepMinutes! / 60),
+                  '/${formatNumber(s.sleepGoalMinutes / 60)} GIỜ',
+                  AppColors.sleep,
+                ),
+                const SizedBox(height: 12),
+                _Legend(
+                  'Thuốc',
+                  '${s.medsTaken}',
+                  '/${s.medsTotal} LIỀU',
+                  AppColors.meds,
+                ),
               ],
             ),
-            const SizedBox(width: 22),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _Legend(
-                    'Nước uống',
-                    formatNumber(s.waterMl / 1000),
-                    '/${formatNumber(s.waterGoalMl / 1000)} LÍT',
-                    AppColors.water,
-                  ),
-                  const SizedBox(height: 12),
-                  _Legend(
-                    'Giấc ngủ',
-                    s.sleepMinutes == null
-                        ? '--'
-                        : formatNumber(s.sleepMinutes! / 60),
-                    '/${formatNumber(s.sleepGoalMinutes / 60)} GIỜ',
-                    AppColors.sleep,
-                  ),
-                  const SizedBox(height: 12),
-                  _Legend(
-                    'Thuốc',
-                    '${s.medsTaken}',
-                    '/${s.medsTotal} LIỀU',
-                    AppColors.meds,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -314,6 +285,7 @@ class _MetricGrid extends StatelessWidget {
         unit: 'kg',
         caption: weightCaption(),
         trend: _trend(weights.map((w) => w.weightKg)),
+        backgroundColor: Colors.transparent,
       ),
       MetricCard(
         title: 'BMI',
@@ -323,6 +295,7 @@ class _MetricGrid extends StatelessWidget {
         unit: '',
         caption: bmi == null ? 'Cần chiều cao trong Hồ sơ' : bmiLabel(bmi),
         trend: _trend(weights.map((w) => w.bmi).whereType<double>()),
+        backgroundColor: Colors.transparent,
       ),
       MetricCard(
         title: 'Giấc ngủ',
@@ -336,6 +309,7 @@ class _MetricGrid extends StatelessWidget {
             ? 'Chưa có dữ liệu'
             : 'Dậy lúc ${formatTime(latestSleep.endAt)}',
         trend: _trend(sleeps.map((s) => s.durationMinutes / 60)),
+        backgroundColor: Colors.transparent,
       ),
       MetricCard(
         title: 'Nước uống',
@@ -345,6 +319,7 @@ class _MetricGrid extends StatelessWidget {
         unit: 'lít',
         caption: 'Hôm nay',
         trend: [for (final v in data.waterByDay) v / 1000],
+        backgroundColor: Colors.transparent,
       ),
     ];
     return LayoutBuilder(
@@ -353,11 +328,84 @@ class _MetricGrid extends StatelessWidget {
         return Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: [for (final card in cards) SizedBox(width: w, child: card)],
+          children: [
+            for (final card in cards)
+              SizedBox(
+                width: w,
+                child: LiquidGlassCard(
+                  padding: EdgeInsets.zero,
+                  onTap: () => _showMetricSheet(context, card),
+                  child: card,
+                ),
+              ),
+          ],
         );
       },
     );
   }
+}
+
+Future<void> _showMetricSheet(BuildContext context, MetricCard card) {
+  return showLiquidGlassSheet<void>(
+    context: context,
+    builder: (ctx) => Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(card.icon, color: card.color, size: 24),
+            const SizedBox(width: 10),
+            Text(
+              card.title,
+              style: TextStyle(
+                color: card.color,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: card.value,
+                style: const TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.ink,
+                ),
+              ),
+              if (card.unit.isNotEmpty)
+                TextSpan(
+                  text: ' ${card.unit}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.inkSoft,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          card.caption,
+          style: const TextStyle(fontSize: 15, color: AppColors.inkSoft),
+        ),
+        const SizedBox(height: 16),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Đóng', style: TextStyle(color: AppColors.brand)),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _WaterWeekChart extends StatelessWidget {
@@ -374,14 +422,8 @@ class _WaterWeekChart extends StatelessWidget {
     String label(int i) =>
         weekdayShort[now.subtract(Duration(days: 6 - i)).weekday - 1];
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
+    return LiquidGlassCard(
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
@@ -457,7 +499,6 @@ class _WaterWeekChart extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }

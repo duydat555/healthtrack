@@ -13,6 +13,7 @@ class MetricCard extends StatelessWidget {
     required this.unit,
     required this.caption,
     required this.trend,
+    this.backgroundColor = AppColors.card,
   });
 
   final String title;
@@ -24,6 +25,7 @@ class MetricCard extends StatelessWidget {
 
   /// Các điểm của đường xu hướng, theo thứ tự thời gian.
   final List<double> trend;
+  final Color backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,7 @@ class MetricCard extends StatelessWidget {
       excludeSemantics: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: Padding(
