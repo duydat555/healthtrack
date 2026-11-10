@@ -8,6 +8,7 @@ from app.api.v1 import (
     health,
     meals,
     medications,
+    reminders,
     sleep,
     stats,
     steps,
@@ -26,5 +27,6 @@ api_router.include_router(sleep.router)
 api_router.include_router(steps.router)
 api_router.include_router(meals.router)
 api_router.include_router(medications.router)
+api_router.include_router(reminders.router)
 api_router.include_router(goals.router)
 api_router.include_router(stats.router)
