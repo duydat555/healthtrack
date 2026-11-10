@@ -1,0 +1,29 @@
+# Render Blueprint: tạo service backend từ repo này.
+# Cách dùng: Render Dashboard > New > Blueprint > chọn repo duydat555/healthtrack.
+# Chi tiết từng bước: docs/12-trien-khai.md
+services:
+  - type: web
+    name: healthtrack-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: singapore
+    healthCheckPath: /api/v1/health/ready
+    # Deploy do GitHub Actions kích hoạt qua Deploy Hook sau khi code vào main (deploy-backend.yml)
+    autoDeploy: false
+    envVars:
+      - key: ENV
+        value: production
+      # Render tự sinh chuỗi ngẫu nhiên; production yêu cầu từ 32 ký tự
+      - key: JWT_SECRET
+        generateValue: true
+      # Dán chuỗi kết nối Neon vào đây khi tạo Blueprint (có thể để nguyên dạng Neon cấp)
+      - key: DATABASE_URL
+        sync: false
+      # Địa chỉ được gọi API từ trình duyệt (Swagger); app iOS không bị CORS chặn. Không dùng "*".
+      - key: CORS_ORIGINS
+        value: https://healthtrack-api.onrender.com
+      # Đọc IP thật của người dùng từ proxy của Render để giới hạn đăng nhập theo từng IP
+      - key: FORWARDED_ALLOW_IPS
+        value: "*"
