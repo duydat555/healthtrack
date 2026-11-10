@@ -2,7 +2,7 @@ name: Mobile CI
 
 on:
   workflow_dispatch:
-  # Chạy trên mọi PR (không lọc đường dẫn) để check bắt buộc của branch protection luôn có kết quả
+  # Chạy trên mọi PR để check bắt buộc của branch protection luôn có kết quả
   pull_request:
   push:
     branches: [main]
@@ -21,6 +21,17 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
+
+      # TẠM THỜI: tạo golden trên Ubuntu giống môi trường CI
+      - name: Regenerate foundation widget goldens
+        run: flutter test --update-goldens test/foundation_widgets_test.dart
+      - name: Upload foundation widget goldens
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: foundation-widget-goldens
+          path: mobile/test/goldens/foundation_widgets_*.png
+
       - run: dart format --output=none --set-exit-if-changed lib test integration_test packages/liquid_glass/lib packages/liquid_glass/test
       - run: flutter analyze
       - run: flutter test
