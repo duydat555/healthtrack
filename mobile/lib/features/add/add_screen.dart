@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
+import '../../widgets/state_widgets.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 
@@ -180,9 +181,14 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Thêm nhanh'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => context.pop(),
+        leading: Semantics(
+          button: true,
+          label: 'Đóng màn hình thêm nhanh',
+          child: IconButton(
+            tooltip: 'Đóng',
+            icon: const Icon(Icons.close),
+            onPressed: () => context.pop(),
+          ),
         ),
       ),
       body: SafeArea(
@@ -268,23 +274,29 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         ),
         const SizedBox(height: 8),
         logs.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => TextButton(
-            onPressed: () => ref.invalidate(stepLogsProvider),
-            child: const Text('Tải danh sách bước chân thất bại. Thử lại'),
+          loading: () => const LoadingState(height: 120),
+          error: (e, _) => ErrorState(
+            message: apiErrorMessage(e),
+            onRetry: () => ref.invalidate(stepLogsProvider),
           ),
           data: (items) => items.isEmpty
-              ? const Text(
-                  'Chưa có dữ liệu bước chân.',
-                  style: TextStyle(color: AppColors.inkSoft),
+              ? const EmptyState(
+                  icon: Icons.directions_walk,
+                  message: 'Chưa có dữ liệu bước chân.',
                 )
               : Column(
                   children: [
                     for (final item in items)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: Text('${formatNumber(item.steps)} bước'),
-                        subtitle: Text(item.day),
+                        title: Text(
+                          '${formatNumber(item.steps)} bước',
+                          style: const TextStyle(color: AppColors.ink),
+                        ),
+                        subtitle: Text(
+                          item.day,
+                          style: const TextStyle(color: AppColors.inkSoft),
+                        ),
                       ),
                   ],
                 ),
@@ -379,27 +391,34 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         ),
         const SizedBox(height: 8),
         meals.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => TextButton(
-            onPressed: () => ref.invalidate(mealLogsProvider),
-            child: const Text('Tải danh sách bữa ăn thất bại. Thử lại'),
+          loading: () => const LoadingState(height: 120),
+          error: (e, _) => ErrorState(
+            message: apiErrorMessage(e),
+            onRetry: () => ref.invalidate(mealLogsProvider),
           ),
           data: (items) => items.isEmpty
-              ? const Text(
-                  'Chưa có bữa ăn nào.',
-                  style: TextStyle(color: AppColors.inkSoft),
+              ? const EmptyState(
+                  icon: Icons.restaurant_outlined,
+                  message: 'Chưa có bữa ăn nào.',
                 )
               : Column(
                   children: [
                     for (final item in items)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: Text(item.name),
+                        title: Text(
+                          item.name,
+                          style: const TextStyle(color: AppColors.ink),
+                        ),
                         subtitle: Text(
                           '${types[item.mealType] ?? item.mealType} · '
                           '${_formatDay(item.loggedAt)} ${formatTime(item.loggedAt)}',
+                          style: const TextStyle(color: AppColors.inkSoft),
                         ),
-                        trailing: Text('${formatNumber(item.calories)} kcal'),
+                        trailing: Text(
+                          '${formatNumber(item.calories)} kcal',
+                          style: const TextStyle(color: AppColors.inkSoft),
+                        ),
                       ),
                   ],
                 ),
@@ -541,12 +560,10 @@ class _Medicines extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final meds = ref.watch(medicationsProvider);
     return meds.when(
-      loading: () => const Center(
-        child: CircularProgressIndicator(color: AppColors.brand),
-      ),
-      error: (e, _) => Text(
-        apiErrorMessage(e),
-        style: const TextStyle(color: AppColors.danger),
+      loading: () => const LoadingState(height: 120),
+      error: (e, _) => ErrorState(
+        message: apiErrorMessage(e),
+        onRetry: () => ref.invalidate(medicationsProvider),
       ),
       data: (list) {
         final active = list.where((m) => m.isActive).toList();
@@ -554,13 +571,10 @@ class _Medicines extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (active.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
-                child: Text(
-                  'Chưa có thuốc nào. Thêm thuốc để ghi nhận mỗi lần uống.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.inkSoft),
-                ),
+              const EmptyState(
+                icon: Icons.medication_outlined,
+                message:
+                    'Chưa có thuốc nào. Thêm thuốc để ghi nhận mỗi lần uống.',
               ),
             for (final m in active)
               Padding(
@@ -626,6 +640,12 @@ class _Medicines extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.card,
+        titleTextStyle: const TextStyle(
+          color: AppColors.ink,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        contentTextStyle: const TextStyle(color: AppColors.inkSoft),
         title: const Text('Thêm thuốc'),
         content: Column(
           mainAxisSize: MainAxisSize.min,

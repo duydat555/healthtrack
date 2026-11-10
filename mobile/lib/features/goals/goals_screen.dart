@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
+import '../../widgets/state_widgets.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../health/models.dart';
@@ -81,12 +82,15 @@ class GoalsScreen extends ConsumerWidget {
             LiquidGlassTabBar.height + 48,
           ),
           children: [
-            const Text(
-              'Mục tiêu',
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.w800,
-                color: AppColors.ink,
+            Semantics(
+              header: true,
+              child: const Text(
+                'Mục tiêu',
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.ink,
+                ),
               ),
             ),
             const SizedBox(height: 6),
@@ -96,26 +100,21 @@ class GoalsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             goals.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.brand),
-              ),
-              error: (e, _) => Column(
-                children: [
-                  Text(
-                    apiErrorMessage(e),
-                    style: const TextStyle(color: AppColors.inkSoft),
-                  ),
-                  TextButton(
-                    onPressed: () => ref.invalidate(goalsProvider),
-                    child: const Text(
-                      'Thử lại',
-                      style: TextStyle(color: AppColors.brand),
-                    ),
-                  ),
-                ],
+              loading: () => const LoadingState(),
+              error: (e, _) => ErrorState(
+                message: apiErrorMessage(e),
+                onRetry: () => ref.invalidate(goalsProvider),
               ),
               data: (list) => Column(
                 children: [
+                  if (list.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: EmptyState(
+                        icon: Icons.flag_outlined,
+                        message: 'Bạn chưa đặt mục tiêu nào. Chạm vào từng mục bên dưới để thiết lập.',
+                      ),
+                    ),
                   for (final t in _types)
                     _GoalTile(
                       type: t,
@@ -146,6 +145,12 @@ class _GoalTile extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.card,
+        titleTextStyle: const TextStyle(
+          color: AppColors.ink,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+        contentTextStyle: const TextStyle(color: AppColors.inkSoft),
         title: Text('Mục tiêu ${type.title.toLowerCase()}'),
         content: AppTextField(
           controller: c,
@@ -190,36 +195,42 @@ class _GoalTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final target = goal == null ? null : goal!.targetValue / type.factor;
+    final subtitleText = target == null
+        ? 'Chưa đặt${type.metric == 'weight' ? '' : ', đang dùng mặc định ${formatNumber(type.fallback)} ${type.unit}'}'
+        : '${formatNumber(target)} ${type.unit}';
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        child: ListTile(
-          onTap: () => _edit(context, ref),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 6,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.card),
-          ),
-          leading: Icon(type.icon, color: type.color, size: 28),
-          title: Text(
-            type.title,
-            style: TextStyle(color: type.color, fontWeight: FontWeight.w600),
-          ),
-          subtitle: Text(
-            target == null
-                ? 'Chưa đặt${type.metric == 'weight' ? '' : ', đang dùng mặc định ${formatNumber(type.fallback)} ${type.unit}'}'
-                : '${formatNumber(target)} ${type.unit}',
-            style: const TextStyle(color: AppColors.ink, fontSize: 17),
-          ),
-          trailing: Text(
-            target == null ? 'Đặt' : 'Sửa',
-            style: const TextStyle(
-              color: AppColors.brand,
-              fontWeight: FontWeight.w600,
+      child: Semantics(
+        button: true,
+        label: '${type.title}: $subtitleText',
+        hint: 'Chạm để ${target == null ? 'đặt' : 'chỉnh sửa'} mục tiêu',
+        child: Material(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          child: ListTile(
+            onTap: () => _edit(context, ref),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 6,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.card),
+            ),
+            leading: Icon(type.icon, color: type.color, size: 28),
+            title: Text(
+              type.title,
+              style: TextStyle(color: type.color, fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              subtitleText,
+              style: const TextStyle(color: AppColors.inkSoft, fontSize: 17),
+            ),
+            trailing: Text(
+              target == null ? 'Đặt' : 'Sửa',
+              style: const TextStyle(
+                color: AppColors.brand,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
