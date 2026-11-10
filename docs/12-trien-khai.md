@@ -62,4 +62,15 @@ psql "postgresql://<user>:<pass>@<host>/<db>" -f healthtrack.sql   # khôi phụ
 ```
 Neon và Supabase còn có sao lưu/khôi phục theo thời điểm trong trang quản trị; nên tạo một bản sao lưu trước khi nghiệm thu (UAT) và trước mỗi lần thay đổi cấu trúc CSDL.
 
-Địa chỉ triển khai thật sẽ ghi vào đây sau khi làm xong các bước trên.
+## Địa chỉ đang chạy
+| Thành phần | Nơi chạy |
+|---|---|
+| Backend (HTTPS) | https://healthtrack-api-w0sm.onrender.com (Swagger: `/docs`, sống: `/api/v1/health`, sẵn sàng: `/api/v1/health/ready`) |
+| CSDL | Neon PostgreSQL, vùng Singapore, database `healthtrack_db` (qua pooler) |
+
+Đã kiểm tra trên cloud (10/11/2026): `/health/ready` trả `ready`; đăng ký, đăng nhập, ghi nước và `/stats/summary` chạy qua HTTPS; CORS từ chối origin lạ; migration chạy đến `0009`. Chạy app tới cloud: `cd mobile && flutter run --dart-define=API_URL=https://healthtrack-api-w0sm.onrender.com/api/v1`.
+
+### Lỗi đã gặp khi triển khai lần đầu
+- **Dán chuỗi Neon bị xuống dòng thành dấu cách**: `...ap-southeast 1.aws...` thay vì `ap-southeast-1`. Backend báo `socket.gaierror: Name or service not known`, Render báo "Port scan timeout" và deploy `update_failed`. Khi dán `DATABASE_URL`, kiểm tra chuỗi nằm trên một dòng, không có dấu cách.
+- **Địa chỉ Render có hậu tố ngẫu nhiên** (`-w0sm`), nên `CORS_ORIGINS` đặt theo `healthtrack-api.onrender.com` là sai. Dùng địa chỉ thật hiển thị trên Render.
+- **Deploy Hook không lấy được qua API Render**, phải sao chép từ *Settings > Deploy Hook* trong giao diện.

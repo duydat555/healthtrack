@@ -1,6 +1,7 @@
 # Render Blueprint: tạo service backend từ repo này.
 # Cách dùng: Render Dashboard > New > Blueprint > chọn repo duydat555/healthtrack.
 # Chi tiết từng bước: docs/12-trien-khai.md
+# Lưu ý: Render thêm hậu tố ngẫu nhiên vào địa chỉ (healthtrack-api-w0sm); đổi CORS_ORIGINS nếu tạo service mới.
 services:
   - type: web
     name: healthtrack-api
@@ -23,7 +24,7 @@ services:
         sync: false
       # Địa chỉ được gọi API từ trình duyệt (Swagger); app iOS không bị CORS chặn. Không dùng "*".
       - key: CORS_ORIGINS
-        value: https://healthtrack-api.onrender.com
+        value: https://healthtrack-api-w0sm.onrender.com
       # Đọc IP thật của người dùng từ proxy của Render để giới hạn đăng nhập theo từng IP
       - key: FORWARDED_ALLOW_IPS
         value: "*"
