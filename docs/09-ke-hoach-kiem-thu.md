@@ -15,6 +15,8 @@
 | Health check | `GET /health` trả 200 | Unit | Đạt |
 | Đăng ký | Email trùng bị từ chối, mật khẩu được băm | Integration | Chưa làm |
 | Ghi cân nặng | Chỉ thấy dữ liệu của chính mình | Integration | Chưa làm |
+| Mục tiêu | Chỉ một mục tiêu đang hoạt động cho mỗi user/chỉ số; metric, period và target ngoài giới hạn bị từ chối; lọc và phân trang hoạt động | Integration (`backend/tests/test_goals.py`) | Đã kiểm tra: 9 test pass |
+| Nhật ký thuốc | Ghi nhận đã uống/bỏ lỡ, mặc định thời điểm, mới nhất trước; validate đầu vào, phân trang và không truy cập thuốc của user khác | Integration (`backend/tests/test_medications.py`) | Đã kiểm tra: 7 test pass |
 | Liquid Glass | iOS 26 hiện kính native, iOS cũ hiện bản dự phòng | Thiết bị | Chưa làm |
 | Widget LiquidGlass | Không có channel thì dùng BackdropFilter | Widget | Đạt |
 
