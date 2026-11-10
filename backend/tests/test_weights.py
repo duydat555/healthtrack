@@ -34,6 +34,7 @@ async def test_create_without_height_has_null_bmi(client: AsyncClient) -> None:
 async def test_validation(client: AsyncClient) -> None:
     h = await auth_headers(client)
     assert (await client.post(URL, headers=h, json={"weight_kg": -1})).status_code == 422
+    assert (await client.post(URL, headers=h, json={"weight_kg": 501})).status_code == 422
     assert (await client.post(URL, headers=h, json={})).status_code == 422
 
 
@@ -72,3 +73,9 @@ async def test_filter_by_range_and_paginate(client: AsyncClient) -> None:
     page = await client.get(URL, headers=h, params={"limit": 2, "offset": 1})
     assert [r["weight_kg"] for r in page.json()] == [64, 63]
     assert (await client.get(URL, headers=h, params={"limit": 0})).status_code == 422
+
+
+async def test_update_and_delete_missing_weight_return_404(client: AsyncClient) -> None:
+    h = await auth_headers(client)
+    assert (await client.patch(f"{URL}/999", headers=h, json={"weight_kg": 70})).status_code == 404
+    assert (await client.delete(f"{URL}/999", headers=h)).status_code == 404

@@ -8,6 +8,7 @@ NIGHT = {"start_at": "2026-03-01T22:00:00Z", "end_at": "2026-03-02T06:30:00Z", "
 
 async def test_requires_auth(client: AsyncClient) -> None:
     assert (await client.get(URL)).status_code == 401
+    assert (await client.post(URL, json=NIGHT)).status_code == 401
 
 
 async def test_create_returns_duration(client: AsyncClient) -> None:
@@ -58,3 +59,32 @@ async def test_delete_and_ownership(client: AsyncClient) -> None:
     assert (await client.delete(item, headers=h2)).status_code == 404
     assert (await client.delete(item, headers=h1)).status_code == 204
     assert (await client.delete(item, headers=h1)).status_code == 404
+
+
+async def test_filter_and_paginate(client: AsyncClient) -> None:
+    h = await auth_headers(client)
+    for day in range(1, 6):
+        start = f"2026-03-{day:02}T22:00:00Z"
+        end = f"2026-03-{day + 1:02}T06:00:00Z"
+        res = await client.post(
+            URL, headers=h, json={"start_at": start, "end_at": end, "quality": day}
+        )
+        assert res.status_code == 201
+
+    filtered = await client.get(
+        URL,
+        headers=h,
+        params={"from": "2026-03-02T00:00:00Z", "to": "2026-03-04T23:59:59Z"},
+    )
+    assert [row["quality"] for row in filtered.json()] == [4, 3, 2]
+
+    page = await client.get(URL, headers=h, params={"limit": 2, "offset": 1})
+    assert [row["quality"] for row in page.json()] == [4, 3]
+    assert (await client.get(URL, headers=h, params={"limit": 201})).status_code == 422
+    assert (await client.get(URL, headers=h, params={"offset": -1})).status_code == 422
+
+
+async def test_update_missing_sleep_returns_404(client: AsyncClient) -> None:
+    h = await auth_headers(client)
+    res = await client.patch(f"{URL}/999", headers=h, json={"quality": 3})
+    assert res.status_code == 404
