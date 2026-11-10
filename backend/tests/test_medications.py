@@ -56,6 +56,24 @@ async def test_add_and_list_logs(client: AsyncClient) -> None:
     logs = (await client.get(f"{URL}/{med['id']}/logs", headers=h)).json()
     assert len(logs) == 3
     assert logs[0]["id"] == now.json()["id"]  # mới nhất trước
+    page = await client.get(
+        f"{URL}/{med['id']}/logs", headers=h, params={"limit": 1, "offset": 1}
+    )
+    assert [log["id"] for log in page.json()] == [missed.json()["id"]]
+    assert (
+        await client.get(f"{URL}/{med['id']}/logs", headers=h, params={"limit": 0})
+    ).status_code == 422
+
+
+async def test_log_validation_and_missing_medication(client: AsyncClient) -> None:
+    h = await auth_headers(client)
+    med = await _create(client, h)
+    invalid = await client.post(
+        f"{URL}/{med['id']}/logs", headers=h, json={"taken_at": "not-a-timestamp"}
+    )
+    assert invalid.status_code == 422
+    assert (await client.post(f"{URL}/999/logs", headers=h, json={})).status_code == 404
+    assert (await client.get(f"{URL}/999/logs", headers=h)).status_code == 404
 
 
 async def test_logs_unreachable_after_medication_deleted(client: AsyncClient) -> None:
