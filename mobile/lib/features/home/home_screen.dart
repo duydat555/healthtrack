@@ -424,81 +424,81 @@ class _WaterWeekChart extends StatelessWidget {
 
     return LiquidGlassCard(
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Nước uống',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppColors.water,
-              ),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Nước uống',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppColors.water,
             ),
-            const SizedBox(height: 2),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: formatNumber(total / 7 / 1000),
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.ink,
-                    ),
+          ),
+          const SizedBox(height: 2),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: formatNumber(total / 7 / 1000),
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.ink,
                   ),
-                  const TextSpan(
-                    text: ' lít/ngày',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.inkSoft,
-                    ),
+                ),
+                const TextSpan(
+                  text: ' lít/ngày',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.inkSoft,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 120,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  for (var i = 0; i < values.length; i++)
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TweenAnimationBuilder<double>(
-                            tween: Tween(begin: 0, end: values[i] / max),
-                            duration: Duration(milliseconds: 500 + i * 80),
-                            curve: Curves.easeOutCubic,
-                            builder: (context, t, _) => Container(
-                              height: 88 * t,
-                              width: 18,
-                              decoration: BoxDecoration(
-                                color: i == values.length - 1
-                                    ? AppColors.water
-                                    : AppColors.water.withValues(alpha: 0.45),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 120,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (var i = 0; i < values.length; i++)
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0, end: values[i] / max),
+                          duration: Duration(milliseconds: 500 + i * 80),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, t, _) => Container(
+                            height: 88 * t,
+                            width: 18,
+                            decoration: BoxDecoration(
+                              color: i == values.length - 1
+                                  ? AppColors.water
+                                  : AppColors.water.withValues(alpha: 0.45),
+                              borderRadius: BorderRadius.circular(6),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            label(i),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.inkSoft,
-                            ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          label(i),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.inkSoft,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 }

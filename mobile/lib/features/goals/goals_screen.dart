@@ -84,8 +84,7 @@ class GoalsScreen extends ConsumerWidget {
           children: [
             const LiquidGlassHeader(
               title: 'Mục tiêu',
-              subtitle:
-                  'Mục tiêu của bạn quyết định độ đầy của các vòng ở màn Tổng quan.',
+              subtitle: 'Mục tiêu của bạn quyết định độ đầy của các vòng ở màn Tổng quan.',
             ),
             const SizedBox(height: 20),
             goals.when(
