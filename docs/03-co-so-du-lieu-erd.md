@@ -62,7 +62,8 @@ erDiagram
 | `medications`, `medication_logs` | `0005` | `app/models/medication.py` |
 | `goals` | `0006` | `app/models/goal.py`; chỉ mục unique một phần `(user_id, metric) WHERE is_active` đảm bảo mỗi chỉ số một mục tiêu đang hoạt động |
 | `step_logs` | `0008` | `app/models/step_log.py`; unique index `(user_id, day)` |
-| `meal_logs`, `reminders` | Chưa có | Sẽ bổ sung ở các issue tiếp theo |
+| `meal_logs` | `0009` | `app/models/meal_log.py`; chỉ mục `(user_id, logged_at)` |
+| `reminders` | Chưa có | Sẽ bổ sung ở issue tiếp theo |
 
 Chi tiết đã chốt khi triển khai:
 
@@ -95,6 +96,7 @@ Mọi truy vấn của API đều lọc theo `user_id` trước, rồi theo th�
 | `sleep_logs` | `ix_sleep_logs_user_id_start_at` | `0004` | danh sách theo giờ đi ngủ |
 | `sleep_logs` | `ix_sleep_logs_user_id_end_at` | `0007` | thống kê theo ngày thức dậy (`/stats/*`) |
 | `step_logs` | `uq_step_logs_user_day` (unique) | `0008` | upsert một bản ghi mỗi user/ngày và lọc theo ngày |
+| `meal_logs` | `ix_meal_logs_user_id_logged_at` | `0009` | liệt kê và tính tổng calories theo ngày của user |
 | `medications` | `ix_medications_user_id` | `0005` | danh sách thuốc của người dùng |
 | `medication_logs` | `ix_medication_logs_medication_id_taken_at` | `0005` | nhật ký uống thuốc |
 | `goals` | `uq_goals_user_metric_active` (unique một phần, `WHERE is_active`) | `0006` | mỗi chỉ số một mục tiêu đang hoạt động |

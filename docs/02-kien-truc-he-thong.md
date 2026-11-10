@@ -64,7 +64,7 @@ Chi tiết lớp token, HTTP, đăng nhập, điều hướng và dữ liệu �
 - Access token ngắn hạn (30 phút) và refresh token (7 ngày) lưu trong Keychain. Interceptor tự làm mới phiên khi gặp 401 và chỉ thử lại một lần, nên hết hạn token không làm người dùng bị đăng xuất đột ngột.
 - Mở app: nếu có token thì gọi `/users/me` để khôi phục phiên; token hỏng thì về màn đăng nhập.
 - Màn Tổng quan lấy dữ liệu từ `/water`, `/sleep`, `/weights`, `/goals`, `/medications`; vòng Activity Rings tính từ mục tiêu của người dùng (mặc định 2 lít nước, 8 giờ ngủ).
-- Chưa có API bước chân và bữa ăn nên app chưa hiển thị hai chỉ số này.
+- Backend đã có API bước chân và bữa ăn; app chưa kết nối các API này nên chưa hiển thị hai chỉ số.
 
 ## Phân lớp backend
 `router (api/v1)` → `service (services)` → `crud` → `model (SQLAlchemy)`. Schema Pydantic ở `schemas/`.

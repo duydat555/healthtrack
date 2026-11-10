@@ -14,7 +14,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Mọi e
 | Giấc ngủ | `GET/POST /sleep`, `PATCH/DELETE /sleep/{id}` | Đã có |
 | Thuốc | `GET/POST /medications`, `PATCH/DELETE /medications/{id}`, `POST/GET /medications/{id}/logs` | Đã có |
 | Bước chân | `GET/POST /steps`, `PATCH/DELETE /steps/{id}` | Đã có |
-| Bữa ăn | `GET/POST /meals`, `PATCH/DELETE /meals/{id}` | Phase 2 |
+| Bữa ăn | `GET/POST /meals`, `PATCH/DELETE /meals/{id}`, `GET /meals/total` | Đã có |
 | Mục tiêu | `GET/POST /goals`, `PATCH/DELETE /goals/{id}`; `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly`; mỗi chỉ số tối đa một mục tiêu đang hoạt động (trùng trả 409) | Đã có |
 | Thống kê | `GET /stats/summary?date=` (số liệu trong ngày và tiến độ mục tiêu), `GET /stats/trend?metric=&range=` | Đã có |
 | Nhắc nhở | `GET/POST /reminders`, `PATCH/DELETE /reminders/{id}` | Phase 4 |
@@ -50,8 +50,9 @@ Access token hết hạn sau 30 phút, refresh token sau 7 ngày (cấu hình tr
 | `/water` | `amount_ml` (1-5000), `logged_at?` | | `GET /water/total?date=YYYY-MM-DD` trả `{date, total_ml}` theo ngày UTC, mặc định hôm nay |
 | `/sleep` | `start_at`, `end_at`, `quality?` (1-5) | `duration_minutes` | `end_at` phải sau `start_at`, nếu không trả `422` (cả khi PATCH) |
 | `/steps` | `steps` (số nguyên không âm), `day` (`YYYY-MM-DD`) | | Mỗi user có một bản ghi mỗi ngày. `POST` upsert theo `(user_id, day)`: `201` khi tạo, `200` khi cập nhật bản ghi ngày đó. `GET` hỗ trợ `from`, `to` theo ngày, `limit`, `offset`; PATCH có thể đổi `steps` hoặc `day`, ngày đã tồn tại trả `409`. |
+| `/meals` | `meal_type` (`breakfast`, `lunch`, `dinner`, `snack`), `name`, `calories` (số nguyên không âm), `logged_at?` | | `GET /meals/total?date=YYYY-MM-DD&tz_offset=420` trả `{date, total_calories}`; mặc định ngày hiện tại theo `tz_offset`. Tổng chỉ tính dữ liệu của user hiện tại. |
 
-`logged_at` bỏ trống nghĩa là thời điểm hiện tại. `/sleep` lọc `from`/`to` theo `start_at`. `/steps` yêu cầu client gửi rõ `day` vì ngày ghi phụ thuộc ngày người dùng chọn.
+`logged_at` bỏ trống nghĩa là thời điểm hiện tại. `/sleep` lọc `from`/`to` theo `start_at`. `/steps` yêu cầu client gửi rõ `day` vì ngày ghi phụ thuộc ngày người dùng chọn. `/meals` lọc `from`/`to` theo `logged_at`; tổng calories quy đổi ranh giới ngày từ `tz_offset` sang UTC.
 
 ## Thuốc
 
@@ -84,11 +85,11 @@ curl -X POST /api/v1/weights -H "Authorization: Bearer $TOKEN" \
 | `medications` | `taken` (đã uống) và `missed` (bỏ lỡ) trong ngày |
 | `goals` | Tiến độ từng mục tiêu đang hoạt động: `current_value`, `target_value`, `percent`, `achieved`, `unit` |
 
-Cách tính tiến độ mục tiêu: chu kỳ `daily` lấy trong ngày, `weekly` lấy 7 ngày gần nhất tính cả ngày đang xem. `water`, `steps`, `calories` cộng dồn; `sleep` lấy trung bình phút mỗi đêm có dữ liệu (mục tiêu ngủ là phút mỗi đêm); `percent` không giới hạn 100. Mục tiêu `weight` có `percent` và `achieved` là `null` vì không biết hướng tăng hay giảm, client so `current_value` với `target_value`. `steps` đã có API ghi nhận nhưng chưa được nối vào thống kê nên `current_value` vẫn là 0; `calories` chưa có bảng dữ liệu.
+Cách tính tiến độ mục tiêu: chu kỳ `daily` lấy trong ngày, `weekly` lấy 7 ngày gần nhất tính cả ngày đang xem. `water`, `steps`, `calories` cộng dồn; `sleep` lấy trung bình phút mỗi đêm có dữ liệu (mục tiêu ngủ là phút mỗi đêm); `percent` không giới hạn 100. Mục tiêu `weight` có `percent` và `achieved` là `null` vì không biết hướng tăng hay giảm, client so `current_value` với `target_value`. `steps` và `calories` đã có API ghi nhận nhưng chưa được nối vào thống kê nên `current_value` vẫn là 0.
 
 ## Xu hướng theo thời gian
 
-`GET /stats/trend?metric=weight|water|sleep|steps|calories&range=7d|30d|90d&date=YYYY-MM-DD&tz_offset=420` trả `points` gồm đúng một điểm `{date, value}` cho mỗi ngày trong `range` kết thúc ở `date` (mặc định hôm nay, UTC), kèm `unit`, `from_date`, `to_date`. Ngày không có dữ liệu có `value` là `null` để biểu đồ phân biệt "không ghi" với "bằng 0". Cách tính giá trị theo ngày giống `summary`: `water` cộng dồn, `sleep` tổng phút theo ngày thức dậy, `weight` lấy bản ghi cuối ngày; `steps` đã có API ghi nhưng chưa được nối vào thống kê, còn `calories` chưa có dữ liệu, nên cả hai hiện trả `null`.
+`GET /stats/trend?metric=weight|water|sleep|steps|calories&range=7d|30d|90d&date=YYYY-MM-DD&tz_offset=420` trả `points` gồm đúng một điểm `{date, value}` cho mỗi ngày trong `range` kết thúc ở `date` (mặc định hôm nay, UTC), kèm `unit`, `from_date`, `to_date`. Ngày không có dữ liệu có `value` là `null` để biểu đồ phân biệt "không ghi" với "bằng 0". Cách tính giá trị theo ngày giống `summary`: `water` cộng dồn, `sleep` tổng phút theo ngày thức dậy, `weight` lấy bản ghi cuối ngày; `steps` và calories đã có API ghi nhận nhưng chưa được nối vào thống kê nên hiện trả `null`.
 
 Truy vấn lọc theo thời gian trên các bảng log dùng chỉ mục ghép theo `user_id` và cột thời gian; `sleep_logs` có thêm chỉ mục `(user_id, end_at)` (migration `0007`), còn `step_logs` dùng unique index `(user_id, day)` (migration `0008`).
 
