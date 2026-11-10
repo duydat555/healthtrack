@@ -9,7 +9,7 @@ import '../../widgets/app_form.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 
-enum _Kind { water, weight, sleep, medicine }
+enum _Kind { water, weight, sleep, medicine, steps, meal }
 
 /// Ghi nhanh một chỉ số: nước, cân nặng, giấc ngủ hoặc uống thuốc.
 class AddScreen extends ConsumerStatefulWidget {
@@ -33,18 +33,30 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   TimeOfDay _bed = const TimeOfDay(hour: 23, minute: 0);
   TimeOfDay _wake = const TimeOfDay(hour: 7, minute: 0);
   int? _quality;
+  final _stepsController = TextEditingController();
+  final _mealNameController = TextEditingController();
+  final _caloriesController = TextEditingController();
+  final _stepsFormKey = GlobalKey<FormState>();
+  final _mealFormKey = GlobalKey<FormState>();
+  DateTime _stepDay = DateTime.now();
+  String _mealType = 'breakfast';
 
   @override
   void dispose() {
     _waterCustom.dispose();
     _weight.dispose();
+    _stepsController.dispose();
+    _mealNameController.dispose();
+    _caloriesController.dispose();
     super.dispose();
   }
 
   Future<void> _run(
     Future<void> Function(HealthRepository repo) action,
-    String done,
-  ) async {
+    String done, {
+    bool closeOnSuccess = true,
+    VoidCallback? afterSave,
+  }) async {
     setState(() {
       _busy = true;
       _error = null;
@@ -53,8 +65,9 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       await action(ref.read(healthRepositoryProvider));
       if (!mounted) return;
       refreshHealthData(ref);
+      afterSave?.call();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(done)));
-      context.pop();
+      if (closeOnSuccess) context.pop();
     } catch (e) {
       if (mounted) setState(() => _error = apiErrorMessage(e));
     } finally {
@@ -106,6 +119,53 @@ class _AddScreenState extends ConsumerState<AddScreen> {
     );
   }
 
+  void _submitSteps() {
+    if (!(_stepsFormKey.currentState?.validate() ?? false)) return;
+    final steps = int.parse(_stepsController.text.trim());
+    _run(
+      (repo) => repo.addSteps(steps, day: _stepDay),
+      'Đã lưu ${formatNumber(steps)} bước',
+      closeOnSuccess: false,
+      afterSave: () {
+        _stepsController.clear();
+        ref.invalidate(stepLogsProvider);
+      },
+    );
+  }
+
+  void _submitMeal() {
+    if (!(_mealFormKey.currentState?.validate() ?? false)) return;
+    final calories = int.parse(_caloriesController.text.trim());
+    _run(
+      (repo) => repo.addMeal(
+        mealType: _mealType,
+        name: _mealNameController.text.trim(),
+        calories: calories,
+      ),
+      'Đã lưu bữa ăn',
+      closeOnSuccess: false,
+      afterSave: () {
+        _mealNameController.clear();
+        _caloriesController.clear();
+        refreshStepMealData(ref);
+      },
+    );
+  }
+
+  Future<void> _pickStepDay() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _stepDay,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) setState(() => _stepDay = picked);
+  }
+
+  String _formatDay(DateTime day) =>
+      '${day.day.toString().padLeft(2, '0')}/'
+      '${day.month.toString().padLeft(2, '0')}/${day.year}';
+
   Future<void> _pick(bool bed) async {
     final picked = await showTimePicker(
       context: context,
@@ -129,19 +189,17 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            SegmentedButton<_Kind>(
-              showSelectedIcon: false,
-              segments: const [
-                ButtonSegment(value: _Kind.water, label: Text('Nước')),
-                ButtonSegment(value: _Kind.weight, label: Text('Cân nặng')),
-                ButtonSegment(value: _Kind.sleep, label: Text('Ngủ')),
-                ButtonSegment(value: _Kind.medicine, label: Text('Thuốc')),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                _kindChip(_Kind.water, 'Nước'),
+                _kindChip(_Kind.weight, 'Cân nặng'),
+                _kindChip(_Kind.sleep, 'Ngủ'),
+                _kindChip(_Kind.medicine, 'Thuốc'),
+                _kindChip(_Kind.steps, 'Bước chân'),
+                _kindChip(_Kind.meal, 'Bữa ăn'),
               ],
-              selected: {_kind},
-              onSelectionChanged: (s) => setState(() {
-                _kind = s.first;
-                _error = null;
-              }),
             ),
             const SizedBox(height: 24),
             switch (_kind) {
@@ -149,11 +207,204 @@ class _AddScreenState extends ConsumerState<AddScreen> {
               _Kind.weight => _weightForm(),
               _Kind.sleep => _sleep(),
               _Kind.medicine => _Medicines(onDone: () => setState(() {})),
+              _Kind.steps => _stepsForm(),
+              _Kind.meal => _mealForm(),
             },
             if (_kind != _Kind.medicine) ErrorText(_error),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _kindChip(_Kind kind, String label) => ChoiceChip(
+    label: Text(label),
+    selected: _kind == kind,
+    onSelected: (_) => setState(() {
+      _kind = kind;
+      _error = null;
+    }),
+  );
+
+  Widget _stepsForm() {
+    final logs = ref.watch(stepLogsProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        OutlinedButton.icon(
+          onPressed: _pickStepDay,
+          icon: const Icon(Icons.calendar_today),
+          label: Text('Ngày ghi: ${_formatDay(_stepDay)}'),
+        ),
+        const SizedBox(height: 12),
+        Form(
+          key: _stepsFormKey,
+          child: AppTextField(
+            controller: _stepsController,
+            label: 'Số bước',
+            suffixText: 'bước',
+            keyboardType: TextInputType.number,
+            validator: (value) {
+              final text = value?.trim() ?? '';
+              if (text.isEmpty) return 'Nhập số bước.';
+              final count = int.tryParse(text);
+              if (count == null || count < 0) {
+                return 'Số bước phải là số nguyên không âm.';
+              }
+              return null;
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+        PrimaryButton(
+          label: 'Lưu bước chân',
+          loading: _busy,
+          onPressed: _submitSteps,
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          'Các ngày gần đây',
+          style: TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        logs.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, _) => TextButton(
+            onPressed: () => ref.invalidate(stepLogsProvider),
+            child: const Text('Tải danh sách bước chân thất bại. Thử lại'),
+          ),
+          data: (items) => items.isEmpty
+              ? const Text(
+                  'Chưa có dữ liệu bước chân.',
+                  style: TextStyle(color: AppColors.inkSoft),
+                )
+              : Column(
+                  children: [
+                    for (final item in items)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text('${formatNumber(item.steps)} bước'),
+                        subtitle: Text(item.day),
+                      ),
+                  ],
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _mealForm() {
+    final meals = ref.watch(mealLogsProvider);
+    final calories = ref.watch(mealCaloriesProvider);
+    const types = <String, String>{
+      'breakfast': 'Sáng',
+      'lunch': 'Trưa',
+      'dinner': 'Tối',
+      'snack': 'Phụ',
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Form(
+          key: _mealFormKey,
+          child: Column(
+            children: [
+              DropdownButtonFormField<String>(
+                initialValue: _mealType,
+                decoration: const InputDecoration(
+                  labelText: 'Loại bữa ăn',
+                  filled: true,
+                  fillColor: AppColors.card,
+                ),
+                items: [
+                  for (final type in types.entries)
+                    DropdownMenuItem(value: type.key, child: Text(type.value)),
+                ],
+                onChanged: (value) {
+                  if (value != null) setState(() => _mealType = value);
+                },
+              ),
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: _mealNameController,
+                label: 'Tên món ăn',
+                validator: (value) => value?.trim().isNotEmpty == true
+                    ? null
+                    : 'Nhập tên món ăn.',
+              ),
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: _caloriesController,
+                label: 'Calories',
+                suffixText: 'kcal',
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  final text = value?.trim() ?? '';
+                  if (text.isEmpty) return 'Nhập calories.';
+                  final count = int.tryParse(text);
+                  if (count == null || count < 0) {
+                    return 'Calories phải là số nguyên không âm.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              PrimaryButton(
+                label: 'Lưu bữa ăn',
+                loading: _busy,
+                onPressed: _submitMeal,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        calories.when(
+          loading: () => const LinearProgressIndicator(),
+          error: (_, _) => const Text(
+            'Chưa tải được tổng calories hôm nay.',
+            style: TextStyle(color: AppColors.inkSoft),
+          ),
+          data: (total) => Text(
+            'Tổng hôm nay: ${formatNumber(total)} kcal',
+            style: const TextStyle(
+              color: AppColors.meal,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Bữa ăn gần đây',
+          style: TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 8),
+        meals.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, _) => TextButton(
+            onPressed: () => ref.invalidate(mealLogsProvider),
+            child: const Text('Tải danh sách bữa ăn thất bại. Thử lại'),
+          ),
+          data: (items) => items.isEmpty
+              ? const Text(
+                  'Chưa có bữa ăn nào.',
+                  style: TextStyle(color: AppColors.inkSoft),
+                )
+              : Column(
+                  children: [
+                    for (final item in items)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(item.name),
+                        subtitle: Text(
+                          '${types[item.mealType] ?? item.mealType} · '
+                          '${_formatDay(item.loggedAt)} ${formatTime(item.loggedAt)}',
+                        ),
+                        trailing: Text('${formatNumber(item.calories)} kcal'),
+                      ),
+                  ],
+                ),
+        ),
+      ],
     );
   }
 

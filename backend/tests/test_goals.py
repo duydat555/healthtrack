@@ -105,3 +105,17 @@ async def test_filter_by_metric_and_pagination(client: AsyncClient) -> None:
     assert [g["metric"] for g in only] == ["steps"]
     page = (await client.get(URL, headers=h, params={"limit": 2})).json()
     assert len(page) == 2
+
+
+async def test_update_rejects_invalid_period_and_missing_goal(client: AsyncClient) -> None:
+    h = await auth_headers(client)
+    goal = await _create(client, h)
+    invalid = await client.patch(
+        f"{URL}/{goal['id']}", headers=h, json={"period": "monthly"}
+    )
+    assert invalid.status_code == 422
+    missing_update = await client.patch(
+        f"{URL}/999", headers=h, json={"is_active": False}
+    )
+    assert missing_update.status_code == 404
+    assert (await client.delete(f"{URL}/999", headers=h)).status_code == 404

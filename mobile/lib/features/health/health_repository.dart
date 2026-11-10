@@ -27,6 +27,11 @@ class HealthRepository {
 
   String _utc(DateTime t) => t.toUtc().toIso8601String();
 
+  String _date(DateTime value) =>
+      '${value.year.toString().padLeft(4, '0')}-'
+      '${value.month.toString().padLeft(2, '0')}-'
+      '${value.day.toString().padLeft(2, '0')}';
+
   /// Số phút lệch so với UTC của máy (Việt Nam là 420), để máy chủ chia ngày theo giờ địa phương.
   int get _tzOffset => DateTime.now().timeZoneOffset.inMinutes;
 
@@ -78,6 +83,33 @@ class HealthRepository {
     '/medications/$id/logs',
     MedicationLog.fromJson,
     query: {'limit': limit},
+  );
+
+  Future<List<StepLog>> steps({int limit = 30}) =>
+      _list('/steps', StepLog.fromJson, query: {'limit': limit});
+
+  Future<List<MealLog>> meals({int limit = 30}) =>
+      _list('/meals', MealLog.fromJson, query: {'limit': limit});
+
+  Future<int> mealCalories({DateTime? day}) async {
+    final date = day ?? DateTime.now();
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/meals/total',
+      queryParameters: {'date': _date(date), 'tz_offset': _tzOffset},
+    );
+    return response.data!['total_calories'] as int;
+  }
+
+  Future<void> addSteps(int steps, {required DateTime day}) =>
+      _dio.post<void>('/steps', data: {'steps': steps, 'day': _date(day)});
+
+  Future<void> addMeal({
+    required String mealType,
+    required String name,
+    required int calories,
+  }) => _dio.post<void>(
+    '/meals',
+    data: {'meal_type': mealType, 'name': name, 'calories': calories},
   );
 
   Future<void> addWater(int ml, {DateTime? at}) => _dio.post<void>(

@@ -1,18 +1,36 @@
-# Bảng theo dõi rủi ro
+# Risk Register v1 — HealthTrack
 
-Xác suất (X) và Tác động (T): 1 thấp đến 5 cao. Điểm = X x T. Cập nhật ở đầu và cuối dự án (Risk Register Evolution).
+**Phiên bản:** 1 — đánh giá ban đầu
+**Phạm vi:** rủi ro về dự án, sản phẩm, kỹ thuật, bảo mật, kiểm thử và triển khai theo Charter, WBS và công nghệ trong repo.
 
-| ID | Rủi ro | X | T | Điểm | Biện pháp | Chủ sở hữu | Trạng thái |
-|---|---|---|---|---|---|---|---|
-| R1 | Thành viên không đủ commit đều đặn, bị coi là dump commit | 3 | 5 | 15 | Chia issue nhỏ, nhắc trong họp, theo dõi commit hằng tuần | Đạt | Mở |
-| R2 | Stakeholder chậm phản hồi hoặc đổi yêu cầu | 3 | 4 | 12 | Họp xác nhận định kỳ, quy trình Change Request | Đạt | Mở |
-| R3 | Chỉ build iOS được trên Mac; thành viên không có Mac bị chặn | 3 | 4 | 12 | Phần Swift giao cho người có Mac; UI Flutter chạy được trên Android/macOS với bản dự phòng | Đạt | Mở |
-| R9 | API Liquid Glass (iOS 26) thay đổi hoặc platform view gây giật | 2 | 3 | 6 | Bọc trong widget `LiquidGlass`, luôn có bản dự phòng `BackdropFilter`, đo FPS | Đạt | Mở |
-| R10 | Chưa có tài khoản Apple Developer để phát hành TestFlight | 3 | 3 | 9 | Demo trên Simulator hoặc cài trực tiếp qua Xcode, có video dự phòng | Đạt | Mở |
-| R4 | Hạ tầng cloud miễn phí ngủ đông hoặc giới hạn | 3 | 3 | 9 | Ping giữ thức, có Docker local và video demo dự phòng | Đạt | Mở |
-| R5 | Rò rỉ dữ liệu người dùng hoặc secret | 2 | 5 | 10 | Không commit `.env`, kiểm tra quyền truy cập theo user, review bảo mật | Tân | Mở |
-| R6 | Người dùng từ chối quyền thông báo iOS | 3 | 2 | 6 | Giải thích lý do trước khi xin quyền, có nhắc trong app | Tài | Mở |
-| R7 | Xung đột merge khi nhiều người sửa chung | 3 | 2 | 6 | Nhánh nhỏ, PR ngắn, CODEOWNERS | Đạt | Mở |
-| R8 | Thiếu thời gian vì lịch học các môn khác | 4 | 3 | 12 | Chia task nhỏ, ưu tiên P0 trước | Cả nhóm | Mở |
+Đây là các rủi ro dự kiến để theo dõi, không phải báo cáo sự cố đã xảy ra. Trạng thái ban đầu của từng mục là **Mở**. Bảng không chứa dữ liệu thật của người dùng. Người phụ trách là thành viên nhóm theo vai trò trong Project Charter; không gán tên cho stakeholder chưa được xác định.
 
-Phiên bản cập nhật sau lượt làm việc đầu tiên: cần bổ sung (rủi ro thực tế đã xảy ra và cách xử lý).
+## Thang đánh giá
+
+- **Xác suất (X), 1–5:** 1 Hiếm; 2 Ít khả năng; 3 Có thể; 4 Nhiều khả năng; 5 Gần như chắc chắn.
+- **Tác động (T), 1–5:** 1 Không đáng kể; 2 Nhỏ; 3 Trung bình; 4 Lớn; 5 Rất nghiêm trọng.
+- **Điểm rủi ro = X × T**, từ 1 đến 25. Điểm là mức đánh giá ban đầu để ưu tiên theo dõi, không khẳng định rủi ro đã thành sự cố.
+
+## Danh sách rủi ro
+
+| Mã | Mô tả / nguyên nhân | X | T | Điểm | Biện pháp ứng phó | Người phụ trách | Dấu hiệu kích hoạt | Trạng thái ban đầu |
+|---|---|---:|---:|---:|---|---|---|---|
+| R01 | Tiến độ có thể trễ do nhóm 4 người vừa học vừa làm, task có phụ thuộc và năng lực rảnh không đồng đều. | 4 | 4 | 16 | Chia việc thành issue nhỏ; ưu tiên P0 và đường găng; cập nhật Kanban, blocker và dự báo tiến độ thường xuyên; điều chỉnh phạm vi qua quy trình Change Request khi cần. | Lê Duy Đạt — PM / Scrum Master | Task P0 bị chặn hoặc trễ mốc phụ thuộc; nhiều việc In Progress không có cập nhật kế hoạch. | Mở — đánh giá ban đầu |
+| R02 | Yêu cầu hoặc tiêu chí nghiệm thu có thể chưa rõ hay thay đổi vì thông tin Product Owner/stakeholder trong Charter còn cần xác nhận. | 3 | 4 | 12 | Xác nhận luồng ưu tiên và Acceptance Criteria với stakeholder trước khi chốt; ghi quyết định; thay đổi sau khi chốt đi qua Change Request. | Lê Duy Đạt — PM / Scrum Master | Stakeholder chưa xác nhận tiêu chí trước khi phát triển/UAT hoặc có yêu cầu đổi sau khi task bắt đầu. | Mở — đánh giá ban đầu |
+| R03 | Dữ liệu sức khỏe và thông tin xác thực có thể bị lộ nếu secret được commit/log, quyền truy cập cloud cấu hình rộng hoặc dữ liệu thật được dùng trong môi trường dev/test. | 2 | 5 | 10 | Không đưa dữ liệu sức khỏe thật vào repo/test; không commit `.env`; dùng biến môi trường và secret store; rà soát log, quyền cloud, dependency và thay đổi bảo mật trước khi phát hành. | Đặng Ngọc Tân — Backend Engineer | Secret xuất hiện trong diff/log; phát hiện dữ liệu thật trong fixture; cấu hình môi trường cho phép truy cập ngoài dự kiến. | Mở — đánh giá ban đầu |
+| R04 | Lỗi phân quyền theo user có thể làm API trả hoặc sửa hồ sơ sức khỏe của tài khoản khác (IDOR), nhất là khi endpoint quên lọc `user_id`. | 3 | 5 | 15 | Dùng `CRUDBase` có owner scope; mọi truy vấn truyền user hiện tại; trả 404 với ID không thuộc user; kiểm thử chéo hai tài khoản cho list/read/update/delete và review endpoint mới. | Đặng Ngọc Tân — Backend Engineer | Tài khoản thử nghiệm A đọc/sửa/xóa được ID do tài khoản B tạo; test ownership thất bại. | Mở — đánh giá ban đầu |
+| R05 | Thay đổi schema hoặc migration Alembic có thể thất bại hay lệch giữa local, CI và PostgreSQL cloud, gây gián đoạn khởi động hoặc mất khả năng triển khai. | 3 | 4 | 12 | Migration nhỏ, nối đúng Alembic head; review upgrade/downgrade; chạy migration trên CSDL rỗng và bản nâng cấp trước đó trong CI; tạo backup trước thay đổi cấu trúc ở môi trường dùng chung. | Đặng Ngọc Tân — Backend Engineer | `alembic upgrade head` thất bại, schema khác giữa app và DB, hoặc startup/health check lỗi sau migration. | Mở — đánh giá ban đầu |
+| R06 | Hợp đồng API có thể không khớp giữa FastAPI và Flutter về đường dẫn, payload, kiểu dữ liệu, lỗi hoặc thời điểm cập nhật, làm luồng app hỏng khi tích hợp. | 3 | 4 | 12 | Cập nhật OpenAPI/tài liệu cùng API; thống nhất schema với mobile trước khi nối; kiểm tra request/response qua integration test và smoke test trên app ở mỗi luồng chính. | Đặng Ngọc Tân — Backend Engineer | App nhận 4xx/5xx ngoài dự kiến, parse response lỗi hoặc trạng thái trên app khác dữ liệu API. | Mở — đánh giá ban đầu |
+| R07 | Nhắc nhở cục bộ có thể không chạy đúng lịch do người dùng từ chối quyền thông báo, lịch không được đồng bộ khi cấu hình đổi hoặc xử lý múi giờ/thời gian không nhất quán. | 3 | 4 | 12 | Giải thích quyền trước khi xin; xử lý trạng thái bị từ chối; đồng bộ lịch khi nhắc thay đổi; quy định rõ thời gian UTC/API và chuyển đổi ở thiết bị; kiểm tra lịch, khởi động lại app và thay đổi múi giờ trên iOS. | Nguyễn Văn Tài — QA & module nhắc nhở | Quyền thông báo bị từ chối; thông báo kiểm thử đến sai giờ, lặp lại hoặc không được lập lịch sau khi sửa nhắc. | Mở — đánh giá ban đầu |
+| R08 | Backend hoặc CSDL cloud miễn phí có thể ngủ đông, chạm hạn mức hoặc mất kết nối, làm API phản hồi chậm/không sẵn sàng trong demo và UAT. | 3 | 4 | 12 | Theo dõi health/ready và hạn mức; kiểm tra dịch vụ trước buổi demo; giữ cách chạy Docker local và dữ liệu demo giả làm phương án dự phòng. | Lê Duy Đạt — PM / Scrum Master, Tech Lead | `/health/ready` lỗi, dịch vụ cloud vượt hạn mức/ngủ đông hoặc không thể kết nối vào lúc kiểm thử. | Mở — đánh giá ban đầu |
+| R09 | Build và kiểm thử iOS có thể bị chặn bởi yêu cầu macOS/Xcode hoặc khác biệt giữa iOS 26 và phiên bản cũ; nhóm không có môi trường tương đương trên mọi máy. | 4 | 4 | 16 | Kiểm tra build iOS sớm trên Mac/Xcode sẵn có; giữ UI chạy được trên Android và bản dự phòng Liquid Glass; xác minh trên Simulator iOS 26 và iOS 18 trước nghiệm thu. | Lê Duy Đạt — Tech Lead, Swift / iOS | Build ký iOS không thực hiện được; API iOS 26 lỗi trên bản cũ; chưa có kết quả kiểm tra cho hai nhánh native/dự phòng. | Mở — đánh giá ban đầu |
+| R10 | Độ phủ hoặc độ sâu kiểm thử có thể không đủ để phát hiện lỗi trước nghiệm thu; UAT có nguy cơ thiếu thời gian hoặc không đạt quy mô mục tiêu trong Charter. | 3 | 5 | 15 | Lập test matrix theo Acceptance Criteria; ưu tiên luồng xác thực, quyền sở hữu dữ liệu và CRUD; theo dõi mục tiêu coverage backend 70%; lên kế hoạch UAT sớm với stakeholder và ghi nhận phản hồi/lỗi. | Nguyễn Văn Tài — QA & Test Engineer | Coverage thấp hơn 70%, Acceptance Criteria P0 chưa có kiểm tra, hoặc chưa thể bố trí tối thiểu 10 người dùng thử theo mục tiêu Charter. | Mở — đánh giá ban đầu |
+| R11 | Phát triển song song có thể gây xung đột merge, chậm review hoặc tích hợp muộn do nhiều thay đổi cùng chạm router, schema, migration hay cấu hình. | 3 | 3 | 9 | Mỗi issue dùng nhánh riêng; PR nhỏ và mở sớm; thông báo file/contract liên quan; tích hợp thường xuyên và yêu cầu review theo quy trình repo. | Lê Duy Đạt — PM / Scrum Master, Tech Lead | PR tồn đọng lâu, conflict lặp lại hoặc nhánh phụ thuộc chưa tích hợp trước khi task kế tiếp bắt đầu. | Mở — đánh giá ban đầu |
+| R12 | Liquid Glass/platform view có thể gây giảm hiệu năng hoặc khác biệt hiển thị theo thiết bị/iOS; danh sách dài dùng quá nhiều platform view sẽ tăng chi phí render. | 2 | 3 | 6 | Giới hạn platform view trong vùng cuộn; dùng `LiquidGlass` có `BackdropFilter` fallback; đo hiệu năng và kiểm tra giao diện trên Simulator iOS mới/cũ, sáng/tối. | Lê Duy Đạt — Tech Lead, Swift / iOS | Khung hình vượt ngân sách, cuộn giật hoặc giao diện native/fallback khác đáng kể trên thiết bị hỗ trợ. | Mở — đánh giá ban đầu |
+| R13 | Phát hành TestFlight có thể bị chậm nếu chưa sẵn quyền Apple Developer, chứng chỉ hoặc provisioning; Charter cho phép demo Simulator làm phương án thay thế. | 3 | 3 | 9 | Xác nhận quyền ký và luồng TestFlight sớm; chuẩn bị demo Simulator hoặc cài trực tiếp qua Xcode theo phương án Charter nếu chưa có tài khoản/phân phối. | Lê Duy Đạt — Tech Lead, Swift / iOS | Không thể tạo provisioning/build phân phối trước đợt UAT hoặc TestFlight không cài được trên thiết bị thử. | Mở — đánh giá ban đầu |
+
+## Theo dõi phiên bản
+
+- **v1:** đánh giá ban đầu dựa trên Project Charter, WBS, tài liệu kiến trúc/triển khai và công nghệ hiện có. Các xác suất, tác động và dấu hiệu kích hoạt là nhận định để theo dõi, không phải sự cố đã xác nhận.
+- Rủi ro được xem xét lại khi có thay đổi phạm vi, blocker, thay đổi kỹ thuật lớn, trước UAT và khi tổng kết. Chỉ cập nhật trạng thái “Đã xảy ra” khi có bằng chứng thực tế; ghi sự kiện và cách xử lý ở phiên bản sau.
+- Bản Excel đồng bộ với bảng trên: [08-risk-register-v1.xlsx](08-risk-register-v1.xlsx).
