@@ -102,6 +102,25 @@ final bodyDataProvider = FutureProvider.autoDispose<BodyData>((ref) async {
   );
 });
 
+final stepLogsProvider = FutureProvider.autoDispose<List<StepLog>>(
+  (ref) => ref.watch(healthRepositoryProvider).steps(),
+);
+
+final mealLogsProvider = FutureProvider.autoDispose<List<MealLog>>(
+  (ref) => ref.watch(healthRepositoryProvider).meals(),
+);
+
+final mealCaloriesProvider = FutureProvider.autoDispose<int>(
+  (ref) => ref.watch(healthRepositoryProvider).mealCalories(),
+);
+
+void refreshStepMealData(WidgetRef ref) {
+  ref
+    ..invalidate(stepLogsProvider)
+    ..invalidate(mealLogsProvider)
+    ..invalidate(mealCaloriesProvider);
+}
+
 final goalsProvider = FutureProvider.autoDispose<List<Goal>>(
   (ref) => ref.watch(healthRepositoryProvider).goals(),
 );
