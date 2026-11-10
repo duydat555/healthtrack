@@ -110,3 +110,7 @@ flutter test integration_test/app_test.dart -d <device-id>
 Thay `<device-id>` bằng ID Simulator iOS trong kết quả `flutter devices`. Test đạt khi lệnh kết thúc thành công và assertion tìm thấy nội dung `Hôm nay`. Nếu cần xem danh sách Simulator cài trong Xcode, chạy `xcrun simctl list devices available` trên macOS.
 
 Mobile CI hiện chạy format, analyze và unit/widget test trên Ubuntu; bước integration test trên iOS Simulator được thực hiện riêng theo lệnh trên, không được tính là đã chạy chỉ vì CI unit test xanh. Ghi lại model Simulator, phiên bản iOS, commit và kết quả chạy trong PR/issue.
+
+## Cập nhật ảnh golden (widget test)
+Ảnh trong `mobile/test/goldens/` phải sinh trên **Linux** (cùng môi trường với CI). Sinh trên macOS sẽ lệch khoảng 1% điểm ảnh nên CI báo đỏ, và chạy `flutter test` trên máy Mac cũng sẽ báo lệch với ảnh đã commit. Khi giao diện đổi và cần cập nhật ảnh: chạy `flutter test --update-goldens test/foundation_widgets_test.dart` trong Docker/WSL (Linux), hoặc cho một workflow tạm chạy lệnh đó trên `ubuntu-latest` rồi tải ảnh về.
+
