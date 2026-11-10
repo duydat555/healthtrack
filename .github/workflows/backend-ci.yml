@@ -24,3 +24,7 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: ruff check .
       - run: pytest -q --cov=app
+      - run: >-
+          coverage report
+          --include=app/services/weight.py,app/services/water.py,app/services/sleep.py
+          --fail-under=80
