@@ -9,7 +9,8 @@
 | [05-thiet-ke-giao-dien.md](05-thiet-ke-giao-dien.md) | Màn hình, theme, Liquid Glass | Thuận, Đạt |
 | [06-wbs-va-tu-dien-wbs.md](06-wbs-va-tu-dien-wbs.md) | Cây phân rã công việc, từ điển WBS | Đạt |
 | [07-lich-trinh-cpm.md](07-lich-trinh-cpm.md) | Phụ thuộc giữa các task, đường găng | Đạt |
-| [08-bang-rui-ro.md](08-bang-rui-ro.md) | Bảng theo dõi rủi ro | Tài |
+| [08-bang-rui-ro.md](08-bang-rui-ro.md) | Risk Register v2, điểm rủi ro và sự kiện thực tế | Tài |
+| [04_Risk_Register_Evolution.xlsx](04_Risk_Register_Evolution.xlsx) | Bảng Excel tiến hóa Risk Register v1 → v2 và nhật ký sự kiện | Tài |
 | [09-ke-hoach-kiem-thu.md](09-ke-hoach-kiem-thu.md) | Ma trận kiểm thử | Tài |
 | [10-definition-of-done.md](10-definition-of-done.md) | Định nghĩa hoàn thành | Tài |
 | [11-quy-trinh-git.md](11-quy-trinh-git.md) | Quy trình Git, PR, review | Đạt |
