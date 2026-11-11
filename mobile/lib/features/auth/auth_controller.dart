@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../reminders/reminder_notification_scheduler.dart';
 import 'auth_repository.dart';
 import 'user.dart';
 
@@ -46,10 +49,22 @@ class AuthController extends AsyncNotifier<User?> {
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
     state = const AsyncData(null);
+    await _cancelLocalReminders();
   }
 
   /// Interceptor gọi khi không làm mới được token.
-  void onSessionExpired() => state = const AsyncData(null);
+  void onSessionExpired() {
+    state = const AsyncData(null);
+    unawaited(_cancelLocalReminders());
+  }
+
+  Future<void> _cancelLocalReminders() async {
+    try {
+      await ref.read(reminderNotificationSchedulerProvider).cancelAll();
+    } on Exception {
+      // Việc dọn lịch local không được chặn luồng đăng xuất.
+    }
+  }
 }
 
 final authProvider = AsyncNotifierProvider<AuthController, User?>(
