@@ -29,6 +29,55 @@ abstract final class AppColors {
 
 abstract final class AppRadius {
   static const card = 20.0;
+  static const control = 14.0;
+  static const sheet = 24.0;
+  static const pill = 999.0;
+}
+
+abstract final class AppSpacing {
+  static const xs = 6.0;
+  static const sm = 10.0;
+  static const md = 16.0;
+  static const lg = 24.0;
+}
+
+/// Hệ thống kiểu chữ chuẩn hóa cho toàn bộ ứng dụng.
+abstract final class AppTextStyles {
+  static const pageTitle = TextStyle(
+    fontSize: 34,
+    fontWeight: FontWeight.w800,
+    color: AppColors.ink,
+  );
+
+  static const sectionTitle = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    color: AppColors.ink,
+  );
+
+  static const cardTitle = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: AppColors.ink,
+  );
+
+  static const metricValue = TextStyle(
+    fontSize: 30,
+    fontWeight: FontWeight.w700,
+    color: AppColors.ink,
+  );
+
+  static const body = TextStyle(fontSize: 15, color: AppColors.ink);
+
+  static const bodySoft = TextStyle(fontSize: 15, color: AppColors.inkSoft);
+
+  static const caption = TextStyle(fontSize: 13, color: AppColors.inkSoft);
+
+  static const button = TextStyle(
+    fontSize: 17,
+    fontWeight: FontWeight.w700,
+    color: Colors.white,
+  );
 }
 
 abstract final class AppTheme {
