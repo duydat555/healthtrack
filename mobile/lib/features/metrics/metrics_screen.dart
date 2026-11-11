@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:liquid_glass/liquid_glass.dart';
 
 import '../../core/api_client.dart';
@@ -23,13 +24,32 @@ class MetricsScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Chỉ số',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.ink,
-                ),
+              Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Chỉ số',
+                      style: TextStyle(
+                        fontSize: 34,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                  ),
+                  Semantics(
+                    button: true,
+                    label: 'Xem biểu đồ xu hướng',
+                    child: IconButton(
+                      tooltip: 'Xem biểu đồ xu hướng',
+                      onPressed: () => context.push('/trends'),
+                      icon: const Icon(
+                        Icons.show_chart_rounded,
+                        color: AppColors.ink,
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Expanded(

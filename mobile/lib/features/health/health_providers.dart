@@ -129,6 +129,13 @@ final medicationsProvider = FutureProvider.autoDispose<List<Medication>>(
   (ref) => ref.watch(healthRepositoryProvider).medications(),
 );
 
+final trendSeriesProvider = FutureProvider.autoDispose
+    .family<TrendSeries, ({String metric, String range})>(
+      (ref, q) => ref
+          .watch(healthRepositoryProvider)
+          .statsTrendSeries(q.metric, range: q.range),
+    );
+
 /// Làm mới mọi dữ liệu hiển thị sau khi ghi thêm.
 void refreshHealthData(WidgetRef ref) {
   ref
