@@ -131,42 +131,52 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
           ),
         );
 
-    return SizedBox(
-      height: LiquidGlassTabBar.height,
-      child: Row(
-        children: [
-          Expanded(
-            child: glass(
-              shape: const StadiumBorder(),
-              child: Row(
-                children: [
-                  for (var i = 0; i < widget.items.length; i++)
-                    Expanded(child: _fallbackTab(i)),
-                ],
-              ),
-            ),
-          ),
-          if (widget.onAdd != null) ...[
-            const SizedBox(width: 12),
-            Semantics(
-              button: true,
-              label: 'Thêm nhanh',
-              child: GestureDetector(
-                onTap: widget.onAdd,
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: widget.tint,
-                    shape: BoxShape.circle,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 360;
+        return SizedBox(
+          height: LiquidGlassTabBar.height,
+          child: Row(
+            children: [
+              Expanded(
+                child: glass(
+                  shape: const StadiumBorder(),
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < widget.items.length; i++)
+                        Expanded(child: _fallbackTab(i)),
+                    ],
                   ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 28),
                 ),
               ),
-            ),
-          ],
-        ],
-      ),
+              if (widget.onAdd != null) ...[
+                SizedBox(width: compact ? 8 : 12),
+                Semantics(
+                  button: true,
+                  label: 'Thêm nhanh',
+                  hint: 'Mở màn hình ghi chỉ số sức khỏe',
+                  child: GestureDetector(
+                    onTap: widget.onAdd,
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: widget.tint,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -178,11 +188,13 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
       button: true,
       selected: selected,
       label: item.title,
+      hint: 'Chuyển tới tab ${item.title}',
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => widget.onTap(i),
         child: Container(
           margin: const EdgeInsets.all(4),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             color: selected ? widget.tint.withValues(alpha: 0.16) : null,
             borderRadius: BorderRadius.circular(32),
@@ -191,7 +203,16 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(item.icon, color: color, size: 22),
-              Text(item.title, style: TextStyle(fontSize: 10, color: color)),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    item.title,
+                    maxLines: 1,
+                    style: TextStyle(fontSize: 10, color: color),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
