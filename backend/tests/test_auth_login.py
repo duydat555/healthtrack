@@ -2,9 +2,12 @@ from datetime import UTC, datetime, timedelta
 
 from httpx import AsyncClient
 from jose import jwt
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.config import settings
 from app.core.security import decode_token
+from app.models.user import User
 
 REG = {"email": "an@example.com", "password": "matkhau123", "full_name": "An"}
 LOGIN = {"email": "an@example.com", "password": "matkhau123"}
@@ -60,3 +63,27 @@ async def test_refresh_rejects_expired_and_garbage_token(client: AsyncClient) ->
     for token in (expired, "rac"):
         res = await client.post("/api/v1/auth/refresh", json={"refresh_token": token})
         assert res.status_code == 401
+
+
+async def test_inactive_user_cannot_login_refresh_or_use_existing_access_token(
+    client: AsyncClient, session_maker: async_sessionmaker[AsyncSession]
+) -> None:
+    await _register(client)
+    tokens = (await client.post("/api/v1/auth/login", json=LOGIN)).json()
+
+    async with session_maker() as db:
+        user = (await db.execute(select(User))).scalar_one()
+        user.is_active = False
+        await db.commit()
+
+    login = await client.post("/api/v1/auth/login", json=LOGIN)
+    refresh = await client.post(
+        "/api/v1/auth/refresh", json={"refresh_token": tokens["refresh_token"]}
+    )
+    profile = await client.get(
+        "/api/v1/users/me", headers={"Authorization": f"Bearer {tokens['access_token']}"}
+    )
+
+    assert login.status_code == 401
+    assert refresh.status_code == 401
+    assert profile.status_code == 401

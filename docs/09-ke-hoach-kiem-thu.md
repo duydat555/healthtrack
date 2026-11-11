@@ -82,19 +82,19 @@ Kết quả đã ghi trong tài liệu cho iPhone 13 Simulator (iOS 27.2), chế
 - Ghi nhận cũ: `HomeScreen`, `_RingsCard`, `ActivityRings`, `MetricCard`, `_WeekChart` không rebuild trong lần đo nêu trên. Đây chỉ là kết quả của lần đo/môi trường đó, không phải xác nhận hiệu năng hiện tại trên mọi thiết bị.
 - Simulator không cung cấp số đo profile đại diện cho thiết bị thật; cần đo lại trên iPhone thật ở chế độ profile trước nghiệm thu. Dashboard tại lần ghi nhận dùng dữ liệu mẫu, chưa có provider Riverpod.
 
-## Coverage backend và integration test trên Simulator (issue #31)
+## Coverage backend và integration test trên Simulator (issue #31, #74)
 
 ### Báo cáo coverage backend trong CI
 
-Workflow `.github/workflows/backend-ci.yml` cài backend cùng nhóm dependency `dev` (trong đó có `pytest-cov`), chạy Ruff và pytest với coverage cho package `app`. Báo cáo dạng bảng được in trong log của bước pytest trên GitHub Actions; cột `Missing` liệt kê dòng chưa được thực thi:
+Workflow `.github/workflows/backend-ci.yml` cài backend cùng nhóm dependency `dev` (trong đó có `pytest-cov`), chạy Ruff và pytest với coverage cho package `app`. Issue #74 đặt ngưỡng tổng tối thiểu 70%; CI in báo cáo dạng bảng vào log và GitHub Actions job summary, cột `Missing` liệt kê dòng chưa được thực thi:
 
 ```bash
 cd backend
 pip install -e ".[dev]"
-pytest -q --cov=app --cov-report=term-missing
+pytest -q --cov=app --cov-report=term-missing --cov-fail-under=70
 ```
 
-Kết quả của từng lần chạy phải được xem tại log CI tương ứng. Việc cấu hình xuất báo cáo không tự chứng minh coverage đạt mục tiêu 70% của Charter; không đặt ngưỡng fail mới trong Issue #31.
+CI fail nếu coverage tổng package `app` thấp hơn 70%. Ba service weight, water và sleep tiếp tục có ngưỡng riêng 80%. Kết quả đạt phải được xác nhận trên lần chạy CI của PR; lịch sử báo cáo cũ ở Issue #31 không thay thế kết quả hiện tại.
 
 ### Chạy integration test mẫu trên iOS Simulator
 

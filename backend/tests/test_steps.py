@@ -91,3 +91,16 @@ async def test_validation_and_conflicting_day(client: AsyncClient) -> None:
     )
     assert conflict.status_code == 409
     assert second.status_code == 201
+
+
+async def test_reversed_date_range_and_missing_step_mutations(client: AsyncClient) -> None:
+    headers = await auth_headers(client)
+    reversed_range = await client.get(
+        URL, headers=headers, params={"from": "2026-05-02", "to": "2026-05-01"}
+    )
+    missing_update = await client.patch(f"{URL}/999", headers=headers, json={"steps": 10})
+    missing_delete = await client.delete(f"{URL}/999", headers=headers)
+
+    assert reversed_range.status_code == 422
+    assert missing_update.status_code == 404
+    assert missing_delete.status_code == 404
