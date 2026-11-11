@@ -129,6 +129,10 @@ final medicationsProvider = FutureProvider.autoDispose<List<Medication>>(
   (ref) => ref.watch(healthRepositoryProvider).medications(),
 );
 
+final remindersProvider = FutureProvider.autoDispose<List<Reminder>>(
+  (ref) => ref.watch(healthRepositoryProvider).reminders(),
+);
+
 /// Làm mới mọi dữ liệu hiển thị sau khi ghi thêm.
 void refreshHealthData(WidgetRef ref) {
   ref

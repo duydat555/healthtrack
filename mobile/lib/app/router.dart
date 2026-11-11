@@ -9,6 +9,7 @@ import '../features/goals/goals_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/metrics/metrics_screen.dart';
 import '../features/profile/profile_screen.dart';
+import '../features/reminders/reminders_screen.dart';
 import 'app_shell.dart';
 
 /// Tab mở đầu; đổi bằng `--dart-define=INITIAL_ROUTE=/metrics` khi chụp màn hình hoặc debug.
@@ -73,6 +74,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/add', builder: (c, s) => const AddScreen()),
+      GoRoute(path: '/reminders', builder: (c, s) => const RemindersScreen()),
     ],
   );
   ref.onDispose(router.dispose);

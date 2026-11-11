@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:liquid_glass/liquid_glass.dart';
 
 import '../../core/api_client.dart';
@@ -150,6 +151,19 @@ class ProfileScreen extends ConsumerWidget {
                   : '${formatNumber(user.heightCm!)} cm',
               hint: user.heightCm == null ? 'Cần để tính BMI' : null,
               onTap: editHeight,
+            ),
+            const SizedBox(height: 12),
+            Semantics(
+              button: true,
+              label: 'Cài đặt nhắc nhở',
+              hint:
+                  'Mở màn hình quản lý nhắc nhở uống nước, uống thuốc, đi ngủ',
+              child: _Row(
+                label: 'Nhắc nhở',
+                value: 'Cài đặt',
+                hint: 'Uống nước, uống thuốc, đi ngủ',
+                onTap: () => context.push('/reminders'),
+              ),
             ),
             const SizedBox(height: 24),
             OutlinedButton(
