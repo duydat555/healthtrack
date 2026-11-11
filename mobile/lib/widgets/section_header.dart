@@ -11,6 +11,7 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Semantics(
       header: true,
       button: onTap != null,
@@ -20,20 +21,18 @@ class SectionHeader extends StatelessWidget {
           padding: const EdgeInsets.only(top: 28, bottom: 12),
           child: Row(
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.ink,
+              Flexible(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: c.ink,
+                  ),
                 ),
               ),
               const SizedBox(width: 6),
-              const Icon(
-                Icons.chevron_right,
-                color: AppColors.inkSoft,
-                size: 22,
-              ),
+              Icon(Icons.chevron_right, color: c.inkSoft, size: 22),
             ],
           ),
         ),

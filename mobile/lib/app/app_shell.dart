@@ -28,8 +28,9 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return ColoredBox(
-      color: AppColors.background,
+      color: c.background,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBody: true,
@@ -40,8 +41,8 @@ class AppShell extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: LiquidGlassTabBar(
               items: _tabs,
-              tint: AppColors.brand,
-              dark: true,
+              tint: c.brand,
+              dark: context.isDark,
               currentIndex: navigationShell.currentIndex,
               onTap: (i) => navigationShell.goBranch(
                 i,

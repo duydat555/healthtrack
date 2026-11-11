@@ -27,12 +27,13 @@ class MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Semantics(
       label: '$title: $value $unit. $caption',
       excludeSemantics: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: c.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: Padding(
@@ -63,28 +64,25 @@ class MetricCard extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: value,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.ink,
+                        color: c.ink,
                       ),
                     ),
                     TextSpan(
                       text: ' $unit',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.inkSoft,
+                        color: c.inkSoft,
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                caption,
-                style: const TextStyle(fontSize: 13, color: AppColors.inkSoft),
-              ),
+              Text(caption, style: TextStyle(fontSize: 13, color: c.inkSoft)),
               const SizedBox(height: 14),
               SizedBox(
                 height: 34,

@@ -5,6 +5,7 @@ import 'package:liquid_glass/liquid_glass.dart';
 import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
+import '../../widgets/theme_state_widgets.dart';
 import '../health/health_providers.dart';
 
 /// Màn Chỉ số: các thẻ Liquid Glass (chạm để mở rộng, hiệu ứng morph) với số liệu thật.
@@ -14,6 +15,8 @@ class MetricsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final body = ref.watch(bodyDataProvider);
+    final c = context.colors;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -23,39 +26,37 @@ class MetricsScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Chỉ số',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.ink,
+              Semantics(
+                header: true,
+                child: Text(
+                  'Chỉ số',
+                  style: TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.w800,
+                    color: c.ink,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               Expanded(
                 child: body.when(
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(color: AppColors.brand),
-                  ),
+                  loading: () => const Center(child: LoadingState()),
                   error: (e, _) => Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          apiErrorMessage(e),
-                          style: const TextStyle(color: AppColors.inkSoft),
-                        ),
-                        TextButton(
-                          onPressed: () => ref.invalidate(bodyDataProvider),
-                          child: const Text(
-                            'Thử lại',
-                            style: TextStyle(color: AppColors.brand),
-                          ),
-                        ),
-                      ],
+                    child: ErrorState(
+                      message: apiErrorMessage(e),
+                      onRetry: () => ref.invalidate(bodyDataProvider),
                     ),
                   ),
                   data: (b) {
+                    final hasWater = b.waterByDay.any((v) => v > 0);
+                    if (b.weights.isEmpty && b.sleeps.isEmpty && !hasWater) {
+                      return const Center(
+                        child: EmptyState(
+                          icon: Icons.insights_outlined,
+                          message: 'Chưa có dữ liệu chỉ số. Bấm + để bắt đầu ghi nhận.',
+                        ),
+                      );
+                    }
                     final w = b.weights.firstOrNull;
                     final s = b.sleeps.firstOrNull;
                     final avgSleep = b.sleeps.isEmpty
@@ -70,7 +71,7 @@ class MetricsScreen extends ConsumerWidget {
                         id: 'water',
                         title: 'Nước uống',
                         subtitle:
-                            '${formatNumber(b.waterByDay.last / 1000)} lít hôm nay',
+                            '${formatNumber((b.waterByDay.lastOrNull ?? 0) / 1000)} lít hôm nay',
                         detail:
                             'Trung bình ${formatNumber(b.waterByDay.fold<int>(0, (a, e) => a + e) / 7000)} lít mỗi ngày trong 7 ngày qua.',
                         symbol: 'drop.fill',
@@ -103,15 +104,20 @@ class MetricsScreen extends ConsumerWidget {
                         icon: Icons.monitor_weight,
                       ),
                     ];
-                    return LayoutBuilder(
-                      // Nội dung thẻ do native vẽ nên dựng lại view khi số liệu đổi
-                      key: ValueKey(
-                        cards.map((c) => '${c.subtitle}|${c.detail}').join('#'),
-                      ),
-                      builder: (context, c) => LiquidGlassCardGroup(
-                        cards: cards,
-                        height: c.maxHeight,
-                        dark: true,
+                    return Semantics(
+                      label: 'Nhóm thẻ chỉ số sức khỏe',
+                      child: LayoutBuilder(
+                        // Nội dung thẻ do native vẽ nên dựng lại view khi số liệu đổi
+                        key: ValueKey(
+                          cards
+                              .map((card) => '${card.subtitle}|${card.detail}')
+                              .join('#'),
+                        ),
+                        builder: (context, constraints) => LiquidGlassCardGroup(
+                          cards: cards,
+                          height: constraints.maxHeight,
+                          dark: context.isDark,
+                        ),
                       ),
                     );
                   },

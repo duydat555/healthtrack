@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Màu và kiểu chữ dùng chung. Không hard-code màu trong màn hình, hãy lấy từ đây.
-/// Phong cách theo app Fitness của Apple: nền đen, thẻ xám đậm, màu nhấn rực cho từng chỉ số.
+/// Màu và kiểu chữ dùng chung. Không hard-code màu trong màn hình, hãy lấy từ đây
+/// hoặc qua `context.colors` để hỗ trợ cả Light Mode và Dark Mode.
 abstract final class AppColors {
-  // Nền và chữ
+  // Nền và chữ (Dark Mode mặc định theo phong cách Fitness)
   static const background = Color(0xFF000000);
   static const card = Color(0xFF1C1C1E);
   static const cardHigh = Color(0xFF2C2C2E);
@@ -27,6 +27,157 @@ abstract final class AppColors {
   static const danger = Color(0xFFFF453A);
 }
 
+/// Bảng màu động cho Light / Dark Mode đạt chuẩn tương phản WCAG AA (>= 4.5:1).
+@immutable
+class AppColorPalette extends ThemeExtension<AppColorPalette> {
+  const AppColorPalette({
+    required this.isDark,
+    required this.background,
+    required this.card,
+    required this.cardHigh,
+    required this.separator,
+    required this.ink,
+    required this.inkSoft,
+    required this.steps,
+    required this.meds,
+    required this.sleep,
+    required this.water,
+    required this.weight,
+    required this.meal,
+    required this.medicine,
+    required this.brand,
+    required this.danger,
+  });
+
+  final bool isDark;
+  final Color background;
+  final Color card;
+  final Color cardHigh;
+  final Color separator;
+  final Color ink;
+  final Color inkSoft;
+  final Color steps;
+  final Color meds;
+  final Color sleep;
+  final Color water;
+  final Color weight;
+  final Color meal;
+  final Color medicine;
+  final Color brand;
+  final Color danger;
+
+  static const dark = AppColorPalette(
+    isDark: true,
+    background: AppColors.background,
+    card: AppColors.card,
+    cardHigh: AppColors.cardHigh,
+    separator: AppColors.separator,
+    ink: AppColors.ink,
+    inkSoft: AppColors.inkSoft,
+    steps: AppColors.steps,
+    meds: AppColors.meds,
+    sleep: AppColors.sleep,
+    water: AppColors.water,
+    weight: AppColors.weight,
+    meal: AppColors.meal,
+    medicine: AppColors.medicine,
+    brand: AppColors.brand,
+    danger: AppColors.danger,
+  );
+
+  /// Bảng màu Light Mode chuẩn WCAG AA (>= 4.5:1 trên nền trắng #FFFFFF & xám nhạt #F2F2F7).
+  static const light = AppColorPalette(
+    isDark: false,
+    background: Color(0xFFF2F2F7),
+    card: Color(0xFFFFFFFF),
+    cardHigh: Color(0xFFE5E5EA),
+    separator: Color(0xFFC6C6C8),
+    ink: Color(0xFF111113),
+    inkSoft: Color(0xFF48484A),
+    steps: Color(0xFFC80A3D),
+    meds: Color(0xFFC80A3D),
+    sleep: Color(0xFF3B7A00),
+    water: Color(0xFF007680),
+    weight: Color(0xFF7E2FA3),
+    meal: Color(0xFF9E4700),
+    medicine: Color(0xFF005BB5),
+    brand: Color(0xFFC80A3D),
+    danger: Color(0xFFC62828),
+  );
+
+  @override
+  AppColorPalette copyWith({
+    bool? isDark,
+    Color? background,
+    Color? card,
+    Color? cardHigh,
+    Color? separator,
+    Color? ink,
+    Color? inkSoft,
+    Color? steps,
+    Color? meds,
+    Color? sleep,
+    Color? water,
+    Color? weight,
+    Color? meal,
+    Color? medicine,
+    Color? brand,
+    Color? danger,
+  }) => AppColorPalette(
+    isDark: isDark ?? this.isDark,
+    background: background ?? this.background,
+    card: card ?? this.card,
+    cardHigh: cardHigh ?? this.cardHigh,
+    separator: separator ?? this.separator,
+    ink: ink ?? this.ink,
+    inkSoft: inkSoft ?? this.inkSoft,
+    steps: steps ?? this.steps,
+    meds: meds ?? this.meds,
+    sleep: sleep ?? this.sleep,
+    water: water ?? this.water,
+    weight: weight ?? this.weight,
+    meal: meal ?? this.meal,
+    medicine: medicine ?? this.medicine,
+    brand: brand ?? this.brand,
+    danger: danger ?? this.danger,
+  );
+
+  @override
+  AppColorPalette lerp(ThemeExtension<AppColorPalette>? other, double t) {
+    if (other is! AppColorPalette) return this;
+    return AppColorPalette(
+      isDark: t < 0.5 ? isDark : other.isDark,
+      background: Color.lerp(background, other.background, t)!,
+      card: Color.lerp(card, other.card, t)!,
+      cardHigh: Color.lerp(cardHigh, other.cardHigh, t)!,
+      separator: Color.lerp(separator, other.separator, t)!,
+      ink: Color.lerp(ink, other.ink, t)!,
+      inkSoft: Color.lerp(inkSoft, other.inkSoft, t)!,
+      steps: Color.lerp(steps, other.steps, t)!,
+      meds: Color.lerp(meds, other.meds, t)!,
+      sleep: Color.lerp(sleep, other.sleep, t)!,
+      water: Color.lerp(water, other.water, t)!,
+      weight: Color.lerp(weight, other.weight, t)!,
+      meal: Color.lerp(meal, other.meal, t)!,
+      medicine: Color.lerp(medicine, other.medicine, t)!,
+      brand: Color.lerp(brand, other.brand, t)!,
+      danger: Color.lerp(danger, other.danger, t)!,
+    );
+  }
+}
+
+extension ThemeContextX on BuildContext {
+  AppColorPalette get colors {
+    final theme = Theme.of(this);
+    return theme.extension<AppColorPalette>() ??
+        (theme.brightness == Brightness.light
+            ? AppColorPalette.light
+            : AppColorPalette.dark);
+  }
+
+  bool get isDark => colors.isDark;
+}
+
 abstract final class AppRadius {
   static const card = 20.0;
 }
@@ -42,11 +193,28 @@ abstract final class AppTheme {
     scaffoldBackgroundColor: AppColors.background,
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
+      foregroundColor: AppColors.ink,
       elevation: 0,
       scrolledUnderElevation: 0,
     ),
+    extensions: const [AppColorPalette.dark],
   );
 
-  /// App hiện chỉ có giao diện tối (giống Fitness). Giữ `light` để MaterialApp không lỗi.
-  static ThemeData get light => dark;
+  /// Giao diện Sáng hỗ trợ chế độ hệ thống (Light Mode) với độ tương phản WCAG AA.
+  static ThemeData get light => ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: AppColorPalette.light.brand,
+      brightness: Brightness.light,
+    ).copyWith(surface: AppColorPalette.light.background),
+    scaffoldBackgroundColor: AppColorPalette.light.background,
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
+      foregroundColor: AppColorPalette.light.ink,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+    ),
+    extensions: const [AppColorPalette.light],
+  );
 }

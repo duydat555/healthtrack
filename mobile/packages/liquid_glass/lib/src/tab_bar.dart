@@ -191,7 +191,16 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(item.icon, color: color, size: 22),
-              Text(item.title, style: TextStyle(fontSize: 10, color: color)),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    item.title,
+                    maxLines: 1,
+                    style: TextStyle(fontSize: 10, color: color),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

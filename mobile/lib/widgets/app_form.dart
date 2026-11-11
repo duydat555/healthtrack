@@ -29,6 +29,7 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return TextFormField(
       controller: controller,
       obscureText: obscure,
@@ -37,28 +38,28 @@ class AppTextField extends StatelessWidget {
       textInputAction: textInputAction,
       onFieldSubmitted: onSubmitted,
       validator: validator,
-      style: const TextStyle(color: AppColors.ink, fontSize: 17),
+      style: TextStyle(color: c.ink, fontSize: 17),
       decoration: InputDecoration(
         labelText: label,
         suffixText: suffixText,
-        labelStyle: const TextStyle(color: AppColors.inkSoft),
+        labelStyle: TextStyle(color: c.inkSoft),
         filled: true,
-        fillColor: AppColors.card,
+        fillColor: c.card,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.brand, width: 1.5),
+          borderSide: BorderSide(color: c.brand, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.danger),
+          borderSide: BorderSide(color: c.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+          borderSide: BorderSide(color: c.danger, width: 1.5),
         ),
       ),
     );
@@ -80,14 +81,18 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
+    final c = context.colors;
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: double.infinity,
+        minHeight: 52,
+      ),
       child: FilledButton(
         onPressed: loading ? null : onPressed,
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.brand,
-          disabledBackgroundColor: AppColors.brand.withValues(alpha: 0.5),
+          backgroundColor: c.brand,
+          disabledBackgroundColor: c.brand.withValues(alpha: 0.5),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
@@ -102,6 +107,7 @@ class PrimaryButton extends StatelessWidget {
               )
             : Text(
                 label,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
@@ -122,12 +128,17 @@ class ErrorText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (message == null) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: Text(
-        message!,
-        textAlign: TextAlign.center,
-        style: const TextStyle(color: AppColors.danger, fontSize: 14),
+    final c = context.colors;
+    return Semantics(
+      liveRegion: true,
+      label: 'Lỗi: $message',
+      child: Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: Text(
+          message!,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: c.danger, fontSize: 14),
+        ),
       ),
     );
   }

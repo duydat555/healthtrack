@@ -19,9 +19,9 @@ class HealthTrackApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'HealthTrack',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
+      theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.system,
       routerConfig: ref.watch(routerProvider),
     );
   }

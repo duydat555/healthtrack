@@ -21,8 +21,9 @@ class _AuthScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -33,27 +34,23 @@ class _AuthScaffold extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(
-                      Icons.favorite,
-                      color: AppColors.brand,
-                      size: 44,
-                    ),
+                    Icon(Icons.favorite, color: c.brand, size: 44),
                     const SizedBox(height: 16),
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 34,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.ink,
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 34,
+                          fontWeight: FontWeight.w800,
+                          color: c.ink,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       subtitle,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: AppColors.inkSoft,
-                      ),
+                      style: TextStyle(fontSize: 16, color: c.inkSoft),
                     ),
                     const SizedBox(height: 28),
                     ...children,
@@ -142,9 +139,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         const SizedBox(height: 12),
         TextButton(
           onPressed: _busy ? null : () => context.go('/register'),
-          child: const Text(
+          child: Text(
             'Chưa có tài khoản? Đăng ký',
-            style: TextStyle(color: AppColors.brand, fontSize: 15),
+            style: TextStyle(color: context.colors.brand, fontSize: 15),
           ),
         ),
       ],
@@ -244,9 +241,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         const SizedBox(height: 12),
         TextButton(
           onPressed: _busy ? null : () => context.go('/login'),
-          child: const Text(
+          child: Text(
             'Đã có tài khoản? Đăng nhập',
-            style: TextStyle(color: AppColors.brand, fontSize: 15),
+            style: TextStyle(color: context.colors.brand, fontSize: 15),
           ),
         ),
       ],
@@ -259,8 +256,8 @@ class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    backgroundColor: AppColors.background,
-    body: Center(child: CircularProgressIndicator(color: AppColors.brand)),
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: context.colors.background,
+    body: Center(child: CircularProgressIndicator(color: context.colors.brand)),
   );
 }
