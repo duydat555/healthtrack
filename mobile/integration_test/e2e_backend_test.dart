@@ -48,6 +48,12 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Đăng nhập'));
       await settle(tester);
       expect(find.text('Hôm nay'), findsWidgets);
+      expect(find.text('7 ngày qua'), findsOneWidget);
+      expect(
+        find.textContaining('lít/ngày', findRichText: true),
+        findsOneWidget,
+        reason: 'Dashboard phải hiển thị biểu đồ xu hướng nước từ backend',
+      );
       expect(find.text('N'), findsOneWidget); // "Người dùng Demo"
       expect(
         find.textContaining('--', findRichText: true),

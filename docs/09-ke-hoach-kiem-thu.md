@@ -43,8 +43,8 @@ Tài liệu này liên kết phạm vi sản phẩm trong Project Charter/WBS, A
 | REM-02 Thông báo cục bộ | Lập lịch thông báo đúng giờ; xin quyền iOS; đồng bộ lịch khi reminder thay đổi; có unit test bộ lập lịch | Unit, integration, E2E | T54 | Kế hoạch; chưa có bằng chứng test trong repo tại baseline ma trận |
 | REM-03 Màn hình nhắc nhở | Danh sách và form chọn giờ kiểu iOS; bật/tắt từng nhắc nhở; kết nối API thật | Widget, E2E, UAT | T55 | Kế hoạch; màn hình/module chưa có trong mã mobile tại baseline ma trận |
 | MOB-01 Đăng nhập và ghi dữ liệu | App có đăng ký/đăng nhập; các form ghi chỉ số kết nối API thật | Widget, integration, E2E | E6; T42–T45; WBS 4.3 | Có test widget/auth và `mobile/integration_test/app_test.dart`, `e2e_backend_test.dart`; chưa chạy trong Issue #22 |
-| MOB-02 Dashboard | Thẻ tóm tắt nước, ngủ, bước, calories, cân nặng; kéo để làm mới; loading và empty state | Widget, E2E | T49 | Có widget/integration test liên quan dashboard; AC chưa được xác minh đầy đủ bằng một kết quả test trong lượt này |
-| MOB-03 Biểu đồ xu hướng | Hiển thị biểu đồ theo metric; chọn 7/30/90 ngày; chạm xem giá trị | Widget, E2E | T50, T52 | Có `mobile/integration_test/app_test.dart`; chưa chạy trong Issue #22 |
+| MOB-02 Dashboard | Dashboard hiển thị sau đăng ký với dữ liệu lấy từ API | Widget, E2E | T49, Issue #67 | Widget test và E2E Android pass; chi tiết môi trường bên dưới |
+| MOB-03 Biểu đồ xu hướng | Biểu đồ nước 7 ngày hiển thị trung bình đúng; ngày thiếu dữ liệu được tính là 0 ở dashboard | Widget, E2E | T50, T52, Issue #67 | Widget test và E2E pass với 7 ngày giả lập, gồm ngày không có dữ liệu; chi tiết bên dưới |
 | UI-01 Điều hướng và trạng thái giao diện | Điều hướng tab; màn hình có loading/error/empty; Semantics cho VoiceOver và tương phản theo AC T63 | Widget, thiết bị | T10, T63, WBS 4.1 | Có test widget trong `mobile/test/`; chưa chạy trong Issue #22 |
 | IOS-01 Liquid Glass và dự phòng | iOS 26 dùng native glass; iOS 18 có BackdropFilter; kiểm tra Reduce Transparency; đo FPS khi cuộn | Widget, thiết bị, hiệu năng | T76–T80, WBS 4.2 | Có test package Liquid Glass; kiểm tra thiết bị và kết quả FPS còn là kế hoạch; chưa chạy trong Issue #22 |
 | SEC-01 Kiểm thử bảo mật cơ bản | Checklist kiểm tra IDOR, SQL injection, XSS và rate limit; ghi nhận phát hiện thành issue | Bảo mật, integration | T61 | Có `backend/tests/test_security.py` và `test_rate_limit_timing.py`; checklist OWASP toàn diện chưa có kết quả ghi nhận ở đây |
@@ -66,10 +66,26 @@ Tài liệu này liên kết phạm vi sản phẩm trong Project Charter/WBS, A
 - T12 yêu cầu CI chạy lint/test/build theo nền tảng trên mỗi PR. Definition of Done yêu cầu CI xanh và có test cho phần mới.
 - WBS 5.1 yêu cầu các luồng E2E cốt lõi và kiểm thử bảo mật; WBS 6.1 yêu cầu UAT với stakeholder. Đây là mục tiêu/kế hoạch cho đến khi có bằng chứng thực thi.
 
-## Hiệu năng giao diện (issue #66)
-Bài đo tự động: `mobile/integration_test/dashboard_perf_test.dart`, chạy bằng
-`cd mobile && flutter test integration_test/dashboard_perf_test.dart -d <thiết bị>`.
-Bài đo cuộn màn Tổng quan lên xuống 3 lần, đếm số lần rebuild từng widget (`debugOnRebuildDirtyWidget`) và thu thời gian build/raster của từng khung hình (`FrameTiming`, cùng nguồn số liệu với DevTools).
+## Dashboard và biểu đồ (Issue #67)
+
+Widget test `mobile/test/dashboard_test.dart` cấp dữ liệu trend giả gồm 7 ngày, trong đó một ngày không có dữ liệu. Test xác nhận API được gọi với metric `water` và range `7d`, ngày thiếu dữ liệu được biểu diễn là 0, và trung bình 2.500 ml trong 7 ngày được hiển thị là `0,4 lít/ngày`.
+
+E2E `mobile/integration_test/dashboard_e2e_test.dart` đăng ký tài khoản giả mới, ghi sáu ngày dữ liệu nước giả qua API, rồi xác nhận Dashboard hiển thị điểm thiếu và trung bình biểu đồ `0,4 lít/ngày`. Tài khoản và log giả được giữ trong CSDL local; test đăng xuất để xóa token khỏi thiết bị. Chỉ chạy trên CSDL development.
+
+Chạy widget test bằng `cd mobile && flutter test test/dashboard_test.dart`. E2E trên Android Emulator cần backend local đang chạy, rồi chạy `flutter test integration_test/dashboard_e2e_test.dart -d emulator-5554 --dart-define=API_URL=http://10.0.2.2:8000/api/v1`. E2E trên iOS Simulator dùng `API_URL=http://localhost:8000/api/v1`.
+
+Kết quả kiểm tra Issue #67:
+
+- `flutter test test/dashboard_test.dart`: PASS — 1 test.
+- `flutter analyze`: PASS — không có issue.
+- `flutter test integration_test/dashboard_e2e_test.dart -d emulator-5554 --dart-define=API_URL=http://10.0.2.2:8000/api/v1`: PASS — 1 E2E trên Pixel 4a, Android 13 (API 33), Windows 11, backend PostgreSQL local. Test đăng ký tài khoản mới, ghi sáu log nước giả, xác nhận dữ liệu từng ngày và trung bình biểu đồ `0,4 lít/ngày`, rồi đăng xuất. Tài khoản và log giả vẫn còn trong CSDL development local.
+- Để build Android với compile SDK của Flutter hiện tại, dependency `flutter_local_notifications` được ghim ở `21.0.0`; Gradle bật core library desugaring và multidex.
+
+## Hiệu năng giao diện (ghi nhận từ Issue #66)
+
+> Bài đo tự động: `mobile/integration_test/dashboard_perf_test.dart`, chạy bằng
+> `cd mobile && flutter test integration_test/dashboard_perf_test.dart -d <thiết bị>`.
+> Bài đo cuộn màn Tổng quan lên xuống 3 lần, đếm số lần rebuild từng widget (`debugOnRebuildDirtyWidget`) và thu thời gian build/raster của từng khung hình (`FrameTiming`, cùng nguồn số liệu với DevTools).
 
 Kết quả đã ghi trong tài liệu cho iPhone 13 Simulator (iOS 27.2), chế độ debug, 271 khung hình:
 
