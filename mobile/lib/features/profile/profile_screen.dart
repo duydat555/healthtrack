@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
+import '../../widgets/liquid_glass_surfaces.dart';
 import '../auth/auth_controller.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -20,25 +21,58 @@ class ProfileScreen extends ConsumerWidget {
       final c = TextEditingController(
         text: user.heightCm == null ? '' : formatNumber(user.heightCm!),
       );
-      final ok = await showDialog<bool>(
+      final ok = await showLiquidGlassSheet<bool>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          backgroundColor: AppColors.card,
-          title: const Text('Chiều cao'),
-          content: AppTextField(
-            controller: c,
-            label: 'Chiều cao',
-            suffixText: 'cm',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Hủy'),
+        builder: (ctx) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.height, color: AppColors.brand, size: 24),
+                SizedBox(width: 10),
+                Text(
+                  'Chiều cao',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.ink,
+                  ),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Lưu'),
+            const SizedBox(height: 16),
+            AppTextField(
+              controller: c,
+              label: 'Chiều cao',
+              suffixText: 'cm',
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text(
+                    'Hủy',
+                    style: TextStyle(color: AppColors.inkSoft),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text(
+                    'Lưu',
+                    style: TextStyle(
+                      color: AppColors.brand,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -62,22 +96,54 @@ class ProfileScreen extends ConsumerWidget {
     }
 
     Future<void> logout() async {
-      final ok = await showDialog<bool>(
+      final ok = await showLiquidGlassSheet<bool>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          backgroundColor: AppColors.card,
-          title: const Text('Đăng xuất?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Hủy'),
+        builder: (ctx) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.logout, color: AppColors.danger, size: 24),
+                SizedBox(width: 10),
+                Text(
+                  'Đăng xuất?',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.ink,
+                  ),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text(
-                'Đăng xuất',
-                style: TextStyle(color: AppColors.danger),
-              ),
+            const SizedBox(height: 8),
+            const Text(
+              'Bạn sẽ cần đăng nhập lại để tiếp tục đồng bộ dữ liệu.',
+              style: TextStyle(color: AppColors.inkSoft, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text(
+                    'Hủy',
+                    style: TextStyle(color: AppColors.inkSoft),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: const Text(
+                    'Đăng xuất',
+                    style: TextStyle(
+                      color: AppColors.danger,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -97,52 +163,54 @@ class ProfileScreen extends ConsumerWidget {
             LiquidGlassTabBar.height + 48,
           ),
           children: [
-            const Text(
-              'Hồ sơ',
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.w800,
-                color: AppColors.ink,
+            const LiquidGlassHeader(
+              title: 'Hồ sơ',
+              trailing: Icon(
+                Icons.person_outline,
+                color: AppColors.inkSoft,
+                size: 26,
               ),
             ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 32,
-                  backgroundColor: AppColors.cardHigh,
-                  child: Text(
-                    user.initial,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.ink,
+            const SizedBox(height: 16),
+            LiquidGlassCard(
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 32,
+                    backgroundColor: AppColors.cardHigh,
+                    child: Text(
+                      user.initial,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.ink,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user.fullName,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.ink,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user.fullName,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.ink,
+                          ),
                         ),
-                      ),
-                      Text(
-                        user.email,
-                        style: const TextStyle(color: AppColors.inkSoft),
-                      ),
-                    ],
+                        Text(
+                          user.email,
+                          style: const TextStyle(color: AppColors.inkSoft),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             _Row(
               label: 'Chiều cao',
               value: user.heightCm == null
@@ -182,27 +250,32 @@ class _Row extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: AppColors.card,
-    borderRadius: BorderRadius.circular(AppRadius.card),
-    child: ListTile(
-      onTap: onTap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.card),
-      ),
-      title: Text(label, style: const TextStyle(color: AppColors.ink)),
-      subtitle: hint == null
-          ? null
-          : Text(hint!, style: const TextStyle(color: AppColors.inkSoft)),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            value,
-            style: const TextStyle(color: AppColors.inkSoft, fontSize: 16),
-          ),
-          const Icon(Icons.chevron_right, color: AppColors.inkSoft),
-        ],
+  Widget build(BuildContext context) => LiquidGlassCard(
+    padding: EdgeInsets.zero,
+    interactive: true,
+    child: Material(
+      type: MaterialType.transparency,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      clipBehavior: Clip.antiAlias,
+      child: ListTile(
+        onTap: onTap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.card),
+        ),
+        title: Text(label, style: const TextStyle(color: AppColors.ink)),
+        subtitle: hint == null
+            ? null
+            : Text(hint!, style: const TextStyle(color: AppColors.inkSoft)),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              value,
+              style: const TextStyle(color: AppColors.inkSoft, fontSize: 16),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.inkSoft),
+          ],
+        ),
       ),
     ),
   );

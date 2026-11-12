@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
+import '../../widgets/liquid_glass_surfaces.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 
@@ -512,19 +513,25 @@ class _TimeTile extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: AppColors.card,
-    borderRadius: BorderRadius.circular(14),
-    child: ListTile(
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      title: Text(label, style: const TextStyle(color: AppColors.inkSoft)),
-      trailing: Text(
-        time.format(context),
-        style: const TextStyle(
-          color: AppColors.ink,
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
+  Widget build(BuildContext context) => LiquidGlassCard(
+    cornerRadius: 14,
+    padding: EdgeInsets.zero,
+    interactive: true,
+    child: Material(
+      type: MaterialType.transparency,
+      borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
+      child: ListTile(
+        onTap: onTap,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        title: Text(label, style: const TextStyle(color: AppColors.inkSoft)),
+        trailing: Text(
+          time.format(context),
+          style: const TextStyle(
+            color: AppColors.ink,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
     ),
@@ -622,30 +629,56 @@ class _Medicines extends ConsumerWidget {
   Future<void> _addMedication(BuildContext context, WidgetRef ref) async {
     final name = TextEditingController();
     final dosage = TextEditingController();
-    final ok = await showDialog<bool>(
+    final ok = await showLiquidGlassSheet<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.card,
-        title: const Text('Thêm thuốc'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppTextField(controller: name, label: 'Tên thuốc'),
-            const SizedBox(height: 12),
-            AppTextField(
-              controller: dosage,
-              label: 'Liều lượng (không bắt buộc)',
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Hủy'),
+      builder: (ctx) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.medication, color: AppColors.brand, size: 24),
+              SizedBox(width: 10),
+              Text(
+                'Thêm thuốc',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.ink,
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Thêm'),
+          const SizedBox(height: 16),
+          AppTextField(controller: name, label: 'Tên thuốc'),
+          const SizedBox(height: 12),
+          AppTextField(
+            controller: dosage,
+            label: 'Liều lượng (không bắt buộc)',
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text(
+                  'Hủy',
+                  style: TextStyle(color: AppColors.inkSoft),
+                ),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text(
+                  'Thêm',
+                  style: TextStyle(
+                    color: AppColors.brand,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

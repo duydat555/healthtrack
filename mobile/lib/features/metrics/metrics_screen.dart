@@ -5,6 +5,7 @@ import 'package:liquid_glass/liquid_glass.dart';
 import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
+import '../../widgets/liquid_glass_surfaces.dart';
 import '../health/health_providers.dart';
 
 /// Màn Chỉ số: các thẻ Liquid Glass (chạm để mở rộng, hiệu ứng morph) với số liệu thật.
@@ -23,12 +24,12 @@ class MetricsScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Chỉ số',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.ink,
+              const LiquidGlassHeader(
+                title: 'Chỉ số',
+                trailing: Icon(
+                  Icons.monitor_heart,
+                  color: AppColors.brand,
+                  size: 28,
                 ),
               ),
               const SizedBox(height: 16),
@@ -38,21 +39,25 @@ class MetricsScreen extends ConsumerWidget {
                     child: CircularProgressIndicator(color: AppColors.brand),
                   ),
                   error: (e, _) => Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          apiErrorMessage(e),
-                          style: const TextStyle(color: AppColors.inkSoft),
-                        ),
-                        TextButton(
-                          onPressed: () => ref.invalidate(bodyDataProvider),
-                          child: const Text(
-                            'Thử lại',
-                            style: TextStyle(color: AppColors.brand),
+                    child: LiquidGlassCard(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            apiErrorMessage(e),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: AppColors.inkSoft),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () => ref.invalidate(bodyDataProvider),
+                            child: const Text(
+                              'Thử lại',
+                              style: TextStyle(color: AppColors.brand),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   data: (b) {
@@ -111,6 +116,7 @@ class MetricsScreen extends ConsumerWidget {
                       builder: (context, c) => LiquidGlassCardGroup(
                         cards: cards,
                         height: c.maxHeight,
+                        tint: AppColors.card.withValues(alpha: 0.7),
                         dark: true,
                       ),
                     );
