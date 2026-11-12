@@ -6,7 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
-import '../../widgets/core_widgets.dart';
+import '../../widgets/state_widgets.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../health/models.dart';
@@ -84,16 +84,23 @@ class GoalsScreen extends ConsumerWidget {
           children: [
             Semantics(
               header: true,
-              child: const Text('Mục tiêu', style: AppTextStyles.pageTitle),
+              child: const Text(
+                'Mục tiêu',
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.ink,
+                ),
+              ),
             ),
             const SizedBox(height: 6),
             const Text(
               'Mục tiêu của bạn quyết định độ đầy của các vòng ở màn Tổng quan.',
-              style: AppTextStyles.bodySoft,
+              style: TextStyle(color: AppColors.inkSoft),
             ),
             const SizedBox(height: 20),
             goals.when(
-              loading: () => const LoadingState(height: 220),
+              loading: () => const LoadingState(),
               error: (e, _) => ErrorState(
                 message: apiErrorMessage(e),
                 onRetry: () => ref.invalidate(goalsProvider),
@@ -105,7 +112,7 @@ class GoalsScreen extends ConsumerWidget {
                       padding: EdgeInsets.only(bottom: 12),
                       child: EmptyState(
                         icon: Icons.flag_outlined,
-                        message: 'Chưa có mục tiêu cá nhân nào. Chạm từng mục bên dưới để đặt.',
+                        message: 'Bạn chưa đặt mục tiêu nào. Chạm vào từng mục bên dưới để thiết lập.',
                       ),
                     ),
                   for (final t in _types)
@@ -188,36 +195,42 @@ class _GoalTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final target = goal == null ? null : goal!.targetValue / type.factor;
+    final subtitleText = target == null
+        ? 'Chưa đặt${type.metric == 'weight' ? '' : ', đang dùng mặc định ${formatNumber(type.fallback)} ${type.unit}'}'
+        : '${formatNumber(target)} ${type.unit}';
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Material(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        child: ListTile(
-          onTap: () => _edit(context, ref),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 6,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.card),
-          ),
-          leading: Icon(type.icon, color: type.color, size: 28),
-          title: Text(
-            type.title,
-            style: TextStyle(color: type.color, fontWeight: FontWeight.w600),
-          ),
-          subtitle: Text(
-            target == null
-                ? 'Chưa đặt${type.metric == 'weight' ? '' : ', đang dùng mặc định ${formatNumber(type.fallback)} ${type.unit}'}'
-                : '${formatNumber(target)} ${type.unit}',
-            style: const TextStyle(color: AppColors.inkSoft, fontSize: 17),
-          ),
-          trailing: Text(
-            target == null ? 'Đặt' : 'Sửa',
-            style: const TextStyle(
-              color: AppColors.brand,
-              fontWeight: FontWeight.w600,
+      child: Semantics(
+        button: true,
+        label: '${type.title}: $subtitleText',
+        hint: 'Chạm để ${target == null ? 'đặt' : 'chỉnh sửa'} mục tiêu',
+        child: Material(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          child: ListTile(
+            onTap: () => _edit(context, ref),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 6,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.card),
+            ),
+            leading: Icon(type.icon, color: type.color, size: 28),
+            title: Text(
+              type.title,
+              style: TextStyle(color: type.color, fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              subtitleText,
+              style: const TextStyle(color: AppColors.inkSoft, fontSize: 17),
+            ),
+            trailing: Text(
+              target == null ? 'Đặt' : 'Sửa',
+              style: const TextStyle(
+                color: AppColors.brand,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ),
