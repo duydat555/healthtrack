@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
+import '../../widgets/core_widgets.dart';
 import '../auth/auth_controller.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -13,155 +14,172 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authProvider).value;
-    if (user == null) return const SizedBox.shrink();
-
-    Future<void> editHeight() async {
-      final c = TextEditingController(
-        text: user.heightCm == null ? '' : formatNumber(user.heightCm!),
-      );
-      final ok = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          backgroundColor: AppColors.card,
-          title: const Text('Chiều cao'),
-          content: AppTextField(
-            controller: c,
-            label: 'Chiều cao',
-            suffixText: 'cm',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Hủy'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Lưu'),
-            ),
-          ],
-        ),
-      );
-      final cm = double.tryParse(c.text.trim().replaceAll(',', '.'));
-      if (ok != true || !context.mounted) return;
-      if (cm == null || cm <= 0 || cm > 300) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Chiều cao phải từ 1 đến 300 cm.')),
-        );
-        return;
-      }
-      try {
-        await ref.read(authProvider.notifier).updateHeight(cm);
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(apiErrorMessage(e))));
-        }
-      }
-    }
-
-    Future<void> logout() async {
-      final ok = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          backgroundColor: AppColors.card,
-          title: const Text('Đăng xuất?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Hủy'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text(
-                'Đăng xuất',
-                style: TextStyle(color: AppColors.danger),
-              ),
-            ),
-          ],
-        ),
-      );
-      if (ok == true) await ref.read(authProvider.notifier).logout();
-    }
-
+    final auth = ref.watch(authProvider);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
         bottom: false,
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(
-            16,
-            12,
-            16,
-            LiquidGlassTabBar.height + 48,
+        child: auth.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: LoadingState(height: 180)),
           ),
-          children: [
-            const Text(
-              'Hồ sơ',
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.w800,
-                color: AppColors.ink,
+          error: (e, _) => Padding(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+              child: ErrorState(
+                message: apiErrorMessage(e),
+                onRetry: () => ref.invalidate(authProvider),
               ),
             ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 32,
-                  backgroundColor: AppColors.cardHigh,
-                  child: Text(
-                    user.initial,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.ink,
-                    ),
+          ),
+          data: (user) {
+            if (user == null) {
+              return const Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(
+                  child: EmptyState(
+                    icon: Icons.person_outline,
+                    message: 'Chưa có thông tin hồ sơ người dùng.',
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user.fullName,
+              );
+            }
+
+            Future<void> editHeight() async {
+              final c = TextEditingController(
+                text: user.heightCm == null ? '' : formatNumber(user.heightCm!),
+              );
+              final ok = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  backgroundColor: AppColors.card,
+                  title: const Text('Chiều cao'),
+                  content: AppTextField(
+                    controller: c,
+                    label: 'Chiều cao',
+                    suffixText: 'cm',
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Hủy'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Lưu'),
+                    ),
+                  ],
+                ),
+              );
+              final cm = double.tryParse(c.text.trim().replaceAll(',', '.'));
+              if (ok != true || !context.mounted) return;
+              if (cm == null || cm <= 0 || cm > 300) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Chiều cao phải từ 1 đến 300 cm.'),
+                  ),
+                );
+                return;
+              }
+              try {
+                await ref.read(authProvider.notifier).updateHeight(cm);
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(apiErrorMessage(e))));
+                }
+              }
+            }
+
+            Future<void> logout() async {
+              final ok = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  backgroundColor: AppColors.card,
+                  title: const Text('Đăng xuất?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Hủy'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text(
+                        'Đăng xuất',
+                        style: TextStyle(color: AppColors.danger),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+              if (ok == true) await ref.read(authProvider.notifier).logout();
+            }
+
+            return ListView(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                12,
+                16,
+                LiquidGlassTabBar.height + 48,
+              ),
+              children: [
+                Semantics(
+                  header: true,
+                  child: const Text('Hồ sơ', style: AppTextStyles.pageTitle),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 32,
+                      backgroundColor: AppColors.cardHigh,
+                      child: Text(
+                        user.initial,
                         style: const TextStyle(
-                          fontSize: 22,
+                          fontSize: 28,
                           fontWeight: FontWeight.w700,
                           color: AppColors.ink,
                         ),
                       ),
-                      Text(
-                        user.email,
-                        style: const TextStyle(color: AppColors.inkSoft),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.fullName,
+                            style: AppTextStyles.sectionTitle,
+                          ),
+                          Text(user.email, style: AppTextStyles.bodySoft),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                _Row(
+                  label: 'Chiều cao',
+                  value: user.heightCm == null
+                      ? 'Chưa đặt'
+                      : '${formatNumber(user.heightCm!)} cm',
+                  hint: user.heightCm == null ? 'Cần để tính BMI' : null,
+                  onTap: editHeight,
+                ),
+                const SizedBox(height: 24),
+                SecondaryButton(
+                  label: 'Đăng xuất',
+                  color: AppColors.danger,
+                  onPressed: logout,
                 ),
               ],
-            ),
-            const SizedBox(height: 24),
-            _Row(
-              label: 'Chiều cao',
-              value: user.heightCm == null
-                  ? 'Chưa đặt'
-                  : '${formatNumber(user.heightCm!)} cm',
-              hint: user.heightCm == null ? 'Cần để tính BMI' : null,
-              onTap: editHeight,
-            ),
-            const SizedBox(height: 24),
-            OutlinedButton(
-              onPressed: logout,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.danger,
-                side: const BorderSide(color: AppColors.danger),
-                minimumSize: const Size.fromHeight(50),
-              ),
-              child: const Text('Đăng xuất'),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

@@ -10,6 +10,7 @@ import '../features/home/home_screen.dart';
 import '../features/metrics/metrics_screen.dart';
 import '../features/profile/profile_screen.dart';
 import 'app_shell.dart';
+import 'route_state_widgets.dart';
 
 /// Tab mở đầu; đổi bằng `--dart-define=INITIAL_ROUTE=/metrics` khi chụp màn hình hoặc debug.
 const _initialRoute = String.fromEnvironment(
@@ -19,8 +20,8 @@ const _initialRoute = String.fromEnvironment(
 
 const _authRoutes = {'/login', '/register'};
 
-/// Điều hướng của app. Chưa đăng nhập chỉ vào được `/login` và `/register`;
-/// đã đăng nhập thì bị đẩy ra khỏi hai màn đó.
+/// Điều hướng của app dùng `StatefulShellRoute.indexedStack` với 4 tab chính
+/// (giữ nguyên trạng thái độc lập từng tab) và các màn auth / ghi nhanh.
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier<int>(0);
   ref
@@ -30,6 +31,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     initialLocation: _initialRoute,
     refreshListenable: refresh,
+    restorationScopeId: 'healthtrack_router',
     redirect: (context, state) {
       final auth = ref.read(authProvider);
       final path = state.matchedLocation;
@@ -39,17 +41,24 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (_authRoutes.contains(path) || path == '/splash') return '/';
       return null;
     },
+    errorBuilder: (context, state) => ErrorState(
+      message: 'Không tìm thấy trang "${state.uri.path}".',
+      onRetry: () => context.go('/'),
+    ),
     routes: [
       GoRoute(path: '/splash', builder: (c, s) => const SplashScreen()),
       GoRoute(path: '/login', builder: (c, s) => const LoginScreen()),
       GoRoute(path: '/register', builder: (c, s) => const RegisterScreen()),
       StatefulShellRoute.indexedStack(
+        restorationScopeId: 'app_shell_tabs',
         builder: (context, state, shell) => AppShell(navigationShell: shell),
         branches: [
           StatefulShellBranch(
+            restorationScopeId: 'branch_home',
             routes: [GoRoute(path: '/', builder: (c, s) => const HomeScreen())],
           ),
           StatefulShellBranch(
+            restorationScopeId: 'branch_metrics',
             routes: [
               GoRoute(
                 path: '/metrics',
@@ -58,11 +67,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
           StatefulShellBranch(
+            restorationScopeId: 'branch_goals',
             routes: [
               GoRoute(path: '/goals', builder: (c, s) => const GoalsScreen()),
             ],
           ),
           StatefulShellBranch(
+            restorationScopeId: 'branch_profile',
             routes: [
               GoRoute(
                 path: '/profile',

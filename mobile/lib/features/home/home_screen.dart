@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/activity_rings.dart';
+import '../../widgets/core_widgets.dart';
 import '../../widgets/metric_card.dart';
 import '../../widgets/section_header.dart';
 import '../auth/auth_controller.dart';
@@ -53,13 +54,12 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 2),
               Row(
                 children: [
-                  const Expanded(
-                    child: Text(
-                      'Tổng quan',
-                      style: TextStyle(
-                        fontSize: 34,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.ink,
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: const Text(
+                        'Tổng quan',
+                        style: AppTextStyles.pageTitle,
                       ),
                     ),
                   ),
@@ -80,17 +80,25 @@ class HomeScreen extends ConsumerWidget {
               const SectionHeader('Hôm nay'),
               summary.when(
                 data: (s) => _RingsCard(summary: s),
-                loading: () => const _Loading(height: 172),
-                error: (e, _) => _ErrorCard(
+                loading: () => const LoadingState(height: 172),
+                error: (e, _) => ErrorState(
                   message: apiErrorMessage(e),
                   onRetry: () => ref.invalidate(todaySummaryProvider),
                 ),
               ),
               const SectionHeader('Chỉ số cơ thể'),
               body.when(
-                data: (b) => _MetricGrid(data: b),
-                loading: () => const _Loading(height: 220),
-                error: (e, _) => _ErrorCard(
+                data: (b) =>
+                    b.weights.isEmpty &&
+                        b.sleeps.isEmpty &&
+                        b.waterByDay.every((v) => v == 0)
+                    ? const EmptyState(
+                        icon: Icons.favorite_border,
+                        message: 'Chưa có dữ liệu chỉ số. Bấm + để bắt đầu ghi nhận.',
+                      )
+                    : _MetricGrid(data: b),
+                loading: () => const LoadingState(height: 220),
+                error: (e, _) => ErrorState(
                   message: apiErrorMessage(e),
                   onRetry: () => ref.invalidate(bodyDataProvider),
                 ),
@@ -98,7 +106,7 @@ class HomeScreen extends ConsumerWidget {
               const SectionHeader('7 ngày qua'),
               body.when(
                 data: (b) => _WaterWeekChart(values: b.waterByDay),
-                loading: () => const _Loading(height: 220),
+                loading: () => const LoadingState(height: 220),
                 error: (_, _) => const SizedBox.shrink(),
               ),
             ],
@@ -117,56 +125,6 @@ const _empty = TodaySummary(
   medsTaken: 0,
   medsTotal: 0,
 );
-
-class _Loading extends StatelessWidget {
-  const _Loading({required this.height});
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    height: height,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: AppColors.card,
-      borderRadius: BorderRadius.circular(AppRadius.card),
-    ),
-    child: const CircularProgressIndicator(color: AppColors.brand),
-  );
-}
-
-class _ErrorCard extends StatelessWidget {
-  const _ErrorCard({required this.message, required this.onRetry});
-
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(18),
-    decoration: BoxDecoration(
-      color: AppColors.card,
-      borderRadius: BorderRadius.circular(AppRadius.card),
-    ),
-    child: Column(
-      children: [
-        Text(
-          message,
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
-        ),
-        const SizedBox(height: 8),
-        TextButton(
-          onPressed: onRetry,
-          child: const Text(
-            'Thử lại',
-            style: TextStyle(color: AppColors.brand, fontSize: 16),
-          ),
-        ),
-      ],
-    ),
-  );
-}
 
 class _RingsCard extends StatelessWidget {
   const _RingsCard({required this.summary});

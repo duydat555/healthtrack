@@ -49,7 +49,7 @@ erDiagram
 | `medications` | Thuốc đang dùng | `schedule` mô tả lịch uống |
 | `medication_logs` | Nhật ký uống thuốc | liên kết `medications`, xóa thuốc thì xóa nhật ký |
 | `goals` | Mục tiêu theo chỉ số | `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly` |
-| `reminders` | Nhắc nhở | `kind`: `water`, `medication`, `sleep`, `meal`... |
+| `reminders` | Nhắc nhở | `kind`: `water`, `medication`, `sleep`; `at_time` là giờ trong ngày; `enabled` bật/tắt; thuộc một `user` |
 
 ## Trạng thái triển khai (khớp migration thực tế)
 
@@ -63,7 +63,7 @@ erDiagram
 | `goals` | `0006` | `app/models/goal.py`; chỉ mục unique một phần `(user_id, metric) WHERE is_active` đảm bảo mỗi chỉ số một mục tiêu đang hoạt động |
 | `step_logs` | `0008` | `app/models/step_log.py`; unique index `(user_id, day)` |
 | `meal_logs` | `0009` | `app/models/meal_log.py`; chỉ mục `(user_id, logged_at)` |
-| `reminders` | Chưa có | Sẽ bổ sung ở issue tiếp theo |
+| `reminders` | `0010` | `app/models/reminder.py`; chỉ mục `(user_id, at_time)` |
 
 Chi tiết đã chốt khi triển khai:
 
