@@ -7,13 +7,13 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/activity_rings.dart';
-import '../../widgets/core_widgets.dart';
 import '../../widgets/metric_card.dart';
 import '../../widgets/section_header.dart';
 import '../auth/auth_controller.dart';
 import '../health/health_providers.dart';
+import 'dashboard_states.dart';
 
-/// Màn Tổng quan, bố cục theo app Fitness của Apple, dữ liệu lấy từ backend.
+/// Màn Tổng quan (Dashboard), bố cục theo app Fitness của Apple, dữ liệu lấy từ backend.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -31,9 +31,15 @@ class HomeScreen extends ConsumerWidget {
           color: AppColors.brand,
           onRefresh: () async {
             refreshHealthData(ref);
-            await ref
-                .read(todaySummaryProvider.future)
-                .catchError((_) => _empty);
+            refreshStepMealData(ref);
+            await Future.wait<Object?>([
+              ref
+                  .read(todaySummaryProvider.future)
+                  .then<Object?>((v) => v, onError: (_) => _empty),
+              ref
+                  .read(bodyDataProvider.future)
+                  .then<Object?>((v) => v, onError: (_) => null),
+            ]);
           },
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -60,19 +66,26 @@ class HomeScreen extends ConsumerWidget {
                       header: true,
                       child: const Text(
                         'Tổng quan',
-                        style: AppTextStyles.pageTitle,
+                        style: TextStyle(
+                          fontSize: 34,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.ink,
+                        ),
                       ),
                     ),
                   ),
                   if (user != null)
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: AppColors.cardHigh,
-                      child: Text(
-                        user.initial,
-                        style: const TextStyle(
-                          color: AppColors.ink,
-                          fontWeight: FontWeight.w700,
+                    Semantics(
+                      label: 'Hồ sơ của ${user.fullName}',
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: AppColors.cardHigh,
+                        child: Text(
+                          user.initial,
+                          style: const TextStyle(
+                            color: AppColors.ink,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
@@ -81,7 +94,10 @@ class HomeScreen extends ConsumerWidget {
               const SectionHeader('Hôm nay'),
               summary.when(
                 data: (s) => _RingsCard(summary: s),
-                loading: () => const LoadingState(height: 172),
+                loading: () => const LoadingState(
+                  height: 172,
+                  label: 'Đang tải tóm tắt hôm nay',
+                ),
                 error: (e, _) => ErrorState(
                   message: apiErrorMessage(e),
                   onRetry: () => ref.invalidate(todaySummaryProvider),
@@ -90,16 +106,17 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               const SectionHeader('Chỉ số cơ thể'),
               body.when(
-                data: (b) =>
-                    b.weights.isEmpty &&
-                        b.sleeps.isEmpty &&
-                        b.waterByDay.every((v) => v == 0)
-                    ? const EmptyState(
-                        icon: Icons.favorite_border,
-                        message: 'Chưa có dữ liệu chỉ số. Bấm + để bắt đầu ghi nhận.',
+                data: (b) => b.isEmpty
+                    ? EmptyState(
+                        message: 'Chưa có dữ liệu sức khỏe nào. Bấm + để ghi nhận nước, giấc ngủ, bước chân, bữa ăn hoặc cân nặng.',
+                        actionLabel: 'Ghi dữ liệu ngay',
+                        onAction: () => context.push('/add'),
                       )
                     : _MetricGrid(data: b),
-                loading: () => const LoadingState(height: 220),
+                loading: () => const LoadingState(
+                  height: 220,
+                  label: 'Đang tải chỉ số cơ thể',
+                ),
                 error: (e, _) => ErrorState(
                   message: apiErrorMessage(e),
                   onRetry: () => ref.invalidate(bodyDataProvider),
@@ -112,7 +129,10 @@ class HomeScreen extends ConsumerWidget {
               ),
               body.when(
                 data: (b) => _WaterWeekChart(values: b.waterByDay),
-                loading: () => const LoadingState(height: 220),
+                loading: () => const LoadingState(
+                  height: 220,
+                  label: 'Đang tải biểu đồ nước 7 ngày qua',
+                ),
                 error: (_, _) => const SizedBox.shrink(),
               ),
             ],
@@ -132,6 +152,29 @@ const _empty = TodaySummary(
   medsTotal: 0,
 );
 
+/// Lớp bọc LiquidGlass nền tối giúp chữ và biểu tượng luôn đạt tương phản cao.
+class _GlassCard extends StatelessWidget {
+  const _GlassCard({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LiquidGlass(
+      cornerRadius: AppRadius.card,
+      tint: AppColors.card,
+      padding: EdgeInsets.zero,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppColors.card.withValues(alpha: 0.72),
+          borderRadius: BorderRadius.circular(AppRadius.card),
+        ),
+        child: Padding(padding: const EdgeInsets.all(18), child: child),
+      ),
+    );
+  }
+}
+
 class _RingsCard extends StatelessWidget {
   const _RingsCard({required this.summary});
 
@@ -140,13 +183,14 @@ class _RingsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = summary;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
+    final sleepDesc = s.sleepMinutes == null
+        ? 'chưa có dữ liệu'
+        : '${formatNumber(s.sleepMinutes! / 60)} trên ${formatNumber(s.sleepGoalMinutes / 60)} giờ';
+    return Semantics(
+      container: true,
+      label:
+          'Tóm tắt hôm nay: Nước uống ${formatNumber(s.waterMl / 1000)} trên ${formatNumber(s.waterGoalMl / 1000)} lít, Giấc ngủ $sleepDesc, Thuốc ${s.medsTaken} trên ${s.medsTotal} liều.',
+      child: _GlassCard(
         child: Row(
           children: [
             ActivityRings(
@@ -255,11 +299,13 @@ class _MetricGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final weights = data.weights;
     final sleeps = data.sleeps;
+    final steps = data.steps;
     final latestW = weights.firstOrNull;
     final prevW = weights.length > 1 ? weights[1] : null;
     final bmi = weights.map((w) => w.bmi).whereType<double>().firstOrNull;
     final latestSleep = sleeps.firstOrNull;
-    final today = data.waterByDay.last;
+    final latestSteps = steps.firstOrNull;
+    final todayWater = data.waterByDay.lastOrNull ?? 0;
 
     String weightCaption() {
       if (latestW == null) return 'Chưa có dữ liệu, bấm + để ghi';
@@ -270,6 +316,50 @@ class _MetricGrid extends StatelessWidget {
     }
 
     final cards = [
+      MetricCard(
+        title: 'Nước uống',
+        icon: Icons.water_drop,
+        color: AppColors.water,
+        value: formatNumber(todayWater / 1000),
+        unit: 'lít',
+        caption: 'Hôm nay',
+        trend: [for (final v in data.waterByDay) v / 1000],
+      ),
+      MetricCard(
+        title: 'Giấc ngủ',
+        icon: Icons.bedtime,
+        color: AppColors.sleep,
+        value: latestSleep == null
+            ? '--'
+            : formatNumber(latestSleep.durationMinutes / 60),
+        unit: 'giờ',
+        caption: latestSleep == null
+            ? 'Chưa có dữ liệu'
+            : 'Dậy lúc ${formatTime(latestSleep.endAt)}',
+        trend: _trend(sleeps.map((s) => s.durationMinutes / 60)),
+      ),
+      MetricCard(
+        title: 'Bước chân',
+        icon: Icons.directions_walk,
+        color: AppColors.steps,
+        value: latestSteps == null
+            ? '--'
+            : formatNumber(latestSteps.steps, digits: 0),
+        unit: 'bước',
+        caption: latestSteps == null
+            ? 'Chưa có dữ liệu'
+            : 'Ngày ${latestSteps.day}',
+        trend: _trend(steps.map((s) => s.steps.toDouble())),
+      ),
+      MetricCard(
+        title: 'Calories',
+        icon: Icons.local_fire_department,
+        color: AppColors.meal,
+        value: formatNumber(data.todayCalories, digits: 0),
+        unit: 'kcal',
+        caption: 'Hôm nay',
+        trend: [data.todayCalories.toDouble()],
+      ),
       MetricCard(
         title: 'Cân nặng',
         icon: Icons.monitor_weight,
@@ -287,28 +377,6 @@ class _MetricGrid extends StatelessWidget {
         unit: '',
         caption: bmi == null ? 'Cần chiều cao trong Hồ sơ' : bmiLabel(bmi),
         trend: _trend(weights.map((w) => w.bmi).whereType<double>()),
-      ),
-      MetricCard(
-        title: 'Giấc ngủ',
-        icon: Icons.bedtime,
-        color: AppColors.sleep,
-        value: latestSleep == null
-            ? '--'
-            : formatNumber(latestSleep.durationMinutes / 60),
-        unit: 'giờ',
-        caption: latestSleep == null
-            ? 'Chưa có dữ liệu'
-            : 'Dậy lúc ${formatTime(latestSleep.endAt)}',
-        trend: _trend(sleeps.map((s) => s.durationMinutes / 60)),
-      ),
-      MetricCard(
-        title: 'Nước uống',
-        icon: Icons.water_drop,
-        color: AppColors.water,
-        value: formatNumber(today / 1000),
-        unit: 'lít',
-        caption: 'Hôm nay',
-        trend: [for (final v in data.waterByDay) v / 1000],
       ),
     ];
     return LayoutBuilder(
@@ -338,13 +406,18 @@ class _WaterWeekChart extends StatelessWidget {
     String label(int i) =>
         weekdayShort[now.subtract(Duration(days: 6 - i)).weekday - 1];
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
+    if (values.isEmpty || total == 0) {
+      return const EmptyState(
+        icon: Icons.water_drop_outlined,
+        message: 'Chưa có dữ liệu nước uống trong 7 ngày qua.',
+      );
+    }
+
+    return Semantics(
+      container: true,
+      label:
+          'Biểu đồ nước uống 7 ngày qua, trung bình ${formatNumber(total / 7 / 1000)} lít mỗi ngày',
+      child: _GlassCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -387,33 +460,37 @@ class _WaterWeekChart extends StatelessWidget {
                 children: [
                   for (var i = 0; i < values.length; i++)
                     Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TweenAnimationBuilder<double>(
-                            tween: Tween(begin: 0, end: values[i] / max),
-                            duration: Duration(milliseconds: 500 + i * 80),
-                            curve: Curves.easeOutCubic,
-                            builder: (context, t, _) => Container(
-                              height: 88 * t,
-                              width: 18,
-                              decoration: BoxDecoration(
-                                color: i == values.length - 1
-                                    ? AppColors.water
-                                    : AppColors.water.withValues(alpha: 0.45),
-                                borderRadius: BorderRadius.circular(6),
+                      child: Semantics(
+                        label:
+                            '${label(i)}: ${formatNumber(values[i] / 1000)} lít',
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0, end: values[i] / max),
+                              duration: Duration(milliseconds: 500 + i * 80),
+                              curve: Curves.easeOutCubic,
+                              builder: (context, t, _) => Container(
+                                height: 88 * t,
+                                width: 18,
+                                decoration: BoxDecoration(
+                                  color: i == values.length - 1
+                                      ? AppColors.water
+                                      : AppColors.water.withValues(alpha: 0.45),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            label(i),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.inkSoft,
+                            const SizedBox(height: 8),
+                            Text(
+                              label(i),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.inkSoft,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                 ],
