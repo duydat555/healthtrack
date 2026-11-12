@@ -7,43 +7,168 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
-import '../../widgets/core_widgets.dart';
 import '../auth/auth_controller.dart';
+import 'profile_state_widgets.dart';
 
+const _genderLabels = <String, String>{
+  'male': 'Nam',
+  'female': 'Nữ',
+  'other': 'Khác',
+};
+
+/// Màn hình Hồ sơ cá nhân: xem và chỉnh sửa họ tên, giới tính, ngày sinh, chiều cao.
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
+
+  String _formatDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}/'
+      '${d.month.toString().padLeft(2, '0')}/${d.year}';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authProvider);
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
         bottom: false,
         child: auth.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.all(16),
-            child: Center(child: LoadingState(height: 180)),
-          ),
-          error: (e, _) => Padding(
-            padding: const EdgeInsets.all(16),
-            child: Center(
-              child: ErrorState(
-                message: apiErrorMessage(e),
-                onRetry: () => ref.invalidate(authProvider),
-              ),
-            ),
+          loading: () => const LoadingState(),
+          error: (e, _) => ErrorState(
+            message: apiErrorMessage(e),
+            onRetry: () => ref.invalidate(authProvider),
           ),
           data: (user) {
             if (user == null) {
-              return const Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(
-                  child: EmptyState(
-                    icon: Icons.person_outline,
-                    message: 'Chưa có thông tin hồ sơ người dùng.',
+              return const EmptyState(
+                message: 'Chưa có thông tin hồ sơ người dùng.',
+              );
+            }
+
+            Future<void> saveProfile(Future<void> Function() action) async {
+              try {
+                await action();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Đã cập nhật hồ sơ')),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(apiErrorMessage(e))));
+                }
+              }
+            }
+
+            Future<void> editName() async {
+              final c = TextEditingController(text: user.fullName);
+              final ok = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  backgroundColor: AppColors.card,
+                  titleTextStyle: const TextStyle(
+                    color: AppColors.ink,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  title: const Text('Họ và tên'),
+                  content: AppTextField(controller: c, label: 'Họ và tên'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Hủy'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Lưu'),
+                    ),
+                  ],
+                ),
+              );
+              final name = c.text.trim();
+              if (ok != true || !context.mounted) return;
+              if (name.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Họ và tên không được để trống.'),
+                  ),
+                );
+                return;
+              }
+              await saveProfile(
+                () => ref
+                    .read(authProvider.notifier)
+                    .updateProfile(fullName: name),
+              );
+            }
+
+            Future<void> editGender() async {
+              final picked = await showModalBottomSheet<String>(
+                context: context,
+                backgroundColor: AppColors.card,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (ctx) => SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text(
+                          'Chọn giới tính',
+                          style: TextStyle(
+                            color: AppColors.ink,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      for (final e in _genderLabels.entries)
+                        Semantics(
+                          button: true,
+                          label: 'Chọn giới tính ${e.value}',
+                          child: ListTile(
+                            title: Text(
+                              e.value,
+                              style: const TextStyle(color: AppColors.ink),
+                            ),
+                            trailing: user.gender == e.key
+                                ? const Icon(
+                                    Icons.check,
+                                    color: AppColors.brand,
+                                  )
+                                : null,
+                            onTap: () => Navigator.pop(ctx, e.key),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
+              );
+              if (picked == null || !context.mounted) return;
+              await saveProfile(
+                () => ref
+                    .read(authProvider.notifier)
+                    .updateProfile(gender: picked),
+              );
+            }
+
+            Future<void> editBirthDate() async {
+              final now = DateTime.now();
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: user.birthDate ?? DateTime(now.year - 22, 1, 1),
+                firstDate: DateTime(1920),
+                lastDate: now,
+              );
+              if (picked == null || !context.mounted) return;
+              await saveProfile(
+                () => ref
+                    .read(authProvider.notifier)
+                    .updateProfile(birthDate: picked),
               );
             }
 
@@ -91,15 +216,9 @@ class ProfileScreen extends ConsumerWidget {
                 );
                 return;
               }
-              try {
-                await ref.read(authProvider.notifier).updateHeight(cm);
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(apiErrorMessage(e))));
-                }
-              }
+              await saveProfile(
+                () => ref.read(authProvider.notifier).updateHeight(cm),
+              );
             }
 
             Future<void> logout() async {
@@ -139,66 +258,134 @@ class ProfileScreen extends ConsumerWidget {
                 LiquidGlassTabBar.height + 48,
               ),
               children: [
-                Semantics(
-                  header: true,
-                  child: const Text('Hồ sơ', style: AppTextStyles.pageTitle),
-                ),
-                const SizedBox(height: 20),
                 Row(
                   children: [
-                    CircleAvatar(
-                      radius: 32,
-                      backgroundColor: AppColors.cardHigh,
-                      child: Text(
-                        user.initial,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.ink,
+                    Expanded(
+                      child: Semantics(
+                        header: true,
+                        child: const Text(
+                          'Hồ sơ',
+                          style: TextStyle(
+                            fontSize: 34,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.ink,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user.fullName,
-                            style: AppTextStyles.sectionTitle,
-                          ),
-                          Text(user.email, style: AppTextStyles.bodySoft),
-                        ],
+                    Semantics(
+                      button: true,
+                      label: 'Mở thiết lập ban đầu Onboarding',
+                      child: IconButton(
+                        tooltip: 'Thiết lập nhanh',
+                        icon: const Icon(
+                          Icons.tune_rounded,
+                          color: AppColors.inkSoft,
+                        ),
+                        onPressed: () => context.push('/onboarding'),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
-                _Row(
-                  label: 'Chiều cao',
-                  value: user.heightCm == null
-                      ? 'Chưa đặt'
-                      : '${formatNumber(user.heightCm!)} cm',
-                  hint: user.heightCm == null ? 'Cần để tính BMI' : null,
-                  onTap: editHeight,
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Semantics(
-                  button: true,
-                  label: 'Cài đặt nhắc nhở',
-                  hint: 'Mở màn hình quản lý nhắc nhở uống nước, uống thuốc, đi ngủ',
-                  child: _Row(
-                    label: 'Nhắc nhở',
-                    value: 'Cài đặt',
-                    hint: 'Uống nước, uống thuốc, đi ngủ',
-                    onTap: () => context.push('/reminders'),
+                  container: true,
+                  label: 'Tài khoản ${user.fullName}, email ${user.email}',
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 28,
+                        backgroundColor: AppColors.cardHigh,
+                        child: Text(
+                          user.initial,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.ink,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user.fullName,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.ink,
+                              ),
+                            ),
+                            Text(
+                              user.email,
+                              style: const TextStyle(color: AppColors.inkSoft),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 24),
-                SecondaryButton(
-                  label: 'Đăng xuất',
-                  color: AppColors.danger,
-                  onPressed: logout,
+                const SizedBox(height: 18),
+                Material(
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(AppRadius.card),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      _ProfileRow(
+                        label: 'Họ và tên',
+                        value: user.fullName,
+                        onTap: editName,
+                      ),
+                      const Divider(height: 1, color: AppColors.separator),
+                      _ProfileRow(
+                        label: 'Giới tính',
+                        value: _genderLabels[user.gender] ?? 'Chưa đặt',
+                        onTap: editGender,
+                      ),
+                      const Divider(height: 1, color: AppColors.separator),
+                      _ProfileRow(
+                        label: 'Ngày sinh',
+                        value: user.birthDate == null
+                            ? 'Chưa đặt'
+                            : _formatDate(user.birthDate!),
+                        onTap: editBirthDate,
+                      ),
+                      const Divider(height: 1, color: AppColors.separator),
+                      _ProfileRow(
+                        label: 'Chiều cao',
+                        value: user.heightCm == null
+                            ? 'Chưa đặt'
+                            : '${formatNumber(user.heightCm!)} cm',
+                        hint: user.heightCm == null ? 'Cần để tính BMI' : null,
+                        onTap: editHeight,
+                      ),
+                      const Divider(height: 1, color: AppColors.separator),
+                      _ProfileRow(
+                        label: 'Nhắc nhở',
+                        value: 'Cài đặt',
+                        hint: 'Uống nước, uống thuốc, đi ngủ',
+                        onTap: () => context.push('/reminders'),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Semantics(
+                  button: true,
+                  label: 'Đăng xuất khỏi tài khoản',
+                  child: OutlinedButton(
+                    onPressed: logout,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.danger,
+                      side: const BorderSide(color: AppColors.danger),
+                      minimumSize: const Size.fromHeight(48),
+                    ),
+                    child: const Text('Đăng xuất'),
+                  ),
                 ),
               ],
             );
@@ -209,8 +396,8 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-class _Row extends StatelessWidget {
-  const _Row({
+class _ProfileRow extends StatelessWidget {
+  const _ProfileRow({
     required this.label,
     required this.value,
     required this.onTap,
@@ -223,15 +410,18 @@ class _Row extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: AppColors.card,
-    borderRadius: BorderRadius.circular(AppRadius.card),
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: '$label: $value${hint == null ? '' : '. $hint'}',
+    hint: 'Chạm để chỉnh sửa $label',
     child: ListTile(
+      dense: true,
+      visualDensity: VisualDensity.compact,
       onTap: onTap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.card),
+      title: Text(
+        label,
+        style: const TextStyle(color: AppColors.ink, fontSize: 15),
       ),
-      title: Text(label, style: const TextStyle(color: AppColors.ink)),
       subtitle: hint == null
           ? null
           : Text(hint!, style: const TextStyle(color: AppColors.inkSoft)),
@@ -240,7 +430,7 @@ class _Row extends StatelessWidget {
         children: [
           Text(
             value,
-            style: const TextStyle(color: AppColors.inkSoft, fontSize: 16),
+            style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
           ),
           const Icon(Icons.chevron_right, color: AppColors.inkSoft),
         ],
