@@ -216,3 +216,39 @@ class StatsSummary {
   final int medsTaken;
   final List<GoalProgress> goals;
 }
+
+/// Một lịch nhắc nhở hằng ngày của người dùng (`/reminders`).
+@immutable
+class Reminder {
+  const Reminder({
+    required this.id,
+    required this.kind,
+    required this.hour,
+    required this.minute,
+    required this.enabled,
+  });
+
+  factory Reminder.fromJson(Map<String, dynamic> j) {
+    final raw = (j['at_time'] as String).split(':');
+    return Reminder(
+      id: j['id'] as int,
+      kind: j['kind'] as String,
+      hour: int.parse(raw[0]),
+      minute: int.parse(raw[1]),
+      enabled: j['enabled'] as bool,
+    );
+  }
+
+  final int id;
+  final String kind;
+  final int hour;
+  final int minute;
+  final bool enabled;
+
+  /// Chuỗi giờ hiển thị `HH:mm`.
+  String get formattedTime =>
+      '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+
+  /// Chuỗi giờ gửi lên API `HH:mm:00`.
+  String get apiTime => '$formattedTime:00';
+}

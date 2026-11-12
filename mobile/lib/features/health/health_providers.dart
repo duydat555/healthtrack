@@ -142,6 +142,10 @@ final sleepLogsProvider = FutureProvider.autoDispose<List<SleepLog>>(
   (ref) => ref.watch(healthRepositoryProvider).sleep(limit: 10),
 );
 
+final remindersProvider = FutureProvider.autoDispose<List<Reminder>>(
+  (ref) => ref.watch(healthRepositoryProvider).reminders(),
+);
+
 /// Làm mới mọi dữ liệu hiển thị sau khi ghi thêm.
 void refreshHealthData(WidgetRef ref) {
   ref
