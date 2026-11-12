@@ -10,6 +10,7 @@ import '../features/home/home_screen.dart';
 import '../features/metrics/metrics_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/reminders/reminders_screen.dart';
+import '../features/trends/trend_charts_screen.dart';
 import 'app_shell.dart';
 import 'route_state_widgets.dart';
 
@@ -86,6 +87,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/add', builder: (c, s) => const AddScreen()),
       GoRoute(path: '/reminders', builder: (c, s) => const RemindersScreen()),
+      GoRoute(
+        path: '/trends',
+        builder: (c, s) => TrendChartsScreen(
+          initialMetric: s.uri.queryParameters['metric'] ?? 'water',
+        ),
+      ),
     ],
   );
   ref.onDispose(router.dispose);

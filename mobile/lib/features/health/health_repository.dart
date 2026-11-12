@@ -60,6 +60,22 @@ class HealthRepository {
     ];
   }
 
+  /// Dữ liệu chuỗi xu hướng đầy đủ (ngày, giá trị, đơn vị) cho biểu đồ.
+  Future<TrendSeries> statsTrendSeries(
+    String metric, {
+    String range = '7d',
+  }) async {
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/stats/trend',
+      queryParameters: {
+        'metric': metric,
+        'range': range,
+        'tz_offset': _tzOffset,
+      },
+    );
+    return TrendSeries.fromJson(res.data!);
+  }
+
   Future<List<WeightLog>> weights({int limit = 30}) =>
       _list('/weights', WeightLog.fromJson, query: {'limit': limit});
 

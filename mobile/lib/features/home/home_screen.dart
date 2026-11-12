@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:liquid_glass/liquid_glass.dart';
 
 import '../../core/api_client.dart';
@@ -105,7 +106,10 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const SectionHeader('7 ngày qua'),
+              SectionHeader(
+                '7 ngày qua',
+                onTap: () => context.push('/trends?metric=water'),
+              ),
               body.when(
                 data: (b) => _WaterWeekChart(values: b.waterByDay),
                 loading: () => const LoadingState(height: 220),

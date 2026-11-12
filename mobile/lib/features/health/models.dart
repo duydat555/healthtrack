@@ -252,3 +252,43 @@ class Reminder {
   /// Chuỗi giờ gửi lên API `HH:mm:00`.
   String get apiTime => '$formattedTime:00';
 }
+
+/// Một điểm dữ liệu theo ngày của biểu đồ xu hướng (`/stats/trend`).
+@immutable
+class TrendPoint {
+  const TrendPoint({required this.date, required this.value});
+
+  factory TrendPoint.fromJson(Map<String, dynamic> j) => TrendPoint(
+    date: DateTime.parse(j['date'] as String),
+    value: (j['value'] as num?)?.toDouble(),
+  );
+
+  final DateTime date;
+  final double? value;
+}
+
+/// Chuỗi xu hướng theo ngày từ `/stats/trend`.
+@immutable
+class TrendSeries {
+  const TrendSeries({
+    required this.metric,
+    required this.unit,
+    required this.range,
+    required this.points,
+  });
+
+  factory TrendSeries.fromJson(Map<String, dynamic> j) => TrendSeries(
+    metric: (j['metric'] as String?) ?? '',
+    unit: (j['unit'] as String?) ?? '',
+    range: (j['range'] as String?) ?? '7d',
+    points: [
+      for (final p in j['points'] as List<dynamic>)
+        TrendPoint.fromJson(p as Map<String, dynamic>),
+    ],
+  );
+
+  final String metric;
+  final String unit;
+  final String range;
+  final List<TrendPoint> points;
+}
