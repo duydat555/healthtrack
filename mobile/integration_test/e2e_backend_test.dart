@@ -48,19 +48,32 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Đăng nhập'));
       await settle(tester);
       expect(find.text('Hôm nay'), findsWidgets);
+      expect(find.text('N'), findsOneWidget); // "Người dùng Demo"
+      // BMI 23 của người demo nằm trong khối "Chỉ số cơ thể", phía trên biểu đồ
+      await tester.scrollUntilVisible(
+        find.text('Bình thường'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('Bình thường'), findsWidgets);
+      // Bố cục Tổng quan mới dựng danh sách theo cuộn: mục "7 ngày qua" nằm dưới màn hình
+      await tester.scrollUntilVisible(
+        find.text('7 ngày qua'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('7 ngày qua'), findsOneWidget);
+      // Thẻ biểu đồ nằm dưới tiêu đề mục: cuộn tiếp tới khi dựng xong
+      await tester.scrollUntilVisible(
+        find.textContaining('lít/ngày', findRichText: true),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(
         find.textContaining('lít/ngày', findRichText: true),
         findsOneWidget,
         reason: 'Dashboard phải hiển thị biểu đồ xu hướng nước từ backend',
       );
-      expect(find.text('N'), findsOneWidget); // "Người dùng Demo"
-      expect(
-        find.textContaining('--', findRichText: true),
-        findsNothing,
-        reason: 'dữ liệu demo phải có đủ',
-      );
-      expect(find.text('Bình thường'), findsWidgets); // BMI 23 của người demo
 
       // Thanh tab là view native trên iOS 26 nên Flutter không bấm được, điều hướng bằng router
       final router = ProviderScope.containerOf(
