@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
+import '../../widgets/core_widgets.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../health/models.dart';
@@ -81,41 +82,32 @@ class GoalsScreen extends ConsumerWidget {
             LiquidGlassTabBar.height + 48,
           ),
           children: [
-            const Text(
-              'Mục tiêu',
-              style: TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.w800,
-                color: AppColors.ink,
-              ),
+            Semantics(
+              header: true,
+              child: const Text('Mục tiêu', style: AppTextStyles.pageTitle),
             ),
             const SizedBox(height: 6),
             const Text(
               'Mục tiêu của bạn quyết định độ đầy của các vòng ở màn Tổng quan.',
-              style: TextStyle(color: AppColors.inkSoft),
+              style: AppTextStyles.bodySoft,
             ),
             const SizedBox(height: 20),
             goals.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.brand),
-              ),
-              error: (e, _) => Column(
-                children: [
-                  Text(
-                    apiErrorMessage(e),
-                    style: const TextStyle(color: AppColors.inkSoft),
-                  ),
-                  TextButton(
-                    onPressed: () => ref.invalidate(goalsProvider),
-                    child: const Text(
-                      'Thử lại',
-                      style: TextStyle(color: AppColors.brand),
-                    ),
-                  ),
-                ],
+              loading: () => const LoadingState(height: 220),
+              error: (e, _) => ErrorState(
+                message: apiErrorMessage(e),
+                onRetry: () => ref.invalidate(goalsProvider),
               ),
               data: (list) => Column(
                 children: [
+                  if (list.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: EmptyState(
+                        icon: Icons.flag_outlined,
+                        message: 'Chưa có mục tiêu cá nhân nào. Chạm từng mục bên dưới để đặt.',
+                      ),
+                    ),
                   for (final t in _types)
                     _GoalTile(
                       type: t,
