@@ -37,28 +37,28 @@ class AppTextField extends StatelessWidget {
       textInputAction: textInputAction,
       onFieldSubmitted: onSubmitted,
       validator: validator,
-      style: const TextStyle(color: AppColors.ink, fontSize: 17),
+      style: TextStyle(color: context.colors.ink, fontSize: 17),
       decoration: InputDecoration(
         labelText: label,
         suffixText: suffixText,
-        labelStyle: const TextStyle(color: AppColors.inkSoft),
+        labelStyle: TextStyle(color: context.colors.inkSoft),
         filled: true,
-        fillColor: AppColors.card,
+        fillColor: context.colors.card,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.brand, width: 1.5),
+          borderSide: BorderSide(color: context.colors.brand, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.danger),
+          borderSide: BorderSide(color: context.colors.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+          borderSide: BorderSide(color: context.colors.danger, width: 1.5),
         ),
       ),
     );
@@ -90,8 +90,10 @@ class PrimaryButton extends StatelessWidget {
         child: FilledButton(
           onPressed: loading ? null : onPressed,
           style: FilledButton.styleFrom(
-            backgroundColor: AppColors.brand,
-            disabledBackgroundColor: AppColors.brand.withValues(alpha: 0.5),
+            backgroundColor: context.colors.brand,
+            disabledBackgroundColor: context.colors.brand.withValues(
+              alpha: 0.5,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
@@ -135,7 +137,7 @@ class ErrorText extends StatelessWidget {
         child: Text(
           message!,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.danger, fontSize: 14),
+          style: TextStyle(color: context.colors.danger, fontSize: 14),
         ),
       ),
     );

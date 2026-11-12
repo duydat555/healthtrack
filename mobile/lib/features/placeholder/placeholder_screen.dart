@@ -17,7 +17,7 @@ class PlaceholderScreen extends StatelessWidget {
         child: Text(
           'Đang phát triển',
           style: Theme.of(context).textTheme.bodyLarge
-              ?.copyWith(color: AppColors.inkSoft),
+              ?.copyWith(color: context.colors.inkSoft),
         ),
       ),
     );

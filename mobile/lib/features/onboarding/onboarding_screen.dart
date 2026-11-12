@@ -160,7 +160,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: _step > 0
@@ -169,7 +169,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 label: 'Quay lại bước trước',
                 child: IconButton(
                   tooltip: 'Quay lại',
-                  icon: const Icon(Icons.arrow_back, color: AppColors.ink),
+                  icon: Icon(Icons.arrow_back, color: context.colors.ink),
                   onPressed: _busy ? null : () => _goTo(_step - 1),
                 ),
               )
@@ -185,7 +185,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   height: 6,
                   margin: const EdgeInsets.symmetric(horizontal: 3),
                   decoration: BoxDecoration(
-                    color: i <= _step ? AppColors.brand : AppColors.cardHigh,
+                    color: i <= _step
+                        ? context.colors.brand
+                        : context.colors.cardHigh,
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -199,9 +201,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             label: 'Bỏ qua thiết lập ban đầu',
             child: TextButton(
               onPressed: _busy ? null : _skip,
-              child: const Text(
+              child: Text(
                 'Bỏ qua',
-                style: TextStyle(color: AppColors.inkSoft, fontSize: 15),
+                style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
               ),
             ),
           ),
@@ -224,36 +226,36 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Spacer(),
-          const Icon(Icons.favorite, color: AppColors.brand, size: 64),
+          Icon(Icons.favorite, color: context.colors.brand, size: 64),
           const SizedBox(height: 24),
           Semantics(
             header: true,
-            child: const Text(
+            child: Text(
               'Chào mừng đến với HealthTrack',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: AppColors.ink,
+                color: context.colors.ink,
               ),
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Theo dõi nước uống, giấc ngủ, bước chân, cân nặng và mục tiêu sức khỏe mỗi ngày.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: AppColors.inkSoft),
+            style: TextStyle(fontSize: 16, color: context.colors.inkSoft),
           ),
           const SizedBox(height: 28),
           _FeatureHighlight(
             icon: Icons.water_drop,
-            color: AppColors.water,
+            color: context.colors.water,
             text: 'Ghi nhanh chỉ số và nhắc nhở đúng giờ',
           ),
           const SizedBox(height: 12),
           _FeatureHighlight(
             icon: Icons.accessibility_new,
-            color: AppColors.medicine,
+            color: context.colors.medicine,
             text: 'Tự động tính BMI dựa trên chiều cao của bạn',
           ),
           const Spacer(),
@@ -278,19 +280,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           children: [
             Semantics(
               header: true,
-              child: const Text(
+              child: Text(
                 'Thông tin cá nhân',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.ink,
+                  color: context.colors.ink,
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Giúp cá nhân hóa hồ sơ sức khỏe của bạn.',
-              style: TextStyle(fontSize: 15, color: AppColors.inkSoft),
+              style: TextStyle(fontSize: 15, color: context.colors.inkSoft),
             ),
             const SizedBox(height: 24),
             AppTextField(
@@ -300,10 +302,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   (v == null || v.trim().isEmpty) ? 'Nhập họ và tên' : null,
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Giới tính',
               style: TextStyle(
-                color: AppColors.inkSoft,
+                color: context.colors.inkSoft,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -320,9 +322,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     child: ChoiceChip(
                       label: Text(e.value),
                       selected: _gender == e.key,
-                      selectedColor: AppColors.brand.withValues(alpha: 0.28),
-                      backgroundColor: AppColors.card,
-                      labelStyle: const TextStyle(color: AppColors.ink),
+                      selectedColor: context.colors.brand.withValues(
+                        alpha: 0.28,
+                      ),
+                      backgroundColor: context.colors.card,
+                      labelStyle: TextStyle(color: context.colors.ink),
                       onSelected: (_) => setState(() => _gender = e.key),
                     ),
                   ),
@@ -335,21 +339,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ? 'Chọn ngày sinh'
                   : 'Ngày sinh ${_formatDate(_birthDate!)}',
               child: Material(
-                color: AppColors.card,
+                color: context.colors.card,
                 borderRadius: BorderRadius.circular(14),
                 child: ListTile(
                   onTap: _pickBirthDate,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  title: const Text(
+                  title: Text(
                     'Ngày sinh',
-                    style: TextStyle(color: AppColors.inkSoft),
+                    style: TextStyle(color: context.colors.inkSoft),
                   ),
                   trailing: Text(
                     _birthDate == null ? 'Chọn ngày' : _formatDate(_birthDate!),
-                    style: const TextStyle(
-                      color: AppColors.ink,
+                    style: TextStyle(
+                      color: context.colors.ink,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -382,19 +386,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           children: [
             Semantics(
               header: true,
-              child: const Text(
+              child: Text(
                 'Chỉ số ban đầu',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.ink,
+                  color: context.colors.ink,
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Nhập chiều cao và cân nặng hiện tại để tính BMI và thiết lập hồ sơ.',
-              style: TextStyle(fontSize: 15, color: AppColors.inkSoft),
+              style: TextStyle(fontSize: 15, color: context.colors.inkSoft),
             ),
             const SizedBox(height: 24),
             AppTextField(
@@ -439,21 +443,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.card,
+                    color: context.colors.card,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.accessibility_new,
-                        color: AppColors.medicine,
+                        color: context.colors.medicine,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'BMI ban đầu: ${formatNumber(bmi)} · ${bmiLabel(bmi)}',
-                          style: const TextStyle(
-                            color: AppColors.ink,
+                          style: TextStyle(
+                            color: context.colors.ink,
                             fontWeight: FontWeight.w700,
                             fontSize: 15,
                           ),
@@ -494,7 +498,7 @@ class _FeatureHighlight extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -504,7 +508,7 @@ class _FeatureHighlight extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(color: AppColors.ink, fontSize: 14),
+              style: TextStyle(color: context.colors.ink, fontSize: 14),
             ),
           ),
         ],

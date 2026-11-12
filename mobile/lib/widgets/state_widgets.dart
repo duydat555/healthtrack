@@ -16,8 +16,8 @@ class LoadingState extends StatelessWidget {
       liveRegion: true,
       child: SizedBox(
         height: height,
-        child: const Center(
-          child: CircularProgressIndicator(color: AppColors.brand),
+        child: Center(
+          child: CircularProgressIndicator(color: context.colors.brand),
         ),
       ),
     );
@@ -46,12 +46,12 @@ class ErrorState extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.wifi_off_rounded, color: AppColors.inkSoft, size: 40),
+        Icon(Icons.wifi_off_rounded, color: context.colors.inkSoft, size: 40),
         const SizedBox(height: 12),
         Text(
           message,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
+          style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
         ),
         const SizedBox(height: 16),
         Semantics(
@@ -59,10 +59,10 @@ class ErrorState extends StatelessWidget {
           label: 'Thử lại tải dữ liệu',
           child: TextButton.icon(
             onPressed: onRetry,
-            icon: const Icon(Icons.refresh, color: AppColors.brand, size: 18),
-            label: const Text(
+            icon: Icon(Icons.refresh, color: context.colors.brand, size: 18),
+            label: Text(
               'Thử lại',
-              style: TextStyle(color: AppColors.brand, fontSize: 15),
+              style: TextStyle(color: context.colors.brand, fontSize: 15),
             ),
           ),
         ),
@@ -86,7 +86,7 @@ class ErrorState extends StatelessWidget {
       label: 'Lỗi: $message',
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: content,
@@ -121,12 +121,12 @@ class EmptyState extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: AppColors.inkSoft, size: 48),
+        Icon(icon, color: context.colors.inkSoft, size: 48),
         const SizedBox(height: 12),
         Text(
           message,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
+          style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
         ),
         if (actionLabel != null && onAction != null) ...[
           const SizedBox(height: 16),
@@ -137,7 +137,7 @@ class EmptyState extends StatelessWidget {
               onPressed: onAction,
               child: Text(
                 actionLabel!,
-                style: const TextStyle(color: AppColors.brand, fontSize: 15),
+                style: TextStyle(color: context.colors.brand, fontSize: 15),
               ),
             ),
           ),

@@ -84,19 +84,19 @@ class GoalsScreen extends ConsumerWidget {
           children: [
             Semantics(
               header: true,
-              child: const Text(
+              child: Text(
                 'Mục tiêu',
                 style: TextStyle(
                   fontSize: 34,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.ink,
+                  color: context.colors.ink,
                 ),
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'Mục tiêu của bạn quyết định độ đầy của các vòng ở màn Tổng quan.',
-              style: TextStyle(color: AppColors.inkSoft),
+              style: TextStyle(color: context.colors.inkSoft),
             ),
             const SizedBox(height: 20),
             goals.when(
@@ -144,13 +144,13 @@ class _GoalTile extends ConsumerWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.card,
-        titleTextStyle: const TextStyle(
-          color: AppColors.ink,
+        backgroundColor: context.colors.card,
+        titleTextStyle: TextStyle(
+          color: context.colors.ink,
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
-        contentTextStyle: const TextStyle(color: AppColors.inkSoft),
+        contentTextStyle: TextStyle(color: context.colors.inkSoft),
         title: Text('Mục tiêu ${type.title.toLowerCase()}'),
         content: AppTextField(
           controller: c,
@@ -205,7 +205,7 @@ class _GoalTile extends ConsumerWidget {
         label: '${type.title}: $subtitleText',
         hint: 'Chạm để ${target == null ? 'đặt' : 'chỉnh sửa'} mục tiêu',
         child: Material(
-          color: AppColors.card,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
           child: ListTile(
             onTap: () => _edit(context, ref),
@@ -216,19 +216,26 @@ class _GoalTile extends ConsumerWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppRadius.card),
             ),
-            leading: Icon(type.icon, color: type.color, size: 28),
+            leading: Icon(
+              type.icon,
+              color: context.colors.adapt(type.color),
+              size: 28,
+            ),
             title: Text(
               type.title,
-              style: TextStyle(color: type.color, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: context.colors.adapt(type.color),
+                fontWeight: FontWeight.w600,
+              ),
             ),
             subtitle: Text(
               subtitleText,
-              style: const TextStyle(color: AppColors.inkSoft, fontSize: 17),
+              style: TextStyle(color: context.colors.inkSoft, fontSize: 17),
             ),
             trailing: Text(
               target == null ? 'Đặt' : 'Sửa',
-              style: const TextStyle(
-                color: AppColors.brand,
+              style: TextStyle(
+                color: context.colors.brand,
                 fontWeight: FontWeight.w600,
               ),
             ),

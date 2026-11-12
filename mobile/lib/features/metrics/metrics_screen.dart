@@ -30,12 +30,12 @@ class MetricsScreen extends ConsumerWidget {
                   Expanded(
                     child: Semantics(
                       header: true,
-                      child: const Text(
+                      child: Text(
                         'Chỉ số',
                         style: TextStyle(
                           fontSize: 34,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.ink,
+                          color: context.colors.ink,
                         ),
                       ),
                     ),
@@ -46,9 +46,9 @@ class MetricsScreen extends ConsumerWidget {
                     child: IconButton(
                       tooltip: 'Xem biểu đồ xu hướng',
                       onPressed: () => context.push('/trends'),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.show_chart_rounded,
-                        color: AppColors.ink,
+                        color: context.colors.ink,
                         size: 28,
                       ),
                     ),
@@ -136,7 +136,7 @@ class MetricsScreen extends ConsumerWidget {
                         builder: (context, c) => LiquidGlassCardGroup(
                           cards: cards,
                           height: c.maxHeight,
-                          dark: true,
+                          dark: context.isDark,
                         ),
                       ),
                     );

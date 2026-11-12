@@ -16,8 +16,8 @@ class LoadingState extends StatelessWidget {
       label: label ?? 'Đang tải dữ liệu',
       child: SizedBox(
         height: height,
-        child: const Center(
-          child: CircularProgressIndicator(color: AppColors.brand),
+        child: Center(
+          child: CircularProgressIndicator(color: context.colors.brand),
         ),
       ),
     );
@@ -39,7 +39,7 @@ class ErrorState extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
@@ -47,7 +47,7 @@ class ErrorState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.inkSoft, fontSize: 14),
+              style: TextStyle(color: context.colors.inkSoft, fontSize: 14),
             ),
             const SizedBox(height: 8),
             Semantics(
@@ -55,14 +55,14 @@ class ErrorState extends StatelessWidget {
               label: 'Thử lại tải dữ liệu',
               child: TextButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(
+                icon: Icon(
                   Icons.refresh,
-                  color: AppColors.brand,
+                  color: context.colors.brand,
                   size: 18,
                 ),
-                label: const Text(
+                label: Text(
                   'Thử lại',
-                  style: TextStyle(color: AppColors.brand),
+                  style: TextStyle(color: context.colors.brand),
                 ),
               ),
             ),
@@ -92,12 +92,12 @@ class EmptyState extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
           children: [
-            Icon(icon, color: AppColors.inkSoft, size: 32),
+            Icon(icon, color: context.colors.inkSoft, size: 32),
             const SizedBox(height: 8),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.inkSoft, fontSize: 14),
+              style: TextStyle(color: context.colors.inkSoft, fontSize: 14),
             ),
           ],
         ),

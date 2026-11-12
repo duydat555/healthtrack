@@ -18,10 +18,10 @@ class LoadingState extends StatelessWidget {
         height: height,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
-        child: const CircularProgressIndicator(color: AppColors.brand),
+        child: CircularProgressIndicator(color: context.colors.brand),
       ),
     );
   }
@@ -42,21 +42,21 @@ class ErrorState extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.wifi_off_rounded,
-              color: AppColors.inkSoft,
+              color: context.colors.inkSoft,
               size: 32,
             ),
             const SizedBox(height: 8),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
+              style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
             ),
             const SizedBox(height: 8),
             Semantics(
@@ -64,14 +64,14 @@ class ErrorState extends StatelessWidget {
               label: 'Thử lại tải dữ liệu',
               child: TextButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(
+                icon: Icon(
                   Icons.refresh,
-                  color: AppColors.brand,
+                  color: context.colors.brand,
                   size: 18,
                 ),
-                label: const Text(
+                label: Text(
                   'Thử lại',
-                  style: TextStyle(color: AppColors.brand, fontSize: 16),
+                  style: TextStyle(color: context.colors.brand, fontSize: 16),
                 ),
               ),
             ),
@@ -104,17 +104,17 @@ class EmptyState extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: Column(
           children: [
-            Icon(icon, color: AppColors.inkSoft, size: 40),
+            Icon(icon, color: context.colors.inkSoft, size: 40),
             const SizedBox(height: 10),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
+              style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
             ),
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 10),
@@ -125,8 +125,8 @@ class EmptyState extends StatelessWidget {
                   onPressed: onAction,
                   child: Text(
                     actionLabel!,
-                    style: const TextStyle(
-                      color: AppColors.brand,
+                    style: TextStyle(
+                      color: context.colors.brand,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
