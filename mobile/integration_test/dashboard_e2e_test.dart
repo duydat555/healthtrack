@@ -45,6 +45,9 @@ void main() {
     await tester.enterText(find.byType(TextFormField).at(2), password);
     await tester.tap(find.widgetWithText(FilledButton, 'Đăng ký'));
     await settle(tester);
+    // Tài khoản mới chưa có chiều cao nên app mở luồng onboarding: bỏ qua để vào Tổng quan
+    await tester.tap(find.text('Bỏ qua'));
+    await settle(tester);
     expect(find.text('Hôm nay'), findsWidgets);
 
     final container = ProviderScope.containerOf(
