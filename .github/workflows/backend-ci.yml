@@ -23,7 +23,11 @@ jobs:
           cache-dependency-path: backend/pyproject.toml
       - run: pip install -e ".[dev]"
       - run: ruff check .
-      - run: pytest -q --cov=app --cov-report=term-missing
+      - name: Run tests and enforce backend coverage
+        run: pytest -q --cov=app --cov-report=term-missing --cov-report=xml --cov-fail-under=70
+      - name: Add coverage report to job summary
+        if: always()
+        run: coverage report --format=markdown >> "$GITHUB_STEP_SUMMARY"
       - run: >-
           coverage report
           --include=app/services/weight.py,app/services/water.py,app/services/sleep.py
