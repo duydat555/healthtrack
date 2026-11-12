@@ -129,11 +129,27 @@ final medicationsProvider = FutureProvider.autoDispose<List<Medication>>(
   (ref) => ref.watch(healthRepositoryProvider).medications(),
 );
 
+final weightLogsProvider = FutureProvider.autoDispose<List<WeightLog>>(
+  (ref) => ref.watch(healthRepositoryProvider).weights(limit: 10),
+);
+
+final waterLogsProvider = FutureProvider.autoDispose<List<WaterLog>>((ref) {
+  final from = startOfDay(DateTime.now());
+  return ref.watch(healthRepositoryProvider).water(from: from, limit: 20);
+});
+
+final sleepLogsProvider = FutureProvider.autoDispose<List<SleepLog>>(
+  (ref) => ref.watch(healthRepositoryProvider).sleep(limit: 10),
+);
+
 /// Làm mới mọi dữ liệu hiển thị sau khi ghi thêm.
 void refreshHealthData(WidgetRef ref) {
   ref
     ..invalidate(todaySummaryProvider)
     ..invalidate(bodyDataProvider)
     ..invalidate(goalsProvider)
-    ..invalidate(medicationsProvider);
+    ..invalidate(medicationsProvider)
+    ..invalidate(weightLogsProvider)
+    ..invalidate(waterLogsProvider)
+    ..invalidate(sleepLogsProvider);
 }

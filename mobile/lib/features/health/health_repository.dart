@@ -117,10 +117,19 @@ class HealthRepository {
     data: {'amount_ml': ml, if (at != null) 'logged_at': _utc(at)},
   );
 
-  Future<void> addWeight(double kg, {DateTime? at}) => _dio.post<void>(
-    '/weights',
-    data: {'weight_kg': kg, if (at != null) 'logged_at': _utc(at)},
-  );
+  Future<WeightLog?> addWeight(double kg, {DateTime? at}) async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/weights',
+      data: {'weight_kg': kg, if (at != null) 'logged_at': _utc(at)},
+    );
+    return res.data == null ? null : WeightLog.fromJson(res.data!);
+  }
+
+  Future<void> deleteWeight(int id) => _dio.delete<void>('/weights/$id');
+
+  Future<void> deleteWater(int id) => _dio.delete<void>('/water/$id');
+
+  Future<void> deleteSleep(int id) => _dio.delete<void>('/sleep/$id');
 
   Future<void> addSleep({
     required DateTime start,
