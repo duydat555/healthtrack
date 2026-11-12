@@ -104,6 +104,9 @@ Mỗi dòng đều có test trong `backend/tests/test_security.py`.
 | CORS chỉ cho origin trong `CORS_ORIGINS`; production cấm `*` | Đạt |
 | CORS chỉ mở các method và header cần dùng (`Authorization`, `Content-Type`) | Đạt |
 | Thu hồi token (refresh token xoay vòng, danh sách chặn) | Chưa, làm cùng #34 (đăng nhập, refresh) |
-| Giới hạn số lần đăng nhập sai (rate limit) | Chưa, đề xuất thêm ở Phase 5 |
+| Giới hạn số lần đăng nhập sai (rate limit) | Đạt trong một tiến trình; 429 và `Retry-After` có test ở `backend/tests/test_rate_limit_timing.py` |
+
+### Kiểm tra OWASP cơ bản (issue #76)
+Kiểm thử IDOR, SQL injection, XSS và giới hạn đăng nhập được ghi trong `docs/13-bao-cao-owasp-checklist.md`. Các API hiện trả JSON; dữ liệu tên hiển thị trong app Flutter bằng widget `Text`, không được diễn giải thành HTML. Nếu sau này có web client, client phải mã hóa đầu ra theo ngữ cảnh trước khi đưa dữ liệu vào DOM.
 
 Ghi chú: app iOS gốc không phải trình duyệt nên CORS không áp dụng cho app; CORS phục vụ Swagger UI và nếu sau này có bản web.
