@@ -60,6 +60,22 @@ class HealthRepository {
     ];
   }
 
+  /// Dữ liệu chuỗi xu hướng đầy đủ (ngày, giá trị, đơn vị) cho biểu đồ.
+  Future<TrendSeries> statsTrendSeries(
+    String metric, {
+    String range = '7d',
+  }) async {
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/stats/trend',
+      queryParameters: {
+        'metric': metric,
+        'range': range,
+        'tz_offset': _tzOffset,
+      },
+    );
+    return TrendSeries.fromJson(res.data!);
+  }
+
   Future<List<WeightLog>> weights({int limit = 30}) =>
       _list('/weights', WeightLog.fromJson, query: {'limit': limit});
 
@@ -157,6 +173,35 @@ class HealthRepository {
 
   Future<void> deactivateGoal(int id) =>
       _dio.patch<void>('/goals/$id', data: {'is_active': false});
+
+  Future<List<Reminder>> reminders() => _list('/reminders', Reminder.fromJson);
+
+  Future<Reminder> createReminder({
+    required String kind,
+    required String atTime,
+    bool enabled = true,
+  }) async {
+    final res = await _dio.post<Map<String, dynamic>>(
+      '/reminders',
+      data: {'kind': kind, 'at_time': atTime, 'enabled': enabled},
+    );
+    return Reminder.fromJson(res.data!);
+  }
+
+  Future<Reminder> updateReminder(
+    int id, {
+    String? kind,
+    String? atTime,
+    bool? enabled,
+  }) async {
+    final res = await _dio.patch<Map<String, dynamic>>(
+      '/reminders/$id',
+      data: {'kind': ?kind, 'at_time': ?atTime, 'enabled': ?enabled},
+    );
+    return Reminder.fromJson(res.data!);
+  }
+
+  Future<void> deleteReminder(int id) => _dio.delete<void>('/reminders/$id');
 }
 
 final healthRepositoryProvider = Provider<HealthRepository>(

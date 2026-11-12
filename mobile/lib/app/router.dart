@@ -8,7 +8,10 @@ import '../features/auth/auth_screens.dart';
 import '../features/goals/goals_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/metrics/metrics_screen.dart';
+import '../features/onboarding/onboarding_screen.dart';
 import '../features/profile/profile_screen.dart';
+import '../features/reminders/reminders_screen.dart';
+import '../features/trends/trend_charts_screen.dart';
 import 'app_shell.dart';
 import 'route_state_widgets.dart';
 
@@ -36,8 +39,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       final auth = ref.read(authProvider);
       final path = state.matchedLocation;
       if (auth.isLoading) return path == '/splash' ? null : '/splash';
-      final loggedIn = auth.value != null;
-      if (!loggedIn) return _authRoutes.contains(path) ? null : '/login';
+      final user = auth.value;
+      if (user == null) return _authRoutes.contains(path) ? null : '/login';
+      final needsOnboarding =
+          user.heightCm == null && !ref.read(onboardingDoneProvider);
+      if (needsOnboarding) return path == '/onboarding' ? null : '/onboarding';
       if (_authRoutes.contains(path) || path == '/splash') return '/';
       return null;
     },
@@ -49,6 +55,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/splash', builder: (c, s) => const SplashScreen()),
       GoRoute(path: '/login', builder: (c, s) => const LoginScreen()),
       GoRoute(path: '/register', builder: (c, s) => const RegisterScreen()),
+      GoRoute(path: '/onboarding', builder: (c, s) => const OnboardingScreen()),
       StatefulShellRoute.indexedStack(
         restorationScopeId: 'app_shell_tabs',
         builder: (context, state, shell) => AppShell(navigationShell: shell),
@@ -84,6 +91,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/add', builder: (c, s) => const AddScreen()),
+      GoRoute(path: '/reminders', builder: (c, s) => const RemindersScreen()),
+      GoRoute(
+        path: '/trends',
+        builder: (c, s) => TrendChartsScreen(
+          initialMetric: s.uri.queryParameters['metric'] ?? 'water',
+        ),
+      ),
     ],
   );
   ref.onDispose(router.dispose);

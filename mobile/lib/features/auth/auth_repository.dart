@@ -49,10 +49,29 @@ class AuthRepository {
     return User.fromJson(res.data!);
   }
 
-  Future<User> updateHeight(double heightCm) async {
+  Future<User> updateHeight(double heightCm) =>
+      updateProfile(heightCm: heightCm);
+
+  Future<User> updateProfile({
+    String? fullName,
+    DateTime? birthDate,
+    String? gender,
+    double? heightCm,
+  }) async {
+    String? formatDate(DateTime? d) => d == null
+        ? null
+        : '${d.year.toString().padLeft(4, '0')}-'
+              '${d.month.toString().padLeft(2, '0')}-'
+              '${d.day.toString().padLeft(2, '0')}';
+
     final res = await _dio.patch<Map<String, dynamic>>(
       '/users/me',
-      data: {'height_cm': heightCm},
+      data: {
+        if (fullName != null) 'full_name': fullName.trim(),
+        if (birthDate != null) 'birth_date': formatDate(birthDate),
+        'gender': ?gender,
+        'height_cm': ?heightCm,
+      },
     );
     return User.fromJson(res.data!);
   }

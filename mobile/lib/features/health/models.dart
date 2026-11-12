@@ -216,3 +216,79 @@ class StatsSummary {
   final int medsTaken;
   final List<GoalProgress> goals;
 }
+
+/// Một lịch nhắc nhở hằng ngày của người dùng (`/reminders`).
+@immutable
+class Reminder {
+  const Reminder({
+    required this.id,
+    required this.kind,
+    required this.hour,
+    required this.minute,
+    required this.enabled,
+  });
+
+  factory Reminder.fromJson(Map<String, dynamic> j) {
+    final raw = (j['at_time'] as String).split(':');
+    return Reminder(
+      id: j['id'] as int,
+      kind: j['kind'] as String,
+      hour: int.parse(raw[0]),
+      minute: int.parse(raw[1]),
+      enabled: j['enabled'] as bool,
+    );
+  }
+
+  final int id;
+  final String kind;
+  final int hour;
+  final int minute;
+  final bool enabled;
+
+  /// Chuỗi giờ hiển thị `HH:mm`.
+  String get formattedTime =>
+      '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+
+  /// Chuỗi giờ gửi lên API `HH:mm:00`.
+  String get apiTime => '$formattedTime:00';
+}
+
+/// Một điểm dữ liệu theo ngày của biểu đồ xu hướng (`/stats/trend`).
+@immutable
+class TrendPoint {
+  const TrendPoint({required this.date, required this.value});
+
+  factory TrendPoint.fromJson(Map<String, dynamic> j) => TrendPoint(
+    date: DateTime.parse(j['date'] as String),
+    value: (j['value'] as num?)?.toDouble(),
+  );
+
+  final DateTime date;
+  final double? value;
+}
+
+/// Chuỗi xu hướng theo ngày từ `/stats/trend`.
+@immutable
+class TrendSeries {
+  const TrendSeries({
+    required this.metric,
+    required this.unit,
+    required this.range,
+    required this.points,
+  });
+
+  factory TrendSeries.fromJson(Map<String, dynamic> j) => TrendSeries(
+    metric: (j['metric'] as String?) ?? '',
+    unit: (j['unit'] as String?) ?? '',
+    range: (j['range'] as String?) ?? '7d',
+    points: [
+      for (final p in j['points'] as List<dynamic>)
+        TrendPoint.fromJson(p as Map<String, dynamic>),
+    ],
+  );
+
+  final String metric;
+  final String unit;
+  final String range;
+  final List<TrendPoint> points;
+}
