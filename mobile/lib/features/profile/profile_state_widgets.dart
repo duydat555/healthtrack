@@ -13,8 +13,8 @@ class LoadingState extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       label: label ?? 'Đang tải thông tin hồ sơ',
-      child: const Center(
-        child: CircularProgressIndicator(color: AppColors.brand),
+      child: Center(
+        child: CircularProgressIndicator(color: context.colors.brand),
       ),
     );
   }
@@ -38,25 +38,22 @@ class ErrorState extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.card,
+              color: context.colors.card,
               borderRadius: BorderRadius.circular(AppRadius.card),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.wifi_off_rounded,
-                  color: AppColors.inkSoft,
+                  color: context.colors.inkSoft,
                   size: 40,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.inkSoft,
-                    fontSize: 15,
-                  ),
+                  style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
                 ),
                 const SizedBox(height: 12),
                 Semantics(
@@ -64,10 +61,13 @@ class ErrorState extends StatelessWidget {
                   label: 'Thử lại tải thông tin hồ sơ',
                   child: TextButton.icon(
                     onPressed: onRetry,
-                    icon: const Icon(Icons.refresh, color: AppColors.brand),
-                    label: const Text(
+                    icon: Icon(Icons.refresh, color: context.colors.brand),
+                    label: Text(
                       'Thử lại',
-                      style: TextStyle(color: AppColors.brand, fontSize: 16),
+                      style: TextStyle(
+                        color: context.colors.brand,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),
@@ -96,16 +96,16 @@ class EmptyState extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.person_outline,
-                color: AppColors.inkSoft,
+                color: context.colors.inkSoft,
                 size: 48,
               ),
               const SizedBox(height: 12),
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
+                style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
               ),
             ],
           ),

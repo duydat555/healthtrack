@@ -28,7 +28,7 @@ class HomeScreen extends ConsumerWidget {
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          color: AppColors.brand,
+          color: context.colors.brand,
           onRefresh: () async {
             refreshHealthData(ref);
             refreshStepMealData(ref);
@@ -52,10 +52,10 @@ class HomeScreen extends ConsumerWidget {
             children: [
               Text(
                 formatHeaderDate(DateTime.now()),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.inkSoft,
+                  color: context.colors.inkSoft,
                 ),
               ),
               const SizedBox(height: 2),
@@ -64,12 +64,12 @@ class HomeScreen extends ConsumerWidget {
                   Expanded(
                     child: Semantics(
                       header: true,
-                      child: const Text(
+                      child: Text(
                         'Tổng quan',
                         style: TextStyle(
                           fontSize: 34,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.ink,
+                          color: context.colors.ink,
                         ),
                       ),
                     ),
@@ -79,11 +79,11 @@ class HomeScreen extends ConsumerWidget {
                       label: 'Hồ sơ của ${user.fullName}',
                       child: CircleAvatar(
                         radius: 20,
-                        backgroundColor: AppColors.cardHigh,
+                        backgroundColor: context.colors.cardHigh,
                         child: Text(
                           user.initial,
-                          style: const TextStyle(
-                            color: AppColors.ink,
+                          style: TextStyle(
+                            color: context.colors.ink,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -162,11 +162,11 @@ class _GlassCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return LiquidGlass(
       cornerRadius: AppRadius.card,
-      tint: AppColors.card,
+      tint: context.colors.card,
       padding: EdgeInsets.zero,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppColors.card.withValues(alpha: 0.72),
+          color: context.colors.card.withValues(alpha: 0.72),
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: Padding(padding: const EdgeInsets.all(18), child: child),
@@ -197,9 +197,15 @@ class _RingsCard extends StatelessWidget {
               size: 124,
               strokeWidth: 16,
               rings: [
-                RingData(color: AppColors.water, progress: s.waterProgress),
-                RingData(color: AppColors.sleep, progress: s.sleepProgress),
-                RingData(color: AppColors.meds, progress: s.medsProgress),
+                RingData(
+                  color: context.colors.water,
+                  progress: s.waterProgress,
+                ),
+                RingData(
+                  color: context.colors.sleep,
+                  progress: s.sleepProgress,
+                ),
+                RingData(color: context.colors.meds, progress: s.medsProgress),
               ],
             ),
             const SizedBox(width: 22),
@@ -211,7 +217,7 @@ class _RingsCard extends StatelessWidget {
                     'Nước uống',
                     formatNumber(s.waterMl / 1000),
                     '/${formatNumber(s.waterGoalMl / 1000)} LÍT',
-                    AppColors.water,
+                    context.colors.water,
                   ),
                   const SizedBox(height: 12),
                   _Legend(
@@ -220,14 +226,14 @@ class _RingsCard extends StatelessWidget {
                         ? '--'
                         : formatNumber(s.sleepMinutes! / 60),
                     '/${formatNumber(s.sleepGoalMinutes / 60)} GIỜ',
-                    AppColors.sleep,
+                    context.colors.sleep,
                   ),
                   const SizedBox(height: 12),
                   _Legend(
                     'Thuốc',
                     '${s.medsTaken}',
                     '/${s.medsTotal} LIỀU',
-                    AppColors.meds,
+                    context.colors.meds,
                   ),
                 ],
               ),
@@ -254,10 +260,10 @@ class _Legend extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.ink,
+            color: context.colors.ink,
           ),
         ),
         Text.rich(
@@ -319,7 +325,7 @@ class _MetricGrid extends StatelessWidget {
       MetricCard(
         title: 'Nước uống',
         icon: Icons.water_drop,
-        color: AppColors.water,
+        color: context.colors.water,
         value: formatNumber(todayWater / 1000),
         unit: 'lít',
         caption: 'Hôm nay',
@@ -328,7 +334,7 @@ class _MetricGrid extends StatelessWidget {
       MetricCard(
         title: 'Giấc ngủ',
         icon: Icons.bedtime,
-        color: AppColors.sleep,
+        color: context.colors.sleep,
         value: latestSleep == null
             ? '--'
             : formatNumber(latestSleep.durationMinutes / 60),
@@ -341,7 +347,7 @@ class _MetricGrid extends StatelessWidget {
       MetricCard(
         title: 'Bước chân',
         icon: Icons.directions_walk,
-        color: AppColors.steps,
+        color: context.colors.steps,
         value: latestSteps == null
             ? '--'
             : formatNumber(latestSteps.steps, digits: 0),
@@ -354,7 +360,7 @@ class _MetricGrid extends StatelessWidget {
       MetricCard(
         title: 'Calories',
         icon: Icons.local_fire_department,
-        color: AppColors.meal,
+        color: context.colors.meal,
         value: formatNumber(data.todayCalories, digits: 0),
         unit: 'kcal',
         caption: 'Hôm nay',
@@ -363,7 +369,7 @@ class _MetricGrid extends StatelessWidget {
       MetricCard(
         title: 'Cân nặng',
         icon: Icons.monitor_weight,
-        color: AppColors.weight,
+        color: context.colors.weight,
         value: latestW == null ? '--' : formatNumber(latestW.weightKg),
         unit: 'kg',
         caption: weightCaption(),
@@ -372,7 +378,7 @@ class _MetricGrid extends StatelessWidget {
       MetricCard(
         title: 'BMI',
         icon: Icons.accessibility_new,
-        color: AppColors.medicine,
+        color: context.colors.medicine,
         value: bmi == null ? '--' : formatNumber(bmi),
         unit: '',
         caption: bmi == null ? 'Cần chiều cao trong Hồ sơ' : bmiLabel(bmi),
@@ -421,12 +427,12 @@ class _WaterWeekChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Nước uống',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: AppColors.water,
+                color: context.colors.water,
               ),
             ),
             const SizedBox(height: 2),
@@ -435,18 +441,18 @@ class _WaterWeekChart extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: formatNumber(total / 7 / 1000),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.ink,
+                      color: context.colors.ink,
                     ),
                   ),
-                  const TextSpan(
+                  TextSpan(
                     text: ' lít/ngày',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.inkSoft,
+                      color: context.colors.inkSoft,
                     ),
                   ),
                 ],
@@ -475,8 +481,10 @@ class _WaterWeekChart extends StatelessWidget {
                                 width: 18,
                                 decoration: BoxDecoration(
                                   color: i == values.length - 1
-                                      ? AppColors.water
-                                      : AppColors.water.withValues(alpha: 0.45),
+                                      ? context.colors.water
+                                      : context.colors.water.withValues(
+                                          alpha: 0.45,
+                                        ),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                               ),
@@ -484,9 +492,9 @@ class _WaterWeekChart extends StatelessWidget {
                             const SizedBox(height: 8),
                             Text(
                               label(i),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.inkSoft,
+                                color: context.colors.inkSoft,
                               ),
                             ),
                           ],

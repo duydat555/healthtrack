@@ -33,7 +33,7 @@ const _kindMetas = [
 
 _ReminderKindMeta _metaFor(String kind) => _kindMetas.firstWhere(
   (m) => m.kind == kind,
-  orElse: () => const _ReminderKindMeta(
+  orElse: () => _ReminderKindMeta(
     'water',
     'Nhắc nhở',
     Icons.notifications_active,
@@ -74,7 +74,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
     final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.card,
+      backgroundColor: context.colors.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -90,14 +90,17 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
     final reminders = ref.watch(remindersProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Semantics(
           header: true,
-          child: const Text(
+          child: Text(
             'Nhắc nhở',
-            style: TextStyle(color: AppColors.ink, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              color: context.colors.ink,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         actions: [
@@ -106,7 +109,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
             label: 'Thêm nhắc nhở mới',
             child: IconButton(
               tooltip: 'Thêm nhắc nhở',
-              icon: const Icon(Icons.add, color: AppColors.ink),
+              icon: Icon(Icons.add, color: context.colors.ink),
               onPressed: () => _openForm(),
             ),
           ),
@@ -114,7 +117,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          color: AppColors.brand,
+          color: context.colors.brand,
           onRefresh: () async {
             ref.invalidate(remindersProvider);
             await ref
@@ -178,7 +181,7 @@ class _ReminderTile extends StatelessWidget {
       label: '${meta.label} lúc ${reminder.formattedTime}, $statusText',
       hint: 'Chạm để chỉnh sửa nhắc nhở',
       child: Material(
-        color: AppColors.card,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(AppRadius.card),
         child: InkWell(
           onTap: onTap,
@@ -191,10 +194,16 @@ class _ReminderTile extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: meta.color.withValues(alpha: 0.18),
+                    color: context.colors
+                        .adapt(meta.color)
+                        .withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(meta.icon, color: meta.color, size: 24),
+                  child: Icon(
+                    meta.icon,
+                    color: context.colors.adapt(meta.color),
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -207,16 +216,16 @@ class _ReminderTile extends StatelessWidget {
                           fontSize: 26,
                           fontWeight: FontWeight.w700,
                           color: reminder.enabled
-                              ? AppColors.ink
-                              : AppColors.inkSoft,
+                              ? context.colors.ink
+                              : context.colors.inkSoft,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         '${meta.label} · $statusText',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.inkSoft,
+                          color: context.colors.inkSoft,
                         ),
                       ),
                     ],
@@ -228,7 +237,7 @@ class _ReminderTile extends StatelessWidget {
                       'Bật hoặc tắt nhắc nhở ${meta.label} lúc ${reminder.formattedTime}',
                   child: Switch.adaptive(
                     value: reminder.enabled,
-                    activeTrackColor: AppColors.brand,
+                    activeTrackColor: context.colors.brand,
                     onChanged: busy ? null : onToggle,
                   ),
                 ),
@@ -348,10 +357,10 @@ class _ReminderFormSheetState extends ConsumerState<_ReminderFormSheet> {
                     header: true,
                     child: Text(
                       isEdit ? 'Chỉnh sửa nhắc nhở' : 'Thêm nhắc nhở',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.ink,
+                        color: context.colors.ink,
                       ),
                     ),
                   ),
@@ -362,18 +371,18 @@ class _ReminderFormSheetState extends ConsumerState<_ReminderFormSheet> {
                   child: IconButton(
                     tooltip: 'Đóng',
                     onPressed: _busy ? null : () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: AppColors.inkSoft),
+                    icon: Icon(Icons.close, color: context.colors.inkSoft),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Loại nhắc nhở',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.inkSoft,
+                color: context.colors.inkSoft,
               ),
             ),
             const SizedBox(height: 8),
@@ -388,11 +397,17 @@ class _ReminderFormSheetState extends ConsumerState<_ReminderFormSheet> {
                     label: 'Chọn loại ${meta.label}',
                     child: ChoiceChip(
                       label: Text(meta.label),
-                      avatar: Icon(meta.icon, color: meta.color, size: 18),
+                      avatar: Icon(
+                        meta.icon,
+                        color: context.colors.adapt(meta.color),
+                        size: 18,
+                      ),
                       selected: _kind == meta.kind,
-                      selectedColor: meta.color.withValues(alpha: 0.25),
-                      backgroundColor: AppColors.cardHigh,
-                      labelStyle: const TextStyle(color: AppColors.ink),
+                      selectedColor: context.colors
+                          .adapt(meta.color)
+                          .withValues(alpha: 0.25),
+                      backgroundColor: context.colors.cardHigh,
+                      labelStyle: TextStyle(color: context.colors.ink),
                       onSelected: _busy
                           ? null
                           : (_) => setState(() => _kind = meta.kind),
@@ -401,12 +416,12 @@ class _ReminderFormSheetState extends ConsumerState<_ReminderFormSheet> {
               ],
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Giờ nhắc nhở',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.inkSoft,
+                color: context.colors.inkSoft,
               ),
             ),
             const SizedBox(height: 8),
@@ -415,15 +430,15 @@ class _ReminderFormSheetState extends ConsumerState<_ReminderFormSheet> {
               child: Container(
                 height: 180,
                 decoration: BoxDecoration(
-                  color: AppColors.cardHigh,
+                  color: context.colors.cardHigh,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: CupertinoTheme(
-                  data: const CupertinoThemeData(
+                  data: CupertinoThemeData(
                     brightness: Brightness.dark,
                     textTheme: CupertinoTextThemeData(
                       dateTimePickerTextStyle: TextStyle(
-                        color: AppColors.ink,
+                        color: context.colors.ink,
                         fontSize: 22,
                       ),
                     ),
@@ -443,12 +458,12 @@ class _ReminderFormSheetState extends ConsumerState<_ReminderFormSheet> {
               label: 'Bật nhắc nhở',
               child: SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(
+                title: Text(
                   'Bật nhắc nhở',
-                  style: TextStyle(color: AppColors.ink, fontSize: 16),
+                  style: TextStyle(color: context.colors.ink, fontSize: 16),
                 ),
                 value: _enabled,
-                activeTrackColor: AppColors.brand,
+                activeTrackColor: context.colors.brand,
                 onChanged: _busy ? null : (v) => setState(() => _enabled = v),
               ),
             ),
@@ -467,8 +482,8 @@ class _ReminderFormSheetState extends ConsumerState<_ReminderFormSheet> {
                 child: OutlinedButton(
                   onPressed: _busy ? null : _delete,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.danger,
-                    side: const BorderSide(color: AppColors.danger),
+                    foregroundColor: context.colors.danger,
+                    side: BorderSide(color: context.colors.danger),
                     minimumSize: const Size.fromHeight(48),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -493,8 +508,8 @@ class _LoadingView extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       label: 'Đang tải danh sách nhắc nhở',
-      child: const Center(
-        child: CircularProgressIndicator(color: AppColors.brand),
+      child: Center(
+        child: CircularProgressIndicator(color: context.colors.brand),
       ),
     );
   }
@@ -517,16 +532,16 @@ class _ErrorView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.wifi_off_rounded,
-                color: AppColors.inkSoft,
+                color: context.colors.inkSoft,
                 size: 44,
               ),
               const SizedBox(height: 12),
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
+                style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
               ),
               const SizedBox(height: 16),
               Semantics(
@@ -534,10 +549,10 @@ class _ErrorView extends StatelessWidget {
                 label: 'Thử lại tải danh sách nhắc nhở',
                 child: TextButton.icon(
                   onPressed: onRetry,
-                  icon: const Icon(Icons.refresh, color: AppColors.brand),
-                  label: const Text(
+                  icon: Icon(Icons.refresh, color: context.colors.brand),
+                  label: Text(
                     'Thử lại',
-                    style: TextStyle(color: AppColors.brand, fontSize: 16),
+                    style: TextStyle(color: context.colors.brand, fontSize: 16),
                   ),
                 ),
               ),
@@ -564,25 +579,25 @@ class _EmptyView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
+              Icon(
                 Icons.notifications_none_rounded,
-                color: AppColors.inkSoft,
+                color: context.colors.inkSoft,
                 size: 52,
               ),
               const SizedBox(height: 14),
-              const Text(
+              Text(
                 'Chưa có nhắc nhở nào',
                 style: TextStyle(
-                  color: AppColors.ink,
+                  color: context.colors.ink,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 'Đặt lịch nhắc uống nước, uống thuốc hoặc đi ngủ đúng giờ mỗi ngày.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.inkSoft, fontSize: 15),
+                style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
               ),
               const SizedBox(height: 20),
               Semantics(
@@ -591,7 +606,7 @@ class _EmptyView extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: onAdd,
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.brand,
+                    backgroundColor: context.colors.brand,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,

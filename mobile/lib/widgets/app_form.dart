@@ -37,28 +37,28 @@ class AppTextField extends StatelessWidget {
       textInputAction: textInputAction,
       onFieldSubmitted: onSubmitted,
       validator: validator,
-      style: const TextStyle(color: AppColors.ink, fontSize: 17),
+      style: TextStyle(color: context.colors.ink, fontSize: 17),
       decoration: InputDecoration(
         labelText: label,
         suffixText: suffixText,
-        labelStyle: const TextStyle(color: AppColors.inkSoft),
+        labelStyle: TextStyle(color: context.colors.inkSoft),
         filled: true,
-        fillColor: AppColors.card,
+        fillColor: context.colors.card,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.brand, width: 1.5),
+          borderSide: BorderSide(color: context.colors.brand, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.danger),
+          borderSide: BorderSide(color: context.colors.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+          borderSide: BorderSide(color: context.colors.danger, width: 1.5),
         ),
       ),
     );
@@ -80,34 +80,41 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: FilledButton(
-        onPressed: loading ? null : onPressed,
-        style: FilledButton.styleFrom(
-          backgroundColor: AppColors.brand,
-          disabledBackgroundColor: AppColors.brand.withValues(alpha: 0.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+    return Semantics(
+      button: true,
+      enabled: !loading && onPressed != null,
+      label: loading ? '$label, đang xử lý' : label,
+      child: SizedBox(
+        width: double.infinity,
+        height: 52,
+        child: FilledButton(
+          onPressed: loading ? null : onPressed,
+          style: FilledButton.styleFrom(
+            backgroundColor: context.colors.brand,
+            disabledBackgroundColor: context.colors.brand.withValues(
+              alpha: 0.5,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
+          child: loading
+              ? const SizedBox.square(
+                  dimension: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
         ),
-        child: loading
-            ? const SizedBox.square(
-                dimension: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Colors.white,
-                ),
-              )
-            : Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
       ),
     );
   }
@@ -122,12 +129,16 @@ class ErrorText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (message == null) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: Text(
-        message!,
-        textAlign: TextAlign.center,
-        style: const TextStyle(color: AppColors.danger, fontSize: 14),
+    return Semantics(
+      liveRegion: true,
+      label: 'Lỗi: $message',
+      child: Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: Text(
+          message!,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: context.colors.danger, fontSize: 14),
+        ),
       ),
     );
   }

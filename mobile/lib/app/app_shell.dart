@@ -34,7 +34,7 @@ class AppShell extends StatelessWidget {
     final horizontalPadding = width < 390 ? 12.0 : 16.0;
 
     return ColoredBox(
-      color: AppColors.background,
+      color: context.colors.background,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBody: true,
@@ -48,8 +48,8 @@ class AppShell extends StatelessWidget {
               label: 'Thanh điều hướng chính gồm 4 mục và nút thêm nhanh',
               child: LiquidGlassTabBar(
                 items: _tabs,
-                tint: AppColors.brand,
-                dark: true,
+                tint: context.colors.brand,
+                dark: context.isDark,
                 currentIndex: navigationShell.currentIndex,
                 onTap: (i) => navigationShell.goBranch(
                   i,

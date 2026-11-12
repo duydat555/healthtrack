@@ -127,20 +127,23 @@ class _TrendChartsScreenState extends ConsumerState<TrendChartsScreen> {
     final meta = _currentMeta;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Semantics(
           header: true,
-          child: const Text(
+          child: Text(
             'Xu hướng',
-            style: TextStyle(color: AppColors.ink, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              color: context.colors.ink,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          color: AppColors.brand,
+          color: context.colors.brand,
           onRefresh: () async {
             ref.invalidate(trendSeriesProvider(query));
             await ref
@@ -172,12 +175,18 @@ class _TrendChartsScreenState extends ConsumerState<TrendChartsScreen> {
                           label: 'Xem xu hướng ${m.label}',
                           child: ChoiceChip(
                             label: Text(m.label),
-                            avatar: Icon(m.icon, color: m.color, size: 18),
+                            avatar: Icon(
+                              m.icon,
+                              color: context.colors.adapt(m.color),
+                              size: 18,
+                            ),
                             selected: m.key == _metric,
-                            selectedColor: m.color.withValues(alpha: 0.24),
-                            backgroundColor: AppColors.card,
-                            labelStyle: const TextStyle(
-                              color: AppColors.ink,
+                            selectedColor: context.colors
+                                .adapt(m.color)
+                                .withValues(alpha: 0.24),
+                            backgroundColor: context.colors.card,
+                            labelStyle: TextStyle(
+                              color: context.colors.ink,
                               fontWeight: FontWeight.w600,
                             ),
                             onSelected: (_) => setState(() {
@@ -197,8 +206,8 @@ class _TrendChartsScreenState extends ConsumerState<TrendChartsScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   child: CupertinoSlidingSegmentedControl<String>(
-                    backgroundColor: AppColors.card,
-                    thumbColor: AppColors.cardHigh,
+                    backgroundColor: context.colors.card,
+                    thumbColor: context.colors.cardHigh,
                     groupValue: _range,
                     onValueChanged: (value) {
                       if (value == null) return;
@@ -223,8 +232,8 @@ class _TrendChartsScreenState extends ConsumerState<TrendChartsScreen> {
                                     ? FontWeight.w700
                                     : FontWeight.w500,
                                 color: _range == e.key
-                                    ? AppColors.ink
-                                    : AppColors.inkSoft,
+                                    ? context.colors.ink
+                                    : context.colors.inkSoft,
                               ),
                             ),
                           ),
@@ -320,7 +329,7 @@ class _TrendChartCard extends StatelessWidget {
           'Biểu đồ xu hướng ${meta.label} trong ${_ranges[series.range] ?? series.range}. Trung bình ${formatNumber(avg, digits: meta.digits)} ${meta.unit}. Chạm vào từng cột hoặc điểm để xem chi tiết.',
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: Padding(
@@ -330,12 +339,16 @@ class _TrendChartCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(meta.icon, color: meta.color, size: 20),
+                  Icon(
+                    meta.icon,
+                    color: context.colors.adapt(meta.color),
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     meta.label,
                     style: TextStyle(
-                      color: meta.color,
+                      color: context.colors.adapt(meta.color),
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -343,8 +356,8 @@ class _TrendChartCard extends StatelessWidget {
                   const Spacer(),
                   Text(
                     _ranges[series.range] ?? series.range,
-                    style: const TextStyle(
-                      color: AppColors.inkSoft,
+                    style: TextStyle(
+                      color: context.colors.inkSoft,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -354,8 +367,8 @@ class _TrendChartCard extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 touchedText,
-                style: const TextStyle(
-                  color: AppColors.ink,
+                style: TextStyle(
+                  color: context.colors.ink,
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                 ),
@@ -364,8 +377,8 @@ class _TrendChartCard extends StatelessWidget {
               SizedBox(
                 height: 230,
                 child: meta.isBarChart
-                    ? _buildBarChart(points)
-                    : _buildLineChart(points),
+                    ? _buildBarChart(context, points)
+                    : _buildLineChart(context, points),
               ),
             ],
           ),
@@ -380,7 +393,7 @@ class _TrendChartCard extends StatelessWidget {
     return 15;
   }
 
-  Widget _buildBarChart(List<TrendPoint> points) {
+  Widget _buildBarChart(BuildContext context, List<TrendPoint> points) {
     final values = [
       for (final p in points) p.value == null ? 0.0 : meta.convert(p.value!),
     ];
@@ -399,7 +412,7 @@ class _TrendChartCard extends StatelessWidget {
           show: true,
           drawVerticalLine: false,
           getDrawingHorizontalLine: (_) =>
-              const FlLine(color: AppColors.separator, strokeWidth: 0.8),
+              FlLine(color: context.colors.separator, strokeWidth: 0.8),
         ),
         borderData: FlBorderData(show: false),
         titlesData: FlTitlesData(
@@ -417,10 +430,7 @@ class _TrendChartCard extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 6),
                 child: Text(
                   formatNumber(value, digits: meta.digits),
-                  style: const TextStyle(
-                    color: AppColors.inkSoft,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: context.colors.inkSoft, fontSize: 11),
                 ),
               ),
             ),
@@ -441,8 +451,8 @@ class _TrendChartCard extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     _shortDate(points[i].date),
-                    style: const TextStyle(
-                      color: AppColors.inkSoft,
+                    style: TextStyle(
+                      color: context.colors.inkSoft,
                       fontSize: 11,
                     ),
                   ),
@@ -462,7 +472,7 @@ class _TrendChartCard extends StatelessWidget {
             onTouchIndex(response.spot!.touchedBarGroupIndex);
           },
           touchTooltipData: BarTouchTooltipData(
-            getTooltipColor: (_) => AppColors.cardHigh,
+            getTooltipColor: (_) => context.colors.cardHigh,
             tooltipBorderRadius: BorderRadius.circular(10),
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               final p = points[group.x];
@@ -471,8 +481,8 @@ class _TrendChartCard extends StatelessWidget {
                   : '${formatNumber(meta.convert(p.value!), digits: meta.digits)} ${meta.unit}';
               return BarTooltipItem(
                 '${_shortDate(p.date)}\n$valText',
-                const TextStyle(
-                  color: AppColors.ink,
+                TextStyle(
+                  color: context.colors.ink,
                   fontWeight: FontWeight.w600,
                   fontSize: 12,
                 ),
@@ -489,8 +499,10 @@ class _TrendChartCard extends StatelessWidget {
                   toY: values[i],
                   width: rodWidth,
                   color: touchedIndex == i
-                      ? meta.color
-                      : meta.color.withValues(alpha: 0.78),
+                      ? context.colors.adapt(meta.color)
+                      : context.colors
+                            .adapt(meta.color)
+                            .withValues(alpha: 0.78),
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(4),
                   ),
@@ -502,7 +514,7 @@ class _TrendChartCard extends StatelessWidget {
     );
   }
 
-  Widget _buildLineChart(List<TrendPoint> points) {
+  Widget _buildLineChart(BuildContext context, List<TrendPoint> points) {
     final spots = <FlSpot>[
       for (var i = 0; i < points.length; i++)
         if (points[i].value != null)
@@ -526,7 +538,7 @@ class _TrendChartCard extends StatelessWidget {
           show: true,
           drawVerticalLine: false,
           getDrawingHorizontalLine: (_) =>
-              const FlLine(color: AppColors.separator, strokeWidth: 0.8),
+              FlLine(color: context.colors.separator, strokeWidth: 0.8),
         ),
         borderData: FlBorderData(show: false),
         titlesData: FlTitlesData(
@@ -544,10 +556,7 @@ class _TrendChartCard extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 6),
                 child: Text(
                   formatNumber(value, digits: meta.digits),
-                  style: const TextStyle(
-                    color: AppColors.inkSoft,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: context.colors.inkSoft, fontSize: 11),
                 ),
               ),
             ),
@@ -568,8 +577,8 @@ class _TrendChartCard extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     _shortDate(points[i].date),
-                    style: const TextStyle(
-                      color: AppColors.inkSoft,
+                    style: TextStyle(
+                      color: context.colors.inkSoft,
                       fontSize: 11,
                     ),
                   ),
@@ -590,15 +599,15 @@ class _TrendChartCard extends StatelessWidget {
             onTouchIndex(response.lineBarSpots!.first.x.round());
           },
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (_) => AppColors.cardHigh,
+            getTooltipColor: (_) => context.colors.cardHigh,
             tooltipBorderRadius: BorderRadius.circular(10),
             getTooltipItems: (touchedSpots) => [
               for (final s in touchedSpots)
                 LineTooltipItem(
                   '${_shortDate(points[s.x.round()].date)}\n'
                   '${formatNumber(s.y, digits: meta.digits)} ${meta.unit}',
-                  const TextStyle(
-                    color: AppColors.ink,
+                  TextStyle(
+                    color: context.colors.ink,
                     fontWeight: FontWeight.w600,
                     fontSize: 12,
                   ),
@@ -611,12 +620,12 @@ class _TrendChartCard extends StatelessWidget {
             spots: spots,
             isCurved: true,
             preventCurveOverShooting: true,
-            color: meta.color,
+            color: context.colors.adapt(meta.color),
             barWidth: 3,
             dotData: FlDotData(show: points.length <= 30),
             belowBarData: BarAreaData(
               show: true,
-              color: meta.color.withValues(alpha: 0.16),
+              color: context.colors.adapt(meta.color).withValues(alpha: 0.16),
             ),
           ),
         ],
@@ -646,7 +655,7 @@ class _TrendStatsRow extends StatelessWidget {
         label: '$label: ${formatNumber(val, digits: meta.digits)} ${meta.unit}',
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: AppColors.card,
+            color: context.colors.card,
             borderRadius: BorderRadius.circular(AppRadius.card),
           ),
           child: Padding(
@@ -656,16 +665,13 @@ class _TrendStatsRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: AppColors.inkSoft,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: context.colors.inkSoft, fontSize: 13),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   '${formatNumber(val, digits: meta.digits)} ${meta.unit}',
                   style: TextStyle(
-                    color: meta.color,
+                    color: context.colors.adapt(meta.color),
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                   ),
@@ -701,10 +707,10 @@ class _TrendLoading extends StatelessWidget {
         height: 300,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
-        child: const CircularProgressIndicator(color: AppColors.brand),
+        child: CircularProgressIndicator(color: context.colors.brand),
       ),
     );
   }
@@ -724,21 +730,21 @@ class _TrendError extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.wifi_off_rounded,
-              color: AppColors.inkSoft,
+              color: context.colors.inkSoft,
               size: 40,
             ),
             const SizedBox(height: 12),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
+              style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
             ),
             const SizedBox(height: 12),
             Semantics(
@@ -746,10 +752,10 @@ class _TrendError extends StatelessWidget {
               label: 'Thử lại tải biểu đồ xu hướng',
               child: TextButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh, color: AppColors.brand),
-                label: const Text(
+                icon: Icon(Icons.refresh, color: context.colors.brand),
+                label: Text(
                   'Thử lại',
-                  style: TextStyle(color: AppColors.brand, fontSize: 16),
+                  style: TextStyle(color: context.colors.brand, fontSize: 16),
                 ),
               ),
             ),
@@ -778,17 +784,17 @@ class _TrendEmpty extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: Column(
           children: [
-            Icon(icon, color: AppColors.inkSoft, size: 48),
+            Icon(icon, color: context.colors.inkSoft, size: 48),
             const SizedBox(height: 12),
             Text(
               'Chưa có dữ liệu $metricLabel',
-              style: const TextStyle(
-                color: AppColors.ink,
+              style: TextStyle(
+                color: context.colors.ink,
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
               ),
@@ -797,7 +803,7 @@ class _TrendEmpty extends StatelessWidget {
             Text(
               'Không có bản ghi nào trong $rangeLabel qua. Hãy ghi nhận bằng nút + ở thanh tab.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.inkSoft, fontSize: 14),
+              style: TextStyle(color: context.colors.inkSoft, fontSize: 14),
             ),
           ],
         ),

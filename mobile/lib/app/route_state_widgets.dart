@@ -13,8 +13,8 @@ class LoadingState extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       label: label ?? 'Đang tải nội dung',
-      child: const Center(
-        child: CircularProgressIndicator(color: AppColors.brand),
+      child: Center(
+        child: CircularProgressIndicator(color: context.colors.brand),
       ),
     );
   }
@@ -36,7 +36,7 @@ class ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: Semantics(
           liveRegion: true,
@@ -47,23 +47,23 @@ class ErrorState extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.card,
+                  color: context.colors.card,
                   borderRadius: BorderRadius.circular(AppRadius.card),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.explore_off_outlined,
-                      color: AppColors.inkSoft,
+                      color: context.colors.inkSoft,
                       size: 44,
                     ),
                     const SizedBox(height: 12),
                     Text(
                       message,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.inkSoft,
+                      style: TextStyle(
+                        color: context.colors.inkSoft,
                         fontSize: 15,
                       ),
                     ),
@@ -74,7 +74,7 @@ class ErrorState extends StatelessWidget {
                       child: FilledButton(
                         onPressed: onRetry,
                         style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.brand,
+                          backgroundColor: context.colors.brand,
                           foregroundColor: Colors.white,
                         ),
                         child: Text(retryLabel),
@@ -112,12 +112,12 @@ class EmptyState extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: AppColors.inkSoft, size: 44),
+              Icon(icon, color: context.colors.inkSoft, size: 44),
               const SizedBox(height: 12),
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
+                style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
               ),
             ],
           ),

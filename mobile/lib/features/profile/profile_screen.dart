@@ -67,9 +67,9 @@ class ProfileScreen extends ConsumerWidget {
               final ok = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  backgroundColor: AppColors.card,
-                  titleTextStyle: const TextStyle(
-                    color: AppColors.ink,
+                  backgroundColor: context.colors.card,
+                  titleTextStyle: TextStyle(
+                    color: context.colors.ink,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
@@ -107,7 +107,7 @@ class ProfileScreen extends ConsumerWidget {
             Future<void> editGender() async {
               final picked = await showModalBottomSheet<String>(
                 context: context,
-                backgroundColor: AppColors.card,
+                backgroundColor: context.colors.card,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
@@ -115,12 +115,12 @@ class ProfileScreen extends ConsumerWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.all(16),
                         child: Text(
                           'Chọn giới tính',
                           style: TextStyle(
-                            color: AppColors.ink,
+                            color: context.colors.ink,
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                           ),
@@ -133,13 +133,10 @@ class ProfileScreen extends ConsumerWidget {
                           child: ListTile(
                             title: Text(
                               e.value,
-                              style: const TextStyle(color: AppColors.ink),
+                              style: TextStyle(color: context.colors.ink),
                             ),
                             trailing: user.gender == e.key
-                                ? const Icon(
-                                    Icons.check,
-                                    color: AppColors.brand,
-                                  )
+                                ? Icon(Icons.check, color: context.colors.brand)
                                 : null,
                             onTap: () => Navigator.pop(ctx, e.key),
                           ),
@@ -179,9 +176,9 @@ class ProfileScreen extends ConsumerWidget {
               final ok = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  backgroundColor: AppColors.card,
-                  titleTextStyle: const TextStyle(
-                    color: AppColors.ink,
+                  backgroundColor: context.colors.card,
+                  titleTextStyle: TextStyle(
+                    color: context.colors.ink,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
@@ -225,9 +222,9 @@ class ProfileScreen extends ConsumerWidget {
               final ok = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  backgroundColor: AppColors.card,
-                  titleTextStyle: const TextStyle(
-                    color: AppColors.ink,
+                  backgroundColor: context.colors.card,
+                  titleTextStyle: TextStyle(
+                    color: context.colors.ink,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
@@ -239,9 +236,9 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     TextButton(
                       onPressed: () => Navigator.pop(ctx, true),
-                      child: const Text(
+                      child: Text(
                         'Đăng xuất',
-                        style: TextStyle(color: AppColors.danger),
+                        style: TextStyle(color: context.colors.danger),
                       ),
                     ),
                   ],
@@ -263,12 +260,12 @@ class ProfileScreen extends ConsumerWidget {
                     Expanded(
                       child: Semantics(
                         header: true,
-                        child: const Text(
+                        child: Text(
                           'Hồ sơ',
                           style: TextStyle(
                             fontSize: 34,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.ink,
+                            color: context.colors.ink,
                           ),
                         ),
                       ),
@@ -278,9 +275,9 @@ class ProfileScreen extends ConsumerWidget {
                       label: 'Mở thiết lập ban đầu Onboarding',
                       child: IconButton(
                         tooltip: 'Thiết lập nhanh',
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.tune_rounded,
-                          color: AppColors.inkSoft,
+                          color: context.colors.inkSoft,
                         ),
                         onPressed: () => context.push('/onboarding'),
                       ),
@@ -295,13 +292,13 @@ class ProfileScreen extends ConsumerWidget {
                     children: [
                       CircleAvatar(
                         radius: 28,
-                        backgroundColor: AppColors.cardHigh,
+                        backgroundColor: context.colors.cardHigh,
                         child: Text(
                           user.initial,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.ink,
+                            color: context.colors.ink,
                           ),
                         ),
                       ),
@@ -312,15 +309,15 @@ class ProfileScreen extends ConsumerWidget {
                           children: [
                             Text(
                               user.fullName,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.ink,
+                                color: context.colors.ink,
                               ),
                             ),
                             Text(
                               user.email,
-                              style: const TextStyle(color: AppColors.inkSoft),
+                              style: TextStyle(color: context.colors.inkSoft),
                             ),
                           ],
                         ),
@@ -330,7 +327,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 18),
                 Material(
-                  color: AppColors.card,
+                  color: context.colors.card,
                   borderRadius: BorderRadius.circular(AppRadius.card),
                   clipBehavior: Clip.antiAlias,
                   child: Column(
@@ -340,13 +337,13 @@ class ProfileScreen extends ConsumerWidget {
                         value: user.fullName,
                         onTap: editName,
                       ),
-                      const Divider(height: 1, color: AppColors.separator),
+                      Divider(height: 1, color: context.colors.separator),
                       _ProfileRow(
                         label: 'Giới tính',
                         value: _genderLabels[user.gender] ?? 'Chưa đặt',
                         onTap: editGender,
                       ),
-                      const Divider(height: 1, color: AppColors.separator),
+                      Divider(height: 1, color: context.colors.separator),
                       _ProfileRow(
                         label: 'Ngày sinh',
                         value: user.birthDate == null
@@ -354,7 +351,7 @@ class ProfileScreen extends ConsumerWidget {
                             : _formatDate(user.birthDate!),
                         onTap: editBirthDate,
                       ),
-                      const Divider(height: 1, color: AppColors.separator),
+                      Divider(height: 1, color: context.colors.separator),
                       _ProfileRow(
                         label: 'Chiều cao',
                         value: user.heightCm == null
@@ -363,7 +360,7 @@ class ProfileScreen extends ConsumerWidget {
                         hint: user.heightCm == null ? 'Cần để tính BMI' : null,
                         onTap: editHeight,
                       ),
-                      const Divider(height: 1, color: AppColors.separator),
+                      Divider(height: 1, color: context.colors.separator),
                       _ProfileRow(
                         label: 'Nhắc nhở',
                         value: 'Cài đặt',
@@ -380,8 +377,8 @@ class ProfileScreen extends ConsumerWidget {
                   child: OutlinedButton(
                     onPressed: logout,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.danger,
-                      side: const BorderSide(color: AppColors.danger),
+                      foregroundColor: context.colors.danger,
+                      side: BorderSide(color: context.colors.danger),
                       minimumSize: const Size.fromHeight(48),
                     ),
                     child: const Text('Đăng xuất'),
@@ -420,19 +417,19 @@ class _ProfileRow extends StatelessWidget {
       onTap: onTap,
       title: Text(
         label,
-        style: const TextStyle(color: AppColors.ink, fontSize: 15),
+        style: TextStyle(color: context.colors.ink, fontSize: 15),
       ),
       subtitle: hint == null
           ? null
-          : Text(hint!, style: const TextStyle(color: AppColors.inkSoft)),
+          : Text(hint!, style: TextStyle(color: context.colors.inkSoft)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             value,
-            style: const TextStyle(color: AppColors.inkSoft, fontSize: 15),
+            style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
           ),
-          const Icon(Icons.chevron_right, color: AppColors.inkSoft),
+          Icon(Icons.chevron_right, color: context.colors.inkSoft),
         ],
       ),
     ),

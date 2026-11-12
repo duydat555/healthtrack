@@ -258,7 +258,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       appBar: AppBar(
         title: Semantics(header: true, child: const Text('Thêm nhanh')),
         leading: Semantics(
@@ -334,7 +334,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                 child: ChoiceChip(
                   label: Text('$ml ml'),
                   selected: _waterCustom.text.isEmpty && _waterMl == ml,
-                  selectedColor: AppColors.water.withValues(alpha: 0.35),
+                  selectedColor: context.colors.water.withValues(alpha: 0.35),
                   onSelected: (_) => setState(() {
                     _waterMl = ml;
                     _waterCustom.clear();
@@ -373,9 +373,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           onPressed: _submitWater,
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Hôm nay đã uống',
-          style: TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: context.colors.ink,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         logs.when(
@@ -394,26 +397,26 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                     for (final item in items)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(
+                        leading: Icon(
                           Icons.water_drop,
-                          color: AppColors.water,
+                          color: context.colors.water,
                         ),
                         title: Text(
                           '${formatNumber(item.amountMl, digits: 0)} ml',
-                          style: const TextStyle(color: AppColors.ink),
+                          style: TextStyle(color: context.colors.ink),
                         ),
                         subtitle: Text(
                           formatTime(item.loggedAt),
-                          style: const TextStyle(color: AppColors.inkSoft),
+                          style: TextStyle(color: context.colors.inkSoft),
                         ),
                         trailing: Semantics(
                           button: true,
                           label: 'Xóa lần uống ${item.amountMl} ml',
                           child: IconButton(
                             tooltip: 'Xóa',
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.delete_outline,
-                              color: AppColors.inkSoft,
+                              color: context.colors.inkSoft,
                             ),
                             onPressed: () => _deleteEntry(
                               (r) => r.deleteWater(item.id),
@@ -483,9 +486,9 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           ),
         ] else if (heightCm == null) ...[
           const SizedBox(height: 10),
-          const Text(
+          Text(
             'Mẹo: Cập nhật chiều cao trong Hồ sơ để tự động tính BMI.',
-            style: TextStyle(color: AppColors.inkSoft, fontSize: 13),
+            style: TextStyle(color: context.colors.inkSoft, fontSize: 13),
           ),
         ],
         const SizedBox(height: 20),
@@ -495,9 +498,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           onPressed: _submitWeight,
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Các lần ghi gần đây',
-          style: TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: context.colors.ink,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         logs.when(
@@ -516,18 +522,18 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                     for (final item in items)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(
+                        leading: Icon(
                           Icons.monitor_weight,
-                          color: AppColors.weight,
+                          color: context.colors.weight,
                         ),
                         title: Text(
                           '${formatNumber(item.weightKg)} kg',
-                          style: const TextStyle(color: AppColors.ink),
+                          style: TextStyle(color: context.colors.ink),
                         ),
                         subtitle: Text(
                           '${_formatDay(item.loggedAt)} · '
                           '${item.bmi == null ? 'Chưa có BMI' : 'BMI ${formatNumber(item.bmi!)} (${bmiLabel(item.bmi!)})'}',
-                          style: const TextStyle(color: AppColors.inkSoft),
+                          style: TextStyle(color: context.colors.inkSoft),
                         ),
                         trailing: Semantics(
                           button: true,
@@ -535,9 +541,9 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                               'Xóa bản ghi ${formatNumber(item.weightKg)} kg',
                           child: IconButton(
                             tooltip: 'Xóa',
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.delete_outline,
-                              color: AppColors.inkSoft,
+                              color: context.colors.inkSoft,
                             ),
                             onPressed: () => _deleteEntry(
                               (r) => r.deleteWeight(item.id),
@@ -585,17 +591,17 @@ class _AddScreenState extends ConsumerState<AddScreen> {
             durationMinutes <= 0 || durationMinutes > 24 * 60 - 1
                 ? 'Thời lượng ngủ không hợp lệ'
                 : 'Thời lượng dự kiến: ${formatDuration(durationMinutes)}',
-            style: const TextStyle(
-              color: AppColors.sleep,
+            style: TextStyle(
+              color: context.colors.sleep,
               fontWeight: FontWeight.w600,
               fontSize: 14,
             ),
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
+        Text(
           'Chất lượng giấc ngủ',
-          style: TextStyle(color: AppColors.inkSoft),
+          style: TextStyle(color: context.colors.inkSoft),
         ),
         const SizedBox(height: 8),
         Row(
@@ -611,7 +617,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                       setState(() => _quality = _quality == q ? null : q),
                   icon: Icon(
                     (_quality ?? 0) >= q ? Icons.star : Icons.star_border,
-                    color: AppColors.meal,
+                    color: context.colors.meal,
                     size: 32,
                   ),
                 ),
@@ -625,9 +631,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           onPressed: _submitSleep,
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Các giấc ngủ gần đây',
-          style: TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: context.colors.ink,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         logs.when(
@@ -646,27 +655,27 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                     for (final item in items)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        leading: const Icon(
+                        leading: Icon(
                           Icons.bedtime,
-                          color: AppColors.sleep,
+                          color: context.colors.sleep,
                         ),
                         title: Text(
                           formatDuration(item.durationMinutes),
-                          style: const TextStyle(color: AppColors.ink),
+                          style: TextStyle(color: context.colors.ink),
                         ),
                         subtitle: Text(
                           '${formatTime(item.startAt)} → ${formatTime(item.endAt)}'
                           '${item.quality == null ? '' : ' · ${item.quality}/5 sao'}',
-                          style: const TextStyle(color: AppColors.inkSoft),
+                          style: TextStyle(color: context.colors.inkSoft),
                         ),
                         trailing: Semantics(
                           button: true,
                           label: 'Xóa bản ghi giấc ngủ',
                           child: IconButton(
                             tooltip: 'Xóa',
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.delete_outline,
-                              color: AppColors.inkSoft,
+                              color: context.colors.inkSoft,
                             ),
                             onPressed: () => _deleteEntry(
                               (r) => r.deleteSleep(item.id),
@@ -718,9 +727,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           onPressed: _submitSteps,
         ),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           'Các ngày gần đây',
-          style: TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: context.colors.ink,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         logs.when(
@@ -742,11 +754,11 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                         contentPadding: EdgeInsets.zero,
                         title: Text(
                           '${formatNumber(item.steps)} bước',
-                          style: const TextStyle(color: AppColors.ink),
+                          style: TextStyle(color: context.colors.ink),
                         ),
                         subtitle: Text(
                           item.day,
-                          style: const TextStyle(color: AppColors.inkSoft),
+                          style: TextStyle(color: context.colors.inkSoft),
                         ),
                       ),
                   ],
@@ -774,10 +786,10 @@ class _AddScreenState extends ConsumerState<AddScreen> {
             children: [
               DropdownButtonFormField<String>(
                 initialValue: _mealType,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Loại bữa ăn',
                   filled: true,
-                  fillColor: AppColors.card,
+                  fillColor: context.colors.card,
                 ),
                 items: [
                   for (final type in types.entries)
@@ -823,22 +835,25 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         const SizedBox(height: 20),
         calories.when(
           loading: () => const LinearProgressIndicator(),
-          error: (_, _) => const Text(
+          error: (_, _) => Text(
             'Chưa tải được tổng calories hôm nay.',
-            style: TextStyle(color: AppColors.inkSoft),
+            style: TextStyle(color: context.colors.inkSoft),
           ),
           data: (total) => Text(
             'Tổng hôm nay: ${formatNumber(total)} kcal',
-            style: const TextStyle(
-              color: AppColors.meal,
+            style: TextStyle(
+              color: context.colors.meal,
               fontWeight: FontWeight.w700,
             ),
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Bữa ăn gần đây',
-          style: TextStyle(color: AppColors.ink, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: context.colors.ink,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         meals.when(
@@ -859,16 +874,16 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                         contentPadding: EdgeInsets.zero,
                         title: Text(
                           item.name,
-                          style: const TextStyle(color: AppColors.ink),
+                          style: TextStyle(color: context.colors.ink),
                         ),
                         subtitle: Text(
                           '${types[item.mealType] ?? item.mealType} · '
                           '${_formatDay(item.loggedAt)} ${formatTime(item.loggedAt)}',
-                          style: const TextStyle(color: AppColors.inkSoft),
+                          style: TextStyle(color: context.colors.inkSoft),
                         ),
                         trailing: Text(
                           '${formatNumber(item.calories)} kcal',
-                          style: const TextStyle(color: AppColors.inkSoft),
+                          style: TextStyle(color: context.colors.inkSoft),
                         ),
                       ),
                   ],
@@ -900,13 +915,15 @@ class _BmiBanner extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.card,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.medicine.withValues(alpha: 0.45)),
+          border: Border.all(
+            color: context.colors.medicine.withValues(alpha: 0.45),
+          ),
         ),
         child: Row(
           children: [
-            const Icon(Icons.accessibility_new, color: AppColors.medicine),
+            Icon(Icons.accessibility_new, color: context.colors.medicine),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -914,16 +931,16 @@ class _BmiBanner extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: AppColors.inkSoft,
+                    style: TextStyle(
+                      color: context.colors.inkSoft,
                       fontSize: 13,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'BMI ${formatNumber(bmi)} · $label',
-                    style: const TextStyle(
-                      color: AppColors.ink,
+                    style: TextStyle(
+                      color: context.colors.ink,
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
                     ),
@@ -951,16 +968,16 @@ class _TimeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-    color: AppColors.card,
+    color: context.colors.card,
     borderRadius: BorderRadius.circular(14),
     child: ListTile(
       onTap: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      title: Text(label, style: const TextStyle(color: AppColors.inkSoft)),
+      title: Text(label, style: TextStyle(color: context.colors.inkSoft)),
       trailing: Text(
         time.format(context),
-        style: const TextStyle(
-          color: AppColors.ink,
+        style: TextStyle(
+          color: context.colors.ink,
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
@@ -999,22 +1016,22 @@ class _Medicines extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Material(
-                  color: AppColors.card,
+                  color: context.colors.card,
                   borderRadius: BorderRadius.circular(14),
                   child: ListTile(
                     title: Text(
                       m.name,
-                      style: const TextStyle(color: AppColors.ink),
+                      style: TextStyle(color: context.colors.ink),
                     ),
                     subtitle: m.dosage == null
                         ? null
                         : Text(
                             m.dosage!,
-                            style: const TextStyle(color: AppColors.inkSoft),
+                            style: TextStyle(color: context.colors.inkSoft),
                           ),
                     trailing: FilledButton(
                       style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.brand,
+                        backgroundColor: context.colors.brand,
                       ),
                       onPressed: () async {
                         final messenger = ScaffoldMessenger.of(context);
@@ -1058,13 +1075,13 @@ class _Medicines extends ConsumerWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.card,
-        titleTextStyle: const TextStyle(
-          color: AppColors.ink,
+        backgroundColor: context.colors.card,
+        titleTextStyle: TextStyle(
+          color: context.colors.ink,
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
-        contentTextStyle: const TextStyle(color: AppColors.inkSoft),
+        contentTextStyle: TextStyle(color: context.colors.inkSoft),
         title: const Text('Thêm thuốc'),
         content: Column(
           mainAxisSize: MainAxisSize.min,

@@ -8,30 +8,31 @@ class SecondaryButton extends StatelessWidget {
     super.key,
     required this.label,
     required this.onPressed,
-    this.color = AppColors.brand,
+    this.color,
     this.icon,
     this.loading = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
-  final Color color;
+  final Color? color;
   final IconData? icon;
   final bool loading;
 
   @override
   Widget build(BuildContext context) {
+    final colorR = color ?? context.colors.brand;
     final child = loading
         ? SizedBox.square(
             dimension: 20,
-            child: CircularProgressIndicator(strokeWidth: 2, color: color),
+            child: CircularProgressIndicator(strokeWidth: 2, color: colorR),
           )
         : Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 20, color: color),
+                Icon(icon, size: 20, color: colorR),
                 const SizedBox(width: 8),
               ],
               Flexible(
@@ -39,7 +40,7 @@ class SecondaryButton extends StatelessWidget {
                   label,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: color,
+                    color: colorR,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -55,8 +56,8 @@ class SecondaryButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: loading ? null : onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: color,
-          side: BorderSide(color: color),
+          foregroundColor: colorR,
+          side: BorderSide(color: colorR),
           minimumSize: const Size.fromHeight(50),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.control),
@@ -74,7 +75,7 @@ class AppCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(18),
-    this.color = AppColors.card,
+    this.color,
     this.borderColor,
     this.onTap,
     this.semanticLabel,
@@ -82,13 +83,14 @@ class AppCard extends StatelessWidget {
 
   final Widget child;
   final EdgeInsetsGeometry padding;
-  final Color color;
+  final Color? color;
   final Color? borderColor;
   final VoidCallback? onTap;
   final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
+    final colorR = color ?? context.colors.card;
     final radius = BorderRadius.circular(AppRadius.card);
     Widget inner = Padding(padding: padding, child: child);
 
@@ -98,7 +100,7 @@ class AppCard extends StatelessWidget {
 
     final box = DecoratedBox(
       decoration: BoxDecoration(
-        color: color,
+        color: colorR,
         borderRadius: radius,
         border: borderColor == null ? null : Border.all(color: borderColor!),
       ),
@@ -121,39 +123,35 @@ class AppCard extends StatelessWidget {
 
 /// Nhãn trạng thái / danh mục nhỏ gọn với màu nhấn từ `AppColors`.
 class AppBadge extends StatelessWidget {
-  const AppBadge({
-    super.key,
-    required this.label,
-    this.color = AppColors.brand,
-    this.icon,
-  });
+  const AppBadge({super.key, required this.label, this.color, this.icon});
 
   final String label;
-  final Color color;
+  final Color? color;
   final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
+    final colorR = color ?? context.colors.brand;
     return Semantics(
       label: label,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.18),
+          color: colorR.withValues(alpha: 0.18),
           borderRadius: BorderRadius.circular(AppRadius.pill),
-          border: Border.all(color: color.withValues(alpha: 0.4)),
+          border: Border.all(color: colorR.withValues(alpha: 0.4)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, color: color, size: 14),
+              Icon(icon, color: colorR, size: 14),
               const SizedBox(width: 5),
             ],
             Text(
               label,
               style: TextStyle(
-                color: color,
+                color: colorR,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -192,7 +190,7 @@ class AppBottomSheet extends StatelessWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.separator,
+                  color: context.colors.separator,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -211,7 +209,7 @@ class AppBottomSheet extends StatelessWidget {
                   child: IconButton(
                     tooltip: 'Đóng',
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: AppColors.inkSoft),
+                    icon: Icon(Icons.close, color: context.colors.inkSoft),
                   ),
                 ),
               ],
@@ -234,7 +232,7 @@ Future<T?> showAppBottomSheet<T>({
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: AppColors.card,
+    backgroundColor: context.colors.card,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
         top: Radius.circular(AppRadius.sheet),
@@ -291,10 +289,10 @@ class _AppSkeletonState extends State<AppSkeleton>
               gradient: LinearGradient(
                 begin: Alignment(-1.0 + stop * 2, -0.2),
                 end: Alignment(stop * 2, 0.2),
-                colors: const [
-                  AppColors.card,
-                  AppColors.cardHigh,
-                  AppColors.card,
+                colors: [
+                  context.colors.card,
+                  context.colors.cardHigh,
+                  context.colors.card,
                 ],
               ),
             ),
@@ -329,8 +327,8 @@ class LoadingState extends StatelessWidget {
               padding: EdgeInsets.zero,
               child: SizedBox(
                 height: height,
-                child: const Center(
-                  child: CircularProgressIndicator(color: AppColors.brand),
+                child: Center(
+                  child: CircularProgressIndicator(color: context.colors.brand),
                 ),
               ),
             ),
@@ -354,9 +352,9 @@ class ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.wifi_off_rounded,
-              color: AppColors.inkSoft,
+              color: context.colors.inkSoft,
               size: 36,
             ),
             const SizedBox(height: 10),
@@ -371,14 +369,14 @@ class ErrorState extends StatelessWidget {
               label: 'Thử lại tải dữ liệu',
               child: TextButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(
+                icon: Icon(
                   Icons.refresh,
-                  color: AppColors.brand,
+                  color: context.colors.brand,
                   size: 18,
                 ),
-                label: const Text(
+                label: Text(
                   'Thử lại',
-                  style: TextStyle(color: AppColors.brand, fontSize: 16),
+                  style: TextStyle(color: context.colors.brand, fontSize: 16),
                 ),
               ),
             ),
@@ -413,7 +411,7 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: AppColors.inkSoft, size: 42),
+            Icon(icon, color: context.colors.inkSoft, size: 42),
             const SizedBox(height: 12),
             Text(
               message,
@@ -429,10 +427,7 @@ class EmptyState extends StatelessWidget {
                   onPressed: onAction,
                   child: Text(
                     actionLabel!,
-                    style: const TextStyle(
-                      color: AppColors.brand,
-                      fontSize: 15,
-                    ),
+                    style: TextStyle(color: context.colors.brand, fontSize: 15),
                   ),
                 ),
               ),
