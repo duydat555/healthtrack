@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, ForeignKey, Index, Integer, func
+from sqlalchemy import Date, DateTime, ForeignKey, Index, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base
@@ -14,4 +14,5 @@ class StepLog(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     steps: Mapped[int] = mapped_column(Integer)
     day: Mapped[date] = mapped_column(Date)
+    source: Mapped[str] = mapped_column(String(12), default="manual", server_default="manual")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
