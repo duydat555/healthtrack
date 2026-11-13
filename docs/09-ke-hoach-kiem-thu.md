@@ -1,4 +1,4 @@
-# Kế hoạch kiểm thử và ma trận kiểm thử
+﻿# Kế hoạch kiểm thử và ma trận kiểm thử
 
 Tài liệu này liên kết phạm vi sản phẩm trong Project Charter/WBS, Acceptance Criteria (AC) từ tài liệu đặc tả hoặc issue, và loại kiểm thử dự kiến. Ma trận là kế hoạch bao phủ, không phải báo cáo hoàn tất kiểm thử.
 
@@ -128,4 +128,17 @@ Mobile CI hiện chạy format, analyze và unit/widget test trên Ubuntu; bư�
 
 ## Cập nhật ảnh golden (widget test)
 Ảnh trong `mobile/test/goldens/` phải sinh trên **Linux** (cùng môi trường với CI). Sinh trên macOS sẽ lệch khoảng 1% điểm ảnh nên CI báo đỏ, và chạy `flutter test` trên máy Mac cũng sẽ báo lệch với ảnh đã commit. Khi giao diện đổi và cần cập nhật ảnh: chạy `flutter test --update-goldens test/foundation_widgets_test.dart` trong Docker/WSL (Linux), hoặc cho một workflow tạm chạy lệnh đó trên `ubuntu-latest` rồi tải ảnh về.
+## E2E luồng lõi với backend cloud (Issue #75)
+
+Bài test `mobile/integration_test/cloud_core_flows_test.dart` kiểm tra health/readiness và API reminders trước khi ghi dữ liệu; sau đó đăng ký tài khoản giả lập, bỏ qua onboarding, ghi 777 ml nước qua giao diện, mở biểu đồ Dashboard và đối chiếu 7 điểm trend với API, rồi tạo nhắc uống nước qua màn hình ứng dụng và xác minh qua API. Nhắc thử nghiệm được xóa trong teardown; tài khoản và log nước giả lập vẫn còn trên cloud.
+
+Chạy từ PowerShell tại thư mục `mobile` khi backend đã deploy bản có API reminders và Android Emulator/thiết bị đang chạy:
+
+```powershell
+D:\flutter\bin\flutter.bat test integration_test/cloud_core_flows_test.dart -d emulator-5554 --dart-define=API_URL=https://healthtrack-api-w0sm.onrender.com/api/v1
+```
+
+Có thể thay `emulator-5554` bằng ID của thiết bị. Test chỉ nhận URL HTTPS; preflight xác nhận readiness, database và endpoint reminders trước khi đăng ký tài khoản. Không dùng tài khoản hoặc dữ liệu sức khỏe thật.
+
+**Trạng thái ngày 2026-11-13:** mã nguồn API reminders của Issue #68 đã có trong `origin/main`. Backend cloud trả readiness `ready` và database `ok`, nhưng OpenAPI tại `/api/v1/openapi.json` chưa có `/api/v1/reminders` và gọi endpoint trả 404. Vì vậy test preflight sẽ dừng trước khi tạo tài khoản/dữ liệu; chưa thể ghi nhận E2E đạt cho đến khi leader triển khai bản có #68 lên cloud. Sau khi chạy thành công, bổ sung thiết bị, commit, thời điểm và log/kết quả thực tế tại đây.
 
