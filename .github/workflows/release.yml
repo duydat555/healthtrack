@@ -14,13 +14,13 @@ on:
       api_url:
         description: "Địa chỉ API đóng vào app"
         required: false
-        default: "https://healthtrack-api.onrender.com/api/v1"
+        default: "https://healthtrack-api-w0sm.onrender.com/api/v1"
 
 permissions:
   contents: write
 
 env:
-  API_URL: ${{ inputs.api_url || 'https://healthtrack-api.onrender.com/api/v1' }}
+  API_URL: ${{ inputs.api_url || 'https://healthtrack-api-w0sm.onrender.com/api/v1' }}
   TAG: ${{ inputs.tag || github.ref_name }}
 
 jobs:
