@@ -112,3 +112,19 @@ Mac mini chạy backend (`make up`) và AI local (`make llm`); iPhone nối vào
 4. Muốn HTTPS có chứng chỉ hợp lệ: bật Serve một lần tại https://login.tailscale.com/f/serve rồi chạy `tailscale serve --bg --https=443 http://localhost:8200`. Khi đó `API_URL=https://<tên-máy>.<tailnet>.ts.net/api/v1`.
 
 Nếu Coach báo lỗi: kiểm tra `make llm` đang chạy (`scripts/local-llm.sh status`) và `GET /api/v1/coach/providers` trả `local: true`.
+
+## AI Coach cho mọi máy client (Render gọi về Mac mini)
+
+App cài trên điện thoại nói chuyện với backend trên Render; Render không với tới Mac mini trong mạng nhà, nên ta mở **một cổng bảo vệ** ra Internet bằng Tailscale Funnel. Dữ liệu sức khỏe đi Render → (HTTPS) → Mac mini; chỉ cổng này lộ ra, không lộ server MLX hay backend local.
+
+```
+điện thoại ──► Render (backend) ──HTTPS + khóa──► Tailscale Funnel ──► llm-gateway :8091 ──► MLX :8090
+```
+
+1. **Khóa:** trong `.env` đặt `LLM_GATEWAY_KEY` (`openssl rand -hex 24`). Cổng từ chối mọi yêu cầu không có `Authorization: Bearer <khóa>`, chỉ cho `GET /v1/models` và `POST /v1/chat/completions`, giới hạn 256 KB.
+2. **Chạy server và cổng trên Mac mini:** `make llm` rồi `docker compose --profile public up -d llm-gateway`.
+3. **Bật Funnel một lần:** vào https://login.tailscale.com/f/funnel?node=... (lệnh dưới sẽ in đúng liên kết) bật Funnel cho máy, rồi chạy `tailscale funnel --bg 8091`. Địa chỉ công khai là `https://<tên-máy>.<tailnet>.ts.net`. Tắt bằng `tailscale funnel reset`.
+4. **Trên Render, tab Environment:** `LOCAL_LLM_URL=https://<tên-máy>.<tailnet>.ts.net/v1` và `LOCAL_LLM_API_KEY=<LLM_GATEWAY_KEY>`, rồi deploy lại.
+5. **Kiểm tra:** `curl -H "Authorization: Bearer <khóa>" https://<tên-máy>.<tailnet>.ts.net/v1/models` trả danh sách model; app gọi `GET /api/v1/coach/providers` trên Render phải thấy `local: true`.
+
+Lưu ý: Coach chỉ chạy khi Mac mini bật và server MLX chạy; tắt máy thì Coach báo chưa bật, phần còn lại của app vẫn dùng bình thường. Đổi khóa: sửa `.env`, chạy lại cổng, cập nhật Render. Không đưa khóa vào repo hay vào tệp phát hành.

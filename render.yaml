@@ -31,3 +31,10 @@ services:
       # Khóa API của AI Coach (Claude); để trống thì tính năng Coach bị tắt
       - key: ANTHROPIC_API_KEY
         sync: false
+      # AI local trên Mac mini qua cổng bảo vệ + Tailscale Funnel (docs/12). Đặt trên Render:
+      #   LOCAL_LLM_URL     = https://<tên-máy>.<tailnet>.ts.net/v1
+      #   LOCAL_LLM_API_KEY = giá trị LLM_GATEWAY_KEY trong .env của Mac mini
+      - key: LOCAL_LLM_URL
+        sync: false
+      - key: LOCAL_LLM_API_KEY
+        sync: false
