@@ -77,3 +77,9 @@ Neon và Supabase còn có sao lưu/khôi phục theo thời điểm trong trang
 
 ## AI Coach (Claude)
 Thêm biến môi trường `ANTHROPIC_API_KEY` trên Render (mục Environment) để bật `/api/v1/coach`. Để trống thì Coach trả 503 và phần còn lại của API chạy bình thường. Model mặc định: chat `claude-haiku-5-5`, nhận xét tuần `claude-sonnet-5-5` (đổi bằng `COACH_CHAT_MODEL`, `COACH_WEEKLY_MODEL`). Mỗi người dùng tối đa 20 lượt gọi Coach mỗi phút (`COACH_RATE_LIMIT`).
+
+## Widget và Live Activity (iOS)
+- Target `HealthTrackWidget` (WidgetKit, iOS 17+) nằm trong `mobile/ios/HealthTrackWidget/`: widget nhỏ, vừa, widget Lock Screen và Live Activity uống nước (Dynamic Island).
+- App ghi số liệu cho widget qua App Group `group.vn.edu.vku.healthtrack` (UserDefaults), cầu nối Dart tại `mobile/lib/features/widget/` và Swift tại `ios/Runner/WidgetBridge.swift`. Live Activity cập nhật cục bộ, không cần máy chủ push.
+- Chạy được trên Simulator. Lên máy thật cần tài khoản Apple Developer đăng ký App Group `group.vn.edu.vku.healthtrack` cho cả hai bundle id (`vn.edu.vku.healthtrack` và `vn.edu.vku.healthtrack.HealthTrackWidget`), xem task #80.
+- Thêm widget: nhấn giữ màn hình chính, bấm +, chọn HealthTrack.
