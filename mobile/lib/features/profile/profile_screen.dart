@@ -8,6 +8,7 @@ import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
 import '../auth/auth_controller.dart';
+import '../coach/coach_controller.dart';
 import '../health/healthkit_sync.dart';
 import '../../widgets/core_widgets.dart';
 
@@ -364,6 +365,7 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       Divider(height: 1, color: context.colors.separator),
                       const _HealthSyncRow(),
+                      const _PrivateModeRow(),
                     ],
                   ),
                 ),
@@ -466,6 +468,46 @@ class _HealthSyncRow extends ConsumerWidget {
         subtitle,
         style: TextStyle(color: s.error == null ? c.inkSoft : c.danger),
       ),
+    );
+  }
+}
+
+/// Công tắc Chế độ riêng tư của Coach. Chỉ hiện khi máy chủ nối được tới AI local, hoặc khi
+/// người dùng đã bật từ trước (để còn tắt được).
+class _PrivateModeRow extends ConsumerWidget {
+  const _PrivateModeRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final on = ref.watch(privateModeProvider);
+    final localUp = ref
+        .watch(coachProvidersProvider)
+        .maybeWhen(data: (p) => p.local, orElse: () => false);
+    if (!on && !localUp) return const SizedBox.shrink();
+    final c = context.colors;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Divider(height: 1, color: c.separator),
+        SwitchListTile(
+          dense: true,
+          visualDensity: VisualDensity.compact,
+          activeThumbColor: Colors.white,
+          activeTrackColor: c.brand,
+          value: on,
+          onChanged: (v) => ref.read(privateModeProvider.notifier).set(v),
+          title: Text(
+            'Chế độ riêng tư',
+            style: TextStyle(color: c.ink, fontSize: 15),
+          ),
+          subtitle: Text(
+            localUp || !on
+                ? 'Coach chạy trên Mac của bạn, số liệu không rời mạng nhà'
+                : 'Máy Mac chưa chạy AI local, hãy chạy make llm',
+            style: TextStyle(color: c.inkSoft),
+          ),
+        ),
+      ],
     );
   }
 }
