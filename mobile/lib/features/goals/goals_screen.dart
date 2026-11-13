@@ -356,25 +356,19 @@ class _GoalTile extends ConsumerWidget {
                 ),
               if (progress != null) ...[
                 const SizedBox(height: AppSpacing.sm),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(3),
-                        child: LinearProgressIndicator(
-                          value: progress.clamp(0.0, 1.0),
-                          minHeight: 6,
-                          color: color,
-                          backgroundColor: color.withValues(alpha: 0.18),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Text(
-                      'Hôm nay ${(progress * 100).round()}%',
-                      style: context.text.caption,
-                    ),
-                  ],
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: LinearProgressIndicator(
+                    value: progress.clamp(0.0, 1.0),
+                    minHeight: 6,
+                    color: color,
+                    backgroundColor: color.withValues(alpha: 0.18),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Hôm nay ${(progress * 100).round()}%',
+                  style: context.text.caption,
                 ),
               ],
             ],

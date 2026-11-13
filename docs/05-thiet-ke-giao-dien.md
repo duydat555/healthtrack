@@ -73,16 +73,29 @@ Chỉ dùng để báo điều gì vừa thay đổi: vòng đầy lên khi mở
 
 ## Nguyên tắc
 - Giao diện chính là **iPhone**, dùng **Liquid Glass của iOS 26** cho lớp nổi.
-- **Quy chuẩn Liquid Glass:** chỉ dùng cho lớp điều hướng nổi và nhóm thẻ tương tác nổi bật (thanh tab dưới, nút thêm nhanh nổi `+`, nhóm thẻ `LiquidGlassCardGroup`, modal sheet nổi), **không** phủ kính cho toàn bộ danh sách cuộn dài để giữ hiệu năng (tránh tạo nhiều platform view `UiKitView`) và giữ phân cấp thị giác rõ ràng. Thẻ nội dung thông thường dùng bề mặt phẳng `AppColors.card`.
+- **Quy chuẩn Liquid Glass:** chỉ dùng cho lớp điều hướng nổi (thanh tab dưới và nút thêm nhanh nổi `+`). **Không** phủ kính lên thẻ nội dung: thẻ là bề mặt đục `AppCard` (màu `card` của bảng màu) để giữ hiệu năng (không tạo thêm platform view `UiKitView`), giữ phân cấp rõ ràng và chữ đủ tương phản.
 - View kính native dùng `dark: true` ở Dark Mode để đồng bộ nền.
 - Toàn bộ màu sắc, bo góc, chuyển động và kiểu chữ lấy từ `mobile/lib/core/theme.dart` (không hard-code trong màn hình).
 - Hỗ trợ Dynamic Type (co giãn font chữ), VoiceOver (`Semantics` đầy đủ cho nút, thẻ, tiêu đề, thông báo lỗi) và hiển thị chuẩn từ **iPhone SE (`375x667`)** đến **iPhone Pro Max (`430x932`)**.
 
 ## Thành phần dùng chung (`mobile/lib/widgets/`)
-- `ActivityRings`: các vòng đồng tâm có hoạt ảnh chạy lên tiến độ; vòng đầu ở ngoài cùng.
-- `MetricCard`: tên có màu nhấn, số lớn, đường xu hướng sparkline nhỏ.
-- `SectionHeader`: tiêu đề mục chữ đậm kèm mũi tên điều hướng.
-- `AppTextField`, `PrimaryButton`, `ErrorText`: bộ thành phần form đồng bộ bo góc 14 và validation.
+Thẻ nội dung là bề mặt đục. Mọi màn dùng các thành phần dưới đây thay vì tự vẽ lại kiểu.
+
+| Thành phần | Dùng để |
+|---|---|
+| `AppCard` | Thẻ nền đục, bo 16, không bóng; có `onTap` thì mờ nhẹ khi nhấn |
+| `MetricCard` | Thẻ số liệu kiểu Apple Health: icon và tên theo màu danh mục, số lớn kèm đơn vị, đường xu hướng mảnh; `onTap` mở biểu đồ xu hướng |
+| `ActivityRings` | Các vòng đồng tâm mảnh, chạy lên tiến độ khi mở (tôn trọng Giảm chuyển động), không có vầng sáng |
+| `SectionHeader` | Đầu mục 20 semibold, có `actionLabel` ("Xem tất cả") khi bấm được |
+| `SettingsGroup` + `SettingsRow` | Nhóm hàng kiểu Cài đặt iOS: hàng cao tối thiểu 44, icon trong ô màu, giá trị bên phải, mũi tên; `SettingsRow.toggle` dùng `Switch.adaptive`; hàng `destructive` chữ đỏ |
+| `showFormSheet` + `FormSheetController` | Form dạng sheet: Hủy / tiêu đề / Lưu, Lưu tắt khi chưa hợp lệ, tránh bàn phím, hỏi "Bỏ thay đổi?" khi đã sửa. Mở ở navigator gốc để phủ cả thanh tab. Kéo xuống để đóng bị tắt vì Flutter không cho chặn thao tác này |
+| `adaptiveDialogAction` | Nút của `AlertDialog.adaptive`: `CupertinoDialogAction` trên iOS, `TextButton` nơi khác |
+| `AppTextField`, `PrimaryButton`, `SecondaryButton`, `ErrorText` | Bộ form: ô nhập bo 12 có hậu tố đơn vị, `helperText`, `errorText`; nút chính nền vàng chữ `onBrand`, cao 50 |
+| `RoundIconButton` | Nút tròn nhỏ ở đầu trang, vùng chạm 44 |
+| `EmptyState`, `ErrorState`, `LoadingState`, `AppSkeleton` | Trạng thái rỗng (icon tròn và nút vàng), lỗi (Thử lại), đang tải; skeleton đứng yên khi bật Giảm chuyển động |
+| `AppBottomSheet` / `showAppBottomSheet` | Sheet có tiêu đề và nút đóng, cho nội dung chỉ để chọn |
+
+**Quy tắc chọn kiểu tương tác:** xem/chọn một việc ngắn dùng action sheet hoặc bottom sheet; nhập dữ liệu dùng `showFormSheet`; xác nhận việc nguy hiểm dùng `AlertDialog.adaptive`; ngày sinh dùng bánh xe ngày Cupertino trên iOS.
 
 ## Thanh tab Liquid Glass (`LiquidGlassTabBar`)
 
@@ -133,6 +146,8 @@ flowchart LR
 ---
 
 ## Wireframe 8 màn hình chính (iPhone 393×852 / iOS 26)
+> Phác thảo bố cục ban đầu từ giai đoạn thiết kế. Giao diện đã làm lại theo hướng "Calm Health" (xem các mục trên và ảnh chụp thực tế ở cuối); khi khác nhau thì lấy bản đã triển khai.
+
 
 > **Ký hiệu trong wireframe:**
 > - `[LG]` = Thành phần áp dụng hiệu ứng **Liquid Glass** (platform view / `.glassEffect()`)
@@ -408,17 +423,30 @@ Ghi nhanh 6 nhóm chỉ số (Nước, Cân nặng + BMI, Ngủ, Thuốc, Bướ
 |---|---|---|---|
 | Thanh điều hướng dưới | `LiquidGlassTabBar` | **Có** (`GlassEffectContainer`) | Nổi cố định trên 4 tab chính |
 | Nút thêm nhanh nổi `+` | `LiquidGlassTabBar` (`onAdd`) | **Có** (`interactive: true`) | Phản hồi chạm đàn hồi iOS 26 |
-| Nhóm thẻ màn Chỉ số | `LiquidGlassCardGroup` | **Có** (`morph` animation) | Mở rộng chi tiết từng thẻ chỉ số |
-| Modal Sheet nổi (tùy chọn) | `LiquidGlass` / BottomSheet | **Có** | Dùng `tint` tối giữ contrast `>= 4.5:1` |
-| Thẻ trong danh sách cuộn dài | `AppCard`, `MetricCard`, `ListTile` | **Không** (dùng `AppColors.card`) | Tối ưu GPU/FPS theo Apple HIG |
+| Nhóm thẻ màn Chỉ số | `LiquidGlassCardGroup` | **Không** (đã chuyển sang `MetricCard` đục) | Widget còn trong package `liquid_glass` nhưng app không dùng |
+| Form sheet, action sheet | `showFormSheet`, `CupertinoActionSheet` | **Không** | Bề mặt đục; action sheet do hệ thống vẽ |
+| Thẻ nội dung | `AppCard`, `MetricCard`, `SettingsGroup` | **Không** (màu `card`) | Tối ưu GPU/FPS theo Apple HIG |
 
 ## Ảnh chụp thực tế
-iPhone 13, iOS 27.2 Simulator.
+iPhone 13, iOS 27.2 Simulator, chụp bằng `xcrun simctl io booted screenshot`.
 
-Tổng quan (Activity Rings, thẻ chỉ số, thanh tab Liquid Glass):
+| Tổng quan, tối | Tổng quan, sáng |
+|---|---|
+| ![Tổng quan tối](images/ui-tong-quan-toi.jpg) | ![Tổng quan sáng](images/ui-tong-quan-sang.jpg) |
 
-![Tổng quan](images/liquid-glass-home.png)
+| Chỉ số, tối | Mục tiêu, tối | Hồ sơ, tối |
+|---|---|---|
+| ![Chỉ số](images/ui-chi-so-toi.jpg) | ![Mục tiêu](images/ui-muc-tieu-toi.jpg) | ![Hồ sơ](images/ui-ho-so-toi.jpg) |
 
-Chỉ số (nhóm thẻ Liquid Glass, chạm để mở rộng và morph):
+Sheet sửa mục tiêu (báo lỗi ngoài khoảng, Lưu tắt), action sheet giới tính kiểu iOS ở chế độ sáng, Mục tiêu ở cỡ chữ lớn (`accessibility-large`) và Coach:
 
-![Chỉ số](images/metrics-glass-cards.png)
+| Sheet mục tiêu | Action sheet | Chữ lớn | Coach |
+|---|---|---|---|
+| ![Sheet](images/ui-muc-tieu-sheet-loi.jpg) | ![Action sheet](images/ui-ho-so-action-sheet-sang.jpg) | ![Chữ lớn](images/ui-muc-tieu-sang-chu-lon.jpg) | ![Coach](images/ui-coach-toi.jpg) |
+
+## Kiểm tra giao diện
+- **Tương phản:** `test/theme_accessibility_test.dart` kiểm mọi màu chữ và màu nhấn >= 4.5:1 ở cả hai chế độ.
+- **Kích thước và cỡ chữ:** `test/responsive_matrix_test.dart` dựng 5 màn chính ở 320x568, 375x667, 390x844, 430x932, chữ 1x và 2x, sáng và tối, không được tràn.
+- **Form:** `test/settings_form_sheet_test.dart`, `test/goals_edit_test.dart`, `test/add_medication_test.dart`.
+- **Golden:** `test/goldens/foundation_widgets_*.png` sinh trên Linux bằng workflow "Update goldens" (xem docs/09).
+- **Chụp trên Simulator:** `xcrun simctl ui booted appearance light|dark` đổi sáng/tối, `xcrun simctl ui booted content_size accessibility-large` đổi cỡ chữ.

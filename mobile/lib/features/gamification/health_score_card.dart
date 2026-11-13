@@ -122,12 +122,14 @@ class _Body extends StatelessWidget {
                         color: s.streak > 0 ? c.steps : c.inkSoft,
                       ),
                       const SizedBox(width: AppSpacing.xxs),
-                      Text(
-                        s.streak > 0
-                            ? '${s.streak} ngày liền'
-                            : 'Chưa có chuỗi ngày',
-                        style: context.text.caption.copyWith(
-                          fontWeight: FontWeight.w600,
+                      Flexible(
+                        child: Text(
+                          s.streak > 0
+                              ? '${s.streak} ngày liền'
+                              : 'Chưa có chuỗi ngày',
+                          style: context.text.caption.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
