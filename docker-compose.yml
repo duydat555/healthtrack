@@ -31,6 +31,21 @@ services:
       db:
         condition: service_healthy
 
+  # Cổng bảo vệ trước server MLX để mở ra Internet (docs/12). Chỉ chạy khi bật profile `public`:
+  #   docker compose --profile public up -d llm-gateway
+  llm-gateway:
+    profiles: ["public"]
+    build: ./backend
+    environment:
+      GATEWAY_KEY: ${LLM_GATEWAY_KEY:?đặt LLM_GATEWAY_KEY trong .env}
+      UPSTREAM: http://host.docker.internal:8090
+    command: uvicorn llm_gateway:app --host 0.0.0.0 --port 8000 --app-dir /gateway
+    ports:
+      - "${LLM_GATEWAY_PORT:-8091}:8000"
+    volumes:
+      - ./scripts:/gateway:ro
+    restart: unless-stopped
+
   adminer:
     image: adminer:4
     ports:
