@@ -13,14 +13,18 @@ final class TabBarModel: ObservableObject {
     @Published var items: [TabItem]
     @Published var selected: Int
     let tint: Color
+    let tabTint: Color
+    let onTint: Color
     let showsAdd: Bool
     var onSelect: (Int) -> Void = { _ in }
     var onAdd: () -> Void = {}
 
-    init(items: [TabItem], selected: Int, tint: Color, showsAdd: Bool) {
+    init(items: [TabItem], selected: Int, tint: Color, tabTint: Color, onTint: Color, showsAdd: Bool) {
         self.items = items
         self.selected = selected
         self.tint = tint
+        self.tabTint = tabTint
+        self.onTint = onTint
         self.showsAdd = showsAdd
     }
 }
@@ -133,7 +137,7 @@ struct LiquidGlassTabBarView: View {
             // Icon mang màu thương hiệu; chữ dùng màu chính để đủ tương phản trên kính
             Image(systemName: item.symbol)
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(isSelected ? model.tint : Color.secondary)
+                .foregroundStyle(isSelected ? model.tabTint : Color.secondary)
             Text(item.title)
                 .font(.system(size: 10, weight: isSelected ? .semibold : .medium))
                 .lineLimit(1)
@@ -160,9 +164,9 @@ struct LiquidGlassTabBarView: View {
         Group {
             if #available(iOS 26.0, *), native {
                 Capsule().fill(Color.clear)
-                    .glassEffect(.regular.tint(model.tint.opacity(pressing ? 0.08 : 0.14)), in: .capsule)
+                    .glassEffect(.regular.tint(model.tabTint.opacity(pressing ? 0.08 : 0.14)), in: .capsule)
             } else {
-                Capsule().fill(model.tint.opacity(0.16))
+                Capsule().fill(model.tabTint.opacity(0.16))
             }
         }
         .frame(width: max(itemWidth - 2, 1), height: 48)
@@ -176,7 +180,7 @@ struct LiquidGlassTabBarView: View {
         Button { model.onAdd() } label: {
             Image(systemName: "plus")
                 .font(.system(size: 22, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(model.onTint)
                 .frame(width: 56, height: 56)
         }
         .buttonStyle(.plain)
@@ -203,11 +207,15 @@ final class LiquidGlassTabBarFactory: NSObject, FlutterPlatformViewFactory {
         if #available(iOS 26.0, *) {
             return NativeTabBarPlatformView(frame: frame, params: params, channel: channel)
         }
-        let tint = (params["tint"] as? Int).map { Color(argb: $0) } ?? .green
+        let tint = (params["tint"] as? Int).map { Color(argb: $0) } ?? .yellow
+        let tabTint = (params["tabTint"] as? Int).map { Color(argb: $0) } ?? tint
+        let onTint = (params["onTint"] as? Int).map { Color(argb: $0) } ?? .white
         let model = TabBarModel(
             items: items,
             selected: params["selected"] as? Int ?? 0,
             tint: tint,
+            tabTint: tabTint,
+            onTint: onTint,
             showsAdd: params["showsAdd"] as? Bool ?? true
         )
         model.onSelect = { channel.invokeMethod("onSelect", arguments: $0) }
