@@ -74,6 +74,8 @@ void main() {
     await pumpApp(tester);
     await tester.tap(find.text('Mục tiêu'));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Giấc ngủ'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Giấc ngủ'));
     await tester.pumpAndSettle();
 

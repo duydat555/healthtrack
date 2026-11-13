@@ -263,7 +263,7 @@ class _Legend extends StatelessWidget {
       children: [
         Text(
           '$label · ${(progress * 100).round()}%',
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: context.text.caption.copyWith(fontWeight: FontWeight.w600),
         ),
