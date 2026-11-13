@@ -51,7 +51,7 @@ Tài liệu này liên kết phạm vi sản phẩm trong Project Charter/WBS, A
 | PERF-01 Hiệu năng dashboard | Đo frame build/raster và rebuild widget; kiểm tra lại trên iPhone thật ở profile trước nghiệm thu | Hiệu năng, thiết bị | T51, Issue #66, WBS 5.1 | Đã ghi nhận trong phần “Hiệu năng giao diện” bên dưới cho iPhone 13 Simulator debug; chưa có đo profile trên iPhone thật |
 | CLOUD-01 Triển khai backend | Backend HTTPS; migration tự chạy khi khởi động; biến môi trường an toàn | Integration, bảo mật, E2E | T64, WBS 2.0 | Kế hoạch; chưa ghi nhận kết quả triển khai trong ma trận này |
 | CLOUD-02 Phát hành và giám sát | Workflow deploy sau merge main; endpoint sống để giám sát; app TestFlight/Xcode gọi API cloud HTTPS | Integration, E2E | T65–T66 | Kế hoạch; chưa ghi nhận kết quả phát hành trong ma trận này |
-| UAT-01 Nghiệm thu luồng lõi | Kịch bản dựa trên AC; ít nhất 10 người dùng thử; ghi phản hồi và lỗi | UAT | T68, Charter, WBS 6.1 | Kế hoạch; chưa có biên bản UAT được dẫn trong tài liệu này |
+| UAT-83 Nghiệm thu luồng lõi | Kịch bản dựa trên AC; ít nhất 10 người dùng thử; ghi phản hồi và lỗi | UAT | Issue #83, Charter, WBS 6.1 | Đã chuẩn bị kịch bản/biểu mẫu tại `docs/14-ke-hoach-uat.md`; chưa thực hiện với người dùng |
 
 ## Quy tắc dùng ma trận
 
