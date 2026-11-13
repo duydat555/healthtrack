@@ -44,12 +44,20 @@ class FakeBackend implements HttpClientAdapter {
     final res = handler == null
         ? const FakeResponse(404, {'detail': 'Không có route giả'})
         : await handler(options);
-    final data = res.body == null ? '' : jsonEncode(res.body);
+    // Body là String thì coi là luồng SSE thô (text/event-stream), còn lại mã hóa JSON
+    final sse = res.body is String;
+    final data = res.body == null
+        ? ''
+        : sse
+        ? res.body! as String
+        : jsonEncode(res.body);
     return ResponseBody.fromString(
       data,
       res.status,
       headers: {
-        Headers.contentTypeHeader: [Headers.jsonContentType],
+        Headers.contentTypeHeader: [
+          sse ? 'text/event-stream' : Headers.jsonContentType,
+        ],
       },
     );
   }
