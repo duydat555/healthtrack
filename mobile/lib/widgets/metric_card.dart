@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
+import 'core_widgets.dart';
 
 /// Thẻ chỉ số kiểu Apple Health: icon và tên theo màu danh mục, giờ cập nhật bên phải, số lớn kèm
 /// đơn vị nhỏ hơn, đường xu hướng mảnh.
@@ -15,6 +16,7 @@ class MetricCard extends StatelessWidget {
     required this.caption,
     required this.trend,
     this.timeLabel,
+    this.onTap,
   });
 
   final String title;
@@ -30,56 +32,56 @@ class MetricCard extends StatelessWidget {
   /// Mốc cập nhật nhỏ ở góc phải tiêu đề (ví dụ "09:41"); null thì ẩn.
   final String? timeLabel;
 
+  /// Có thì thẻ bấm được (mờ nhẹ khi nhấn), thường để mở biểu đồ xu hướng.
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     return Semantics(
       label: '$title: $value $unit. $caption',
       excludeSemantics: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: c.card,
-          borderRadius: BorderRadius.circular(AppRadius.card),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+      child: AppCard(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 18),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(
+                  child: Text(
+                    title,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.cardTitle.copyWith(color: color),
+                  ),
+                ),
+                if (timeLabel != null)
+                  Text(timeLabel!, style: context.text.caption),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text.rich(
+              TextSpan(
                 children: [
-                  Icon(icon, color: color, size: 18),
-                  const SizedBox(width: AppSpacing.xs),
-                  Expanded(
-                    child: Text(
-                      title,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.text.cardTitle.copyWith(color: color),
+                  TextSpan(
+                    text: value,
+                    style: AppFonts.number(30, color: c.ink),
+                  ),
+                  TextSpan(
+                    text: ' $unit',
+                    style: context.text.secondary.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  if (timeLabel != null)
-                    Text(timeLabel!, style: context.text.caption),
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: value,
-                      style: AppFonts.number(30, color: c.ink),
-                    ),
-                    TextSpan(
-                      text: ' $unit',
-                      style: context.text.secondary.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(caption, style: context.text.caption),
+            ),
+            const SizedBox(height: AppSpacing.xxs),
+            Text(caption, style: context.text.caption),
+            // Chưa đủ hai điểm thì không có đường để vẽ, bỏ cả khoảng trống
+            if (trend.length >= 2) ...[
               const SizedBox(height: AppSpacing.sm),
               SizedBox(
                 height: 32,
@@ -87,7 +89,7 @@ class MetricCard extends StatelessWidget {
                 child: CustomPaint(painter: _SparkPainter(trend, color)),
               ),
             ],
-          ),
+          ],
         ),
       ),
     );

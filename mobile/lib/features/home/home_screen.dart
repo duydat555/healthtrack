@@ -7,12 +7,12 @@ import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/activity_rings.dart';
 import '../../widgets/count_up.dart';
-import '../../widgets/metric_card.dart';
 import '../../widgets/section_header.dart';
 import '../auth/auth_controller.dart';
 import '../coach/weekly_insight_card.dart';
 import '../gamification/health_score_card.dart';
 import '../health/health_providers.dart';
+import '../health/metric_cards.dart';
 import '../health/healthkit_sync.dart';
 import '../widget/widget_sync.dart';
 import '../../widgets/core_widgets.dart';
@@ -348,93 +348,13 @@ class _MetricGrid extends StatelessWidget {
 
   final BodyData data;
 
-  List<double> _trend(Iterable<double> newestFirst) =>
-      newestFirst.toList().reversed.take(7).toList();
-
   @override
   Widget build(BuildContext context) {
-    final weights = data.weights;
-    final sleeps = data.sleeps;
-    final steps = data.steps;
-    final latestW = weights.firstOrNull;
-    final prevW = weights.length > 1 ? weights[1] : null;
-    final bmi = weights.map((w) => w.bmi).whereType<double>().firstOrNull;
-    final latestSleep = sleeps.firstOrNull;
-    final latestSteps = steps.firstOrNull;
-    final todayWater = data.waterByDay.lastOrNull ?? 0;
-
-    String weightCaption() {
-      if (latestW == null) return 'Chưa có dữ liệu, bấm + để ghi';
-      if (prevW == null) return 'Lần ghi đầu tiên';
-      final d = latestW.weightKg - prevW.weightKg;
-      if (d.abs() < 0.05) return 'Không đổi so với lần trước';
-      return '${d < 0 ? 'Giảm' : 'Tăng'} ${formatNumber(d.abs())} kg so với lần trước';
-    }
-
-    final cards = [
-      MetricCard(
-        title: 'Nước uống',
-        icon: Icons.water_drop,
-        color: context.colors.water,
-        value: formatNumber(todayWater / 1000),
-        unit: 'lít',
-        caption: 'Hôm nay',
-        trend: [for (final v in data.waterByDay) v / 1000],
-      ),
-      MetricCard(
-        title: 'Giấc ngủ',
-        icon: Icons.bedtime,
-        color: context.colors.sleep,
-        value: latestSleep == null
-            ? '--'
-            : formatNumber(latestSleep.durationMinutes / 60),
-        unit: 'giờ',
-        caption: latestSleep == null
-            ? 'Chưa có dữ liệu'
-            : 'Dậy lúc ${formatTime(latestSleep.endAt)}',
-        trend: _trend(sleeps.map((s) => s.durationMinutes / 60)),
-      ),
-      MetricCard(
-        title: 'Bước chân',
-        icon: Icons.directions_walk,
-        color: context.colors.steps,
-        value: latestSteps == null
-            ? '--'
-            : formatNumber(latestSteps.steps, digits: 0),
-        unit: 'bước',
-        caption: latestSteps == null
-            ? 'Chưa có dữ liệu'
-            : 'Ngày ${latestSteps.day}',
-        trend: _trend(steps.map((s) => s.steps.toDouble())),
-      ),
-      MetricCard(
-        title: 'Calories',
-        icon: Icons.local_fire_department,
-        color: context.colors.meal,
-        value: formatNumber(data.todayCalories, digits: 0),
-        unit: 'kcal',
-        caption: 'Hôm nay',
-        trend: [data.todayCalories.toDouble()],
-      ),
-      MetricCard(
-        title: 'Cân nặng',
-        icon: Icons.monitor_weight,
-        color: context.colors.weight,
-        value: latestW == null ? '--' : formatNumber(latestW.weightKg),
-        unit: 'kg',
-        caption: weightCaption(),
-        trend: _trend(weights.map((w) => w.weightKg)),
-      ),
-      MetricCard(
-        title: 'BMI',
-        icon: Icons.accessibility_new,
-        color: context.colors.medicine,
-        value: bmi == null ? '--' : formatNumber(bmi),
-        unit: '',
-        caption: bmi == null ? 'Cần chiều cao trong Hồ sơ' : bmiLabel(bmi),
-        trend: _trend(weights.map((w) => w.bmi).whereType<double>()),
-      ),
-    ];
+    final cards = bodyMetricCards(
+      context,
+      data,
+      onOpen: (metric) => context.push('/trends?metric=$metric'),
+    );
     return LayoutBuilder(
       builder: (context, c) {
         final w = (c.maxWidth - AppSpacing.sm) / 2;
