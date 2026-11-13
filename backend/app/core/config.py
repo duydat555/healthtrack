@@ -53,6 +53,12 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str = ""
     COACH_CHAT_MODEL: str = "claude-haiku-5-5"
     COACH_WEEKLY_MODEL: str = "claude-sonnet-5-5"
+    # AI local: server MLX trên Mac (scripts/local-llm.sh). Trong Docker dùng
+    # http://host.docker.internal:8090/v1. Để trống thì tắt chế độ riêng tư.
+    LOCAL_LLM_URL: str = ""
+    LOCAL_LLM_MODEL: str = "mlx-community/Qwen3.5-9B-MLX-4bit"
+    LOCAL_LLM_API_KEY: str = ""
+    LOCAL_LLM_TIMEOUT_SECONDS: int = 120
     COACH_RATE_LIMIT: int = 20
     COACH_RATE_WINDOW_SECONDS: int = 60
 

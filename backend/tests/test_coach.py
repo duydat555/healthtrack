@@ -90,7 +90,9 @@ async def ask(client: AsyncClient, h: dict[str, str], text: str = "Chào") -> li
     res = await client.post(CHAT, headers=h, json={"messages": [{"role": "user", "content": text}]})
     assert res.status_code == 200, res.text
     assert res.headers["content-type"].startswith("text/event-stream")
-    return events(res.text)
+    out = events(res.text)
+    assert out[0] == {"type": "meta", "provider": "claude"}
+    return out[1:]
 
 
 async def test_requires_auth(client: AsyncClient) -> None:
@@ -237,3 +239,102 @@ async def test_weekly_is_generated_once_per_week(client: AsyncClient, use_client
     assert first["content"] == "Tuần ổn, uống thêm nước."
     assert first["model"] == "claude-sonnet-5-5"
     assert len(fake.calls) == 1
+
+
+# ---- AI local (server MLX) ----
+
+
+def sse_lines(*chunks: str) -> list[str]:
+    lines = [f"data: {json.dumps({'choices': [{'delta': {'content': c}}]})}" for c in chunks]
+    return [*lines, "data: [DONE]"]
+
+
+@pytest.fixture
+def local_llm(monkeypatch: pytest.MonkeyPatch) -> Any:
+    from app.services import coach_local
+
+    state: dict[str, Any] = {"up": True, "bodies": [], "lines": []}
+
+    async def available() -> bool:
+        return state["up"]
+
+    async def lines(body: dict[str, Any]) -> AsyncGenerator[str, None]:
+        state["bodies"].append(body)
+        for line in state["lines"]:
+            yield line
+
+    monkeypatch.setattr(coach_local, "is_available", available)
+    monkeypatch.setattr(coach_local, "_lines", lines)
+    return state
+
+
+async def test_providers_endpoint(client: AsyncClient, use_client: Any, local_llm: Any) -> None:
+    use_client(FakeClient([]))
+    h = await auth_headers(client)
+    url = "/api/v1/coach/providers"
+    assert (await client.get(url, headers=h)).json() == {
+        "claude": True,
+        "local": True,
+        "default": "local",
+    }
+    local_llm["up"] = False
+    assert (await client.get(url, headers=h)).json()["default"] == "claude"
+
+
+async def test_auto_prefers_local_and_sends_summary(
+    client: AsyncClient, use_client: Any, local_llm: Any
+) -> None:
+    fake = use_client(FakeClient([]))
+    local_llm["lines"] = sse_lines("<think>nghĩ", " xong</think>Chào ", "bạn")
+    h = await auth_headers(client)
+    await client.post("/api/v1/water", headers=h, json={"amount_ml": 750})
+    res = await client.post(CHAT, headers=h, json={"messages": [{"role": "user", "content": "hi"}]})
+    out = events(res.text)
+    assert out[0] == {"type": "meta", "provider": "local"}
+    assert "".join(e.get("text", "") for e in out) == "Chào bạn"
+    assert out[-1] == {"type": "done"}
+    assert fake.calls == []  # không gọi Claude
+    body = local_llm["bodies"][0]
+    assert body["messages"][0]["role"] == "system"
+    assert '"water_ml": 750' in body["messages"][0]["content"]  # số liệu đã tóm tắt sẵn
+    assert body["chat_template_kwargs"] == {"enable_thinking": False}
+
+
+async def test_auto_falls_back_to_claude_when_local_down(
+    client: AsyncClient, use_client: Any, local_llm: Any
+) -> None:
+    use_client(FakeClient([(["ok"], final("end_turn", text_block("ok")))]))
+    local_llm["up"] = False
+    h = await auth_headers(client)
+    out = await ask(client, h)  # ask() kiểm tra meta là claude
+    assert out[0] == {"type": "text", "text": "ok"}
+
+
+async def test_explicit_local_when_down_is_503(
+    client: AsyncClient, use_client: Any, local_llm: Any
+) -> None:
+    use_client(FakeClient([]))
+    local_llm["up"] = False
+    h = await auth_headers(client)
+    body = {"messages": [{"role": "user", "content": "hi"}], "provider": "local"}
+    res = await client.post(CHAT, headers=h, json=body)
+    assert res.status_code == 503 and "local" in res.json()["detail"]
+
+
+async def test_explicit_claude_ignores_local(
+    client: AsyncClient, use_client: Any, local_llm: Any
+) -> None:
+    use_client(FakeClient([(["ok"], final("end_turn", text_block("ok")))]))
+    h = await auth_headers(client)
+    body = {"messages": [{"role": "user", "content": "hi"}], "provider": "claude"}
+    out = events((await client.post(CHAT, headers=h, json=body)).text)
+    assert out[0] == {"type": "meta", "provider": "claude"}
+    assert local_llm["bodies"] == []
+
+
+def test_think_filter_handles_split_tags() -> None:
+    from app.services.coach_local import _ThinkFilter
+
+    f = _ThinkFilter()
+    parts = ["Xin <th", "ink>bí mật</th", "ink>\nChào", " bạn"]
+    assert "".join(f.feed(p) for p in parts) + f.flush() == "Xin Chào bạn"
