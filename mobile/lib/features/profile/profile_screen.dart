@@ -11,6 +11,7 @@ import '../auth/auth_controller.dart';
 import '../coach/coach_controller.dart';
 import '../health/healthkit_sync.dart';
 import '../../widgets/core_widgets.dart';
+import '../../widgets/section_header.dart';
 
 const _genderLabels = <String, String>{
   'male': 'Nam',
@@ -285,89 +286,53 @@ class ProfileScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Semantics(
-                  container: true,
-                  label: 'Tài khoản ${user.fullName}, email ${user.email}',
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 28,
-                        backgroundColor: context.colors.cardHigh,
-                        child: Text(
-                          user.initial,
-                          style: AppFonts.number(24, color: context.colors.ink),
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user.fullName,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: context.colors.ink,
-                              ),
-                            ),
-                            Text(
-                              user.email,
-                              style: TextStyle(color: context.colors.inkSoft),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                _ProfileHero(
+                  name: user.fullName,
+                  email: user.email,
+                  initial: user.initial,
                 ),
-                const SizedBox(height: 18),
-                Material(
-                  color: context.colors.card,
-                  borderRadius: BorderRadius.circular(AppRadius.card),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      _ProfileRow(
-                        label: 'Họ và tên',
-                        value: user.fullName,
-                        onTap: editName,
-                      ),
-                      Divider(height: 1, color: context.colors.separator),
-                      _ProfileRow(
-                        label: 'Giới tính',
-                        value: _genderLabels[user.gender] ?? 'Chưa đặt',
-                        onTap: editGender,
-                      ),
-                      Divider(height: 1, color: context.colors.separator),
-                      _ProfileRow(
-                        label: 'Ngày sinh',
-                        value: user.birthDate == null
-                            ? 'Chưa đặt'
-                            : _formatDate(user.birthDate!),
-                        onTap: editBirthDate,
-                      ),
-                      Divider(height: 1, color: context.colors.separator),
-                      _ProfileRow(
-                        label: 'Chiều cao',
-                        value: user.heightCm == null
-                            ? 'Chưa đặt'
-                            : '${formatNumber(user.heightCm!)} cm',
-                        hint: user.heightCm == null ? 'Cần để tính BMI' : null,
-                        onTap: editHeight,
-                      ),
-                      Divider(height: 1, color: context.colors.separator),
-                      _ProfileRow(
-                        label: 'Nhắc nhở',
-                        value: 'Cài đặt',
-                        hint: 'Uống nước, uống thuốc, đi ngủ',
-                        onTap: () => context.push('/reminders'),
-                      ),
-                      Divider(height: 1, color: context.colors.separator),
-                      const _HealthSyncRow(),
-                      const _PrivateModeRow(),
-                    ],
-                  ),
+                const SectionHeader('Thông tin cá nhân'),
+                _Group(
+                  children: [
+                    _ProfileRow(
+                      label: 'Họ và tên',
+                      value: user.fullName,
+                      onTap: editName,
+                    ),
+                    _ProfileRow(
+                      label: 'Giới tính',
+                      value: _genderLabels[user.gender] ?? 'Chưa đặt',
+                      onTap: editGender,
+                    ),
+                    _ProfileRow(
+                      label: 'Ngày sinh',
+                      value: user.birthDate == null
+                          ? 'Chưa đặt'
+                          : _formatDate(user.birthDate!),
+                      onTap: editBirthDate,
+                    ),
+                    _ProfileRow(
+                      label: 'Chiều cao',
+                      value: user.heightCm == null
+                          ? 'Chưa đặt'
+                          : '${formatNumber(user.heightCm!)} cm',
+                      hint: user.heightCm == null ? 'Cần để tính BMI' : null,
+                      onTap: editHeight,
+                    ),
+                  ],
+                ),
+                const SectionHeader('Thói quen và đồng bộ'),
+                _Group(
+                  children: [
+                    _ProfileRow(
+                      label: 'Nhắc nhở',
+                      value: 'Cài đặt',
+                      hint: 'Uống nước, uống thuốc, đi ngủ',
+                      onTap: () => context.push('/reminders'),
+                    ),
+                    const _HealthSyncRow(),
+                    const _PrivateModeRow(),
+                  ],
                 ),
                 const SizedBox(height: 18),
                 Semantics(
@@ -485,29 +450,143 @@ class _PrivateModeRow extends ConsumerWidget {
         .maybeWhen(data: (p) => p.local, orElse: () => false);
     if (!on && !localUp) return const SizedBox.shrink();
     final c = context.colors;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Divider(height: 1, color: c.separator),
-        SwitchListTile(
-          dense: true,
-          visualDensity: VisualDensity.compact,
-          activeThumbColor: Colors.white,
-          activeTrackColor: c.brand,
-          value: on,
-          onChanged: (v) => ref.read(privateModeProvider.notifier).set(v),
-          title: Text(
-            'Chế độ riêng tư',
-            style: TextStyle(color: c.ink, fontSize: 15),
-          ),
-          subtitle: Text(
-            localUp || !on
-                ? 'Coach chạy trên Mac của bạn, số liệu không rời mạng nhà'
-                : 'Máy Mac chưa chạy AI local, hãy chạy make llm',
-            style: TextStyle(color: c.inkSoft),
-          ),
+    return SwitchListTile(
+      dense: true,
+      visualDensity: VisualDensity.compact,
+      activeThumbColor: Colors.white,
+      activeTrackColor: c.brand,
+      value: on,
+      onChanged: (v) => ref.read(privateModeProvider.notifier).set(v),
+      title: Text(
+        'Chế độ riêng tư',
+        style: TextStyle(color: c.ink, fontSize: 15),
+      ),
+      subtitle: Text(
+        localUp || !on
+            ? 'Coach chạy trên Mac của bạn, số liệu không rời mạng nhà'
+            : 'Máy Mac chưa chạy AI local, hãy chạy make llm',
+        style: TextStyle(color: c.inkSoft),
+      ),
+    );
+  }
+}
+
+/// Thẻ phẳng gom các hàng cùng nhóm; tự chèn đường kẻ giữa các hàng đang hiện.
+class _Group extends StatelessWidget {
+  const _Group({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Material(
+      color: c.card,
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) _MaybeDivider(next: children[i]),
+            children[i],
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Đường kẻ chỉ hiện khi hàng phía sau thực sự có nội dung (một số hàng tự ẩn).
+class _MaybeDivider extends StatelessWidget {
+  const _MaybeDivider({required this.next});
+
+  final Widget next;
+
+  @override
+  Widget build(BuildContext context) =>
+      next is _HealthSyncRow || next is _PrivateModeRow
+      ? Consumer(
+          builder: (context, ref, _) {
+            final visible = switch (next) {
+              _HealthSyncRow() => ref.watch(healthSyncProvider).available,
+              _ =>
+                ref.watch(privateModeProvider) ||
+                    ref
+                        .watch(coachProvidersProvider)
+                        .maybeWhen(data: (p) => p.local, orElse: () => false),
+            };
+            return visible
+                ? Divider(height: 1, color: context.colors.separator)
+                : const SizedBox.shrink();
+          },
+        )
+      : Divider(height: 1, color: context.colors.separator);
+}
+
+/// Đầu trang Hồ sơ: avatar gradient, tên và email.
+class _ProfileHero extends StatelessWidget {
+  const _ProfileHero({
+    required this.name,
+    required this.email,
+    required this.initial,
+  });
+
+  final String name;
+  final String email;
+  final String initial;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Semantics(
+      container: true,
+      label: 'Tài khoản $name, email $email',
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.circular(AppRadius.card),
         ),
-      ],
+        child: Row(
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: c.brand.gradient,
+                boxShadow: c.brand.glow,
+              ),
+              child: Text(
+                initial,
+                style: AppFonts.number(28, color: Colors.white),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.sectionTitle.copyWith(color: c.ink),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    email,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: c.inkSoft),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

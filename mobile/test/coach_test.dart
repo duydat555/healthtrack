@@ -139,6 +139,8 @@ void main() {
       router.go('/profile');
       await tester.pumpAndSettle();
       expect(find.text('Chế độ riêng tư'), findsOneWidget);
+      await tester.ensureVisible(find.byType(Switch));
+      await tester.pumpAndSettle();
       await tester.tap(find.byType(Switch));
       await tester.pumpAndSettle();
 
