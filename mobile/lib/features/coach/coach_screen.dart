@@ -200,7 +200,7 @@ class _Bubble extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     height: 1.3,
-                    color: mine ? Colors.white : c.ink,
+                    color: mine ? c.onBrand : c.ink,
                   ),
                 ),
               if (!mine && message.source != null && message.text.isNotEmpty)
@@ -295,7 +295,7 @@ class _InputBar extends StatelessWidget {
             tooltip: 'Gửi',
             style: IconButton.styleFrom(backgroundColor: c.brand),
             onPressed: busy ? null : () => onSend(),
-            icon: const Icon(Icons.arrow_upward, color: Colors.white),
+            icon: Icon(Icons.arrow_upward, color: c.onBrand),
           ),
         ],
       ),

@@ -91,27 +91,28 @@ class PrimaryButton extends StatelessWidget {
           onPressed: loading ? null : onPressed,
           style: FilledButton.styleFrom(
             backgroundColor: context.colors.brand,
+            foregroundColor: context.colors.onBrand,
             disabledBackgroundColor: context.colors.brand.withValues(
-              alpha: 0.5,
+              alpha: 0.4,
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(AppRadius.control),
             ),
           ),
           child: loading
-              ? const SizedBox.square(
+              ? SizedBox.square(
                   dimension: 22,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
-                    color: Colors.white,
+                    color: context.colors.onBrand,
                   ),
                 )
               : Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.onBrand,
                   ),
                 ),
         ),

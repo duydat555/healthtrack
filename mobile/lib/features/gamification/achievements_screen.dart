@@ -137,7 +137,9 @@ class _Badge extends StatelessWidget {
                     padding: const EdgeInsets.all(12),
                     child: Icon(
                       AchievementsScreen._icons[item.code] ?? Icons.star,
-                      color: earned ? Colors.white : c.inkSoft,
+                      color: earned
+                          ? (c.isDark ? Colors.black : Colors.white)
+                          : c.inkSoft,
                       size: 26,
                     ),
                   ),

@@ -141,7 +141,7 @@ class MetricsScreen extends ConsumerWidget {
                   },
                 ),
               ),
-              const SizedBox(height: LiquidGlassTabBar.height + 24),
+              SizedBox(height: AppLayout.tabBarInset(context)),
             ],
           ),
         ),

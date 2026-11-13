@@ -142,7 +142,7 @@ class _TrendChartsScreenState extends ConsumerState<TrendChartsScreen> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          color: context.colors.brand,
+          color: context.colors.brandText,
           onRefresh: () async {
             ref.invalidate(trendSeriesProvider(query));
             await ref
@@ -715,7 +715,7 @@ class _TrendLoading extends StatelessWidget {
           color: context.colors.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
-        child: CircularProgressIndicator(color: context.colors.brand),
+        child: CircularProgressIndicator(color: context.colors.brandText),
       ),
     );
   }
@@ -757,10 +757,13 @@ class _TrendError extends StatelessWidget {
               label: 'Thử lại tải biểu đồ xu hướng',
               child: TextButton.icon(
                 onPressed: onRetry,
-                icon: Icon(Icons.refresh, color: context.colors.brand),
+                icon: Icon(Icons.refresh, color: context.colors.brandText),
                 label: Text(
                   'Thử lại',
-                  style: TextStyle(color: context.colors.brand, fontSize: 16),
+                  style: TextStyle(
+                    color: context.colors.brandText,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),

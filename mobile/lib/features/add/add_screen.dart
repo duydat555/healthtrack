@@ -317,7 +317,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       _Kind.water => c.water,
       _Kind.weight => c.weight,
       _Kind.sleep => c.sleep,
-      _Kind.medicine => c.brand,
+      _Kind.medicine => c.meds,
       _Kind.steps => c.steps,
       _Kind.meal => c.meal,
     };
@@ -1067,6 +1067,7 @@ class _Medicines extends ConsumerWidget {
                     trailing: FilledButton(
                       style: FilledButton.styleFrom(
                         backgroundColor: context.colors.brand,
+                        foregroundColor: context.colors.onBrand,
                       ),
                       onPressed: () async {
                         final messenger = ScaffoldMessenger.of(context);
@@ -1084,10 +1085,7 @@ class _Medicines extends ConsumerWidget {
                           );
                         }
                       },
-                      child: const Text(
-                        'Đã uống',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      child: const Text('Đã uống'),
                     ),
                   ),
                 ),

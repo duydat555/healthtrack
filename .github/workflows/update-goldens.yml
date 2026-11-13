@@ -1,0 +1,28 @@
+name: Update goldens
+
+# Sinh lại ảnh golden trên Linux (cùng môi trường CI). Chạy tay hoặc push lên nhánh goldens/*,
+# rồi tải artifact "goldens" về chép vào mobile/test/goldens/.
+on:
+  workflow_dispatch:
+  push:
+    branches: ["goldens/**"]
+
+jobs:
+  goldens:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.9"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter test --update-goldens test/foundation_widgets_test.dart
+      - uses: actions/upload-artifact@v4
+        with:
+          name: goldens
+          path: mobile/test/goldens/

@@ -37,7 +37,7 @@ _ReminderKindMeta _metaFor(String kind) => _kindMetas.firstWhere(
     'water',
     'Nhắc nhở',
     Icons.notifications_active,
-    AppColors.brand,
+    AppColors.water,
   ),
 );
 
@@ -117,7 +117,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          color: context.colors.brand,
+          color: context.colors.brandText,
           onRefresh: () async {
             ref.invalidate(remindersProvider);
             await ref
@@ -508,7 +508,7 @@ class _LoadingView extends StatelessWidget {
       liveRegion: true,
       label: 'Đang tải danh sách nhắc nhở',
       child: Center(
-        child: CircularProgressIndicator(color: context.colors.brand),
+        child: CircularProgressIndicator(color: context.colors.brandText),
       ),
     );
   }
@@ -548,10 +548,13 @@ class _ErrorView extends StatelessWidget {
                 label: 'Thử lại tải danh sách nhắc nhở',
                 child: TextButton.icon(
                   onPressed: onRetry,
-                  icon: Icon(Icons.refresh, color: context.colors.brand),
+                  icon: Icon(Icons.refresh, color: context.colors.brandText),
                   label: Text(
                     'Thử lại',
-                    style: TextStyle(color: context.colors.brand, fontSize: 16),
+                    style: TextStyle(
+                      color: context.colors.brandText,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -606,7 +609,7 @@ class _EmptyView extends StatelessWidget {
                   onPressed: onAdd,
                   style: FilledButton.styleFrom(
                     backgroundColor: context.colors.brand,
-                    foregroundColor: Colors.white,
+                    foregroundColor: context.colors.onBrand,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 12,
