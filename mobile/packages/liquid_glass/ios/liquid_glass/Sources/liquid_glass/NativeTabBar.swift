@@ -63,9 +63,40 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
         super.layoutSubviews()
         let reserved = showsAdd ? Self.addSize + Self.gap : 0
         controller.view.frame = CGRect(x: 0, y: 0, width: bounds.width - reserved, height: bounds.height)
+        controller.view.layoutIfNeeded()
+        // Thanh tab hệ thống tự đặt vị trí trong view của nó (có lề dưới), nên căn nút + theo tâm
+        // của các nút tab thật thay vì giữa Platform View, nếu không hai bên sẽ lệch nhau.
+        let centerY = tabItemsMidY() ?? bounds.midY
         addButton.frame = CGRect(
-            x: bounds.width - Self.addSize, y: (bounds.height - Self.addSize) / 2,
+            x: bounds.width - Self.addSize, y: centerY - Self.addSize / 2,
             width: Self.addSize, height: Self.addSize)
+    }
+
+    /// Tâm dọc của viên kính thanh tab, theo hệ tọa độ của view này; nil nếu chưa dựng xong.
+    /// Viên kính là view con rộng nhất, cao vừa phải (40 đến 100pt) trong thanh tab; chỉ dựa vào hình
+    /// học, không dựa vào tên lớp riêng tư. Không thấy thì dùng tâm hàng nút tab.
+    private func tabItemsMidY() -> CGFloat? {
+        let bar = controller.tabBar
+        var capsule: CGRect?
+        var items: [CGRect] = []
+        func walk(_ view: UIView) {
+            for sub in view.subviews where !sub.isHidden && sub.alpha > 0 {
+                let f = sub.convert(sub.bounds, to: self)
+                if sub is UIControl, sub.bounds.height > 20, sub.bounds.width > 20 {
+                    items.append(f)
+                    continue
+                }
+                let wideEnough = f.width > bar.bounds.width * 0.6
+                let tallEnough = f.height >= 40 && f.height <= 100
+                let widest = f.width > (capsule?.width ?? 0)
+                if wideEnough && tallEnough && widest { capsule = f }
+                walk(sub)
+            }
+        }
+        walk(bar)
+        if let capsule { return capsule.midY }
+        guard !items.isEmpty else { return nil }
+        return items.dropFirst().reduce(items[0]) { $0.union($1) }.midY
     }
 
     /// Dart đổi tab (go_router): cập nhật hệ thống mà không báo ngược lại Dart.

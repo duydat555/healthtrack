@@ -93,8 +93,12 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
       future: supportsLiquidGlass(),
       builder: (context, snapshot) {
         if (snapshot.data != true) return _fallback();
+        // Platform view kéo dài xuống sát đáy màn hình để UITabBar hệ thống tự đặt lề dưới như các
+        // app của Apple (viên kính nằm trong vùng home indicator), thay vì nổi cao phía trên.
         return SizedBox(
-          height: LiquidGlassTabBar.height,
+          height:
+              LiquidGlassTabBar.height +
+              MediaQuery.viewPaddingOf(context).bottom,
           child: UiKitView(
             viewType: _tabBarViewType,
             creationParams: {
@@ -134,46 +138,51 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 360;
-        return SizedBox(
-          height: LiquidGlassTabBar.height,
-          child: Row(
-            children: [
-              Expanded(
-                child: glass(
-                  shape: const StadiumBorder(),
-                  child: Row(
-                    children: [
-                      for (var i = 0; i < widget.items.length; i++)
-                        Expanded(child: _fallbackTab(i)),
-                    ],
-                  ),
-                ),
-              ),
-              if (widget.onAdd != null) ...[
-                SizedBox(width: compact ? 8 : 12),
-                Semantics(
-                  button: true,
-                  label: 'Thêm nhanh',
-                  hint: 'Mở màn hình ghi chỉ số sức khỏe',
-                  child: GestureDetector(
-                    onTap: widget.onAdd,
-                    child: Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: widget.tint,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 28,
-                      ),
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.viewPaddingOf(context).bottom + 8,
+          ),
+          child: SizedBox(
+            height: LiquidGlassTabBar.height,
+            child: Row(
+              children: [
+                Expanded(
+                  child: glass(
+                    shape: const StadiumBorder(),
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < widget.items.length; i++)
+                          Expanded(child: _fallbackTab(i)),
+                      ],
                     ),
                   ),
                 ),
+                if (widget.onAdd != null) ...[
+                  SizedBox(width: compact ? 8 : 12),
+                  Semantics(
+                    button: true,
+                    label: 'Thêm nhanh',
+                    hint: 'Mở màn hình ghi chỉ số sức khỏe',
+                    child: GestureDetector(
+                      onTap: widget.onAdd,
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: widget.tint,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         );
       },
