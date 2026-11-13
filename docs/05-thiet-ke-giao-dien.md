@@ -58,6 +58,8 @@ Chỉ dùng để báo điều gì vừa thay đổi: vòng đầy lên khi mở
 
 **API iOS 26+ (công khai, đã kiểm trên SDK Xcode 27.2):** `GlassEffectContainer`, `glassEffect(_:in:)`, `.interactive()`, `.tint()` và `glassEffectID(_:in:)`. Thanh tab là một viên kính; tab đang chọn là một thấu kính kính thứ hai mang `glassEffectID("lens")`, nên khi đổi tab hệ thống tự chảy và hòa kính từ vị trí cũ sang mới (không dùng phóng to hay làm mờ giả). Nút `+` là viên kính riêng có tint thương hiệu, để tách khỏi nhóm tab và dễ chạm.
 
+**Nhấn giữ và kéo.** Một `DragGesture(minimumDistance: 0)` phủ cả thanh tab: nhấn là thấu kính nhảy tới tab đó, kéo ngang thì thấu kính chạy theo ngón tay (có haptic khi qua mỗi tab), thả tay mới chuyển tab. Chạm nhanh cũng đi qua cử chỉ này. VoiceOver dùng `accessibilityAction` trên từng tab.
+
 **Tương phản.** Icon tab đang chọn mang màu thương hiệu; chữ dùng màu chính để đủ tương phản trên kính. Kính lấy màu từ nội dung phía sau, không tô màu thương hiệu lên cả thanh.
 
 **Chế độ sáng/tối.** `HostedPlatformView` ép `overrideUserInterfaceStyle` theo nền của app, nên kính và chữ luôn khớp nền dù cài đặt hệ thống khác.
