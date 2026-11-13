@@ -49,6 +49,13 @@ class Settings(BaseSettings):
     # Request chậm hơn ngưỡng này (ms) sẽ bị ghi cảnh báo
     SLOW_REQUEST_MS: int = 500
 
+    # AI Coach (Claude). Để trống thì /coach trả 503, các phần khác của API vẫn chạy bình thường.
+    ANTHROPIC_API_KEY: str = ""
+    COACH_CHAT_MODEL: str = "claude-haiku-5-5"
+    COACH_WEEKLY_MODEL: str = "claude-sonnet-5-5"
+    COACH_RATE_LIMIT: int = 20
+    COACH_RATE_WINDOW_SECONDS: int = 60
+
     # Danh sách origin được gọi API, phân tách bằng dấu phẩy
     CORS_ORIGINS: str = "http://localhost:8080"
 

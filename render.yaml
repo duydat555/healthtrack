@@ -28,3 +28,6 @@ services:
       # Đọc IP thật của người dùng từ proxy của Render để giới hạn đăng nhập theo từng IP
       - key: FORWARDED_ALLOW_IPS
         value: "*"
+      # Khóa API của AI Coach (Claude); để trống thì tính năng Coach bị tắt
+      - key: ANTHROPIC_API_KEY
+        sync: false

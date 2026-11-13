@@ -1,6 +1,7 @@
 """Import mọi model ở đây để Alembic nhận diện."""
 
 from app.models.achievement import Achievement
+from app.models.coach_insight import CoachInsight
 from app.models.goal import Goal
 from app.models.meal_log import MealLog
 from app.models.medication import Medication, MedicationLog
@@ -13,6 +14,7 @@ from app.models.weight_log import WeightLog
 
 __all__ = [
     "Achievement",
+    "CoachInsight",
     "Goal",
     "Medication",
     "MedicationLog",
