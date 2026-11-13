@@ -23,6 +23,11 @@ class CoachRepository {
 
   int get _tzOffset => DateTime.now().timeZoneOffset.inMinutes;
 
+  Future<CoachProviders> providers() async {
+    final res = await _dio.get<Map<String, dynamic>>('/coach/providers');
+    return CoachProviders.fromJson(res.data!);
+  }
+
   Future<WeeklyInsight> weekly() async {
     final res = await _dio.get<Map<String, dynamic>>(
       '/coach/weekly',
@@ -33,7 +38,10 @@ class CoachRepository {
 
   /// Gửi cuộc trò chuyện và đọc luồng SSE: mỗi sự kiện là một dòng `data: {json}` cách nhau
   /// bằng một dòng trống.
-  Stream<CoachEvent> chat(List<ChatMessage> history) async* {
+  Stream<CoachEvent> chat(
+    List<ChatMessage> history, {
+    String provider = 'claude',
+  }) async* {
     final res = await _dio.post<ResponseBody>(
       '/coach/chat',
       data: {
@@ -41,6 +49,7 @@ class CoachRepository {
           for (final m in history)
             {'role': m.fromUser ? 'user' : 'assistant', 'content': m.text},
         ],
+        'provider': provider,
         'tz_offset': _tzOffset,
       },
       options: Options(

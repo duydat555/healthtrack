@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:healthtrack/app/router.dart';
+import 'package:healthtrack/core/settings_storage.dart';
 import 'package:healthtrack/features/health/health_providers.dart';
 
 import 'helpers/fake_backend.dart';
@@ -106,5 +107,68 @@ void main() {
     await tester.tap(find.text('Vừa uống 500ml nước'));
     await tester.pumpAndSettle();
     expect(find.text('AI Coach chưa được bật trên máy chủ'), findsOneWidget);
+  });
+
+  testWidgets(
+    'chế độ riêng tư: bật ở Hồ sơ thì chat gửi provider=local và hiện nhãn nguồn',
+    (tester) async {
+      final app = await pumpApp(
+        tester,
+        providerOverrides: [
+          settingsStorageProvider.overrideWithValue(MemorySettingsStorage()),
+        ],
+        overrides: {
+          'GET /coach/providers': (_) => const FakeResponse(200, {
+            'claude': true,
+            'local': true,
+            'default': 'local',
+          }),
+          'POST /coach/chat': (_) => FakeResponse(
+            200,
+            sse([
+              '{"type":"meta","provider":"local"}',
+              '{"type":"text","text":"Chào bạn"}',
+              '{"type":"done"}',
+            ]),
+          ),
+        },
+      );
+      final router = ProviderScope.containerOf(
+        tester.element(find.byType(MaterialApp)),
+      ).read(routerProvider);
+      router.go('/profile');
+      await tester.pumpAndSettle();
+      expect(find.text('Chế độ riêng tư'), findsOneWidget);
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+
+      router.push('/coach');
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'xin chào');
+      await tester.tap(find.byTooltip('Gửi'));
+      await tester.pumpAndSettle();
+
+      final req = app.backend.requests.firstWhere(
+        (r) => r.path == '/coach/chat',
+      );
+      expect((req.data as Map)['provider'], 'local');
+      expect(find.text('Chạy trên Mac của bạn'), findsOneWidget);
+    },
+  );
+
+  testWidgets('chế độ riêng tư ẩn khi server AI local không chạy', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      providerOverrides: [
+        settingsStorageProvider.overrideWithValue(MemorySettingsStorage()),
+      ],
+    );
+    ProviderScope.containerOf(tester.element(find.byType(MaterialApp)))
+        .read(routerProvider)
+        .go('/profile');
+    await tester.pumpAndSettle();
+    expect(find.text('Chế độ riêng tư'), findsNothing);
   });
 }

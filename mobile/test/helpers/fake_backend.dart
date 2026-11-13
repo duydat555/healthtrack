@@ -128,6 +128,11 @@ Map<String, FakeHandler> defaultRoutes() {
         'duration_minutes': 480,
       },
     ]),
+    'GET /coach/providers': (_) => const FakeResponse(200, {
+      'claude': true,
+      'local': false,
+      'default': 'claude',
+    }),
     'GET /gamification/summary': (_) => const FakeResponse(200, {
       'score': 62,
       'components': <Object>[],
