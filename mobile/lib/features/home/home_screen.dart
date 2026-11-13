@@ -11,6 +11,7 @@ import '../../widgets/count_up.dart';
 import '../../widgets/metric_card.dart';
 import '../../widgets/section_header.dart';
 import '../auth/auth_controller.dart';
+import '../coach/weekly_insight_card.dart';
 import '../gamification/health_score_card.dart';
 import '../health/health_providers.dart';
 import '../health/healthkit_sync.dart';
@@ -76,6 +77,14 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  IconButton(
+                    tooltip: 'Hỏi Coach',
+                    icon: Icon(
+                      Icons.chat_bubble_outline,
+                      color: context.colors.inkSoft,
+                    ),
+                    onPressed: () => context.push('/coach'),
+                  ),
                   if (user != null)
                     Semantics(
                       label: 'Hồ sơ của ${user.fullName}',
@@ -104,6 +113,7 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               const HealthScoreCard(),
+              const WeeklyInsightCard(),
               const SizedBox(height: 8),
               const SectionHeader('Chỉ số cơ thể'),
               body.when(

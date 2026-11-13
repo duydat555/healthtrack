@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../features/add/add_screen.dart';
 import '../features/auth/auth_controller.dart';
 import '../features/auth/auth_screens.dart';
+import '../features/coach/coach_screen.dart';
 import '../features/gamification/achievements_screen.dart';
 import '../features/goals/goals_screen.dart';
 import '../features/home/home_screen.dart';
@@ -103,6 +104,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/add', builder: (c, s) => const AddScreen()),
+      GoRoute(path: '/coach', builder: (c, s) => const CoachScreen()),
       GoRoute(
         path: '/achievements',
         builder: (c, s) => const AchievementsScreen(),
