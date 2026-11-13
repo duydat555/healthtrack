@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../core/theme.dart';
 
-/// Ô nhập kiểu Fitness: nền xám đậm, bo góc, không viền.
+/// Ô nhập: nền thẻ (hoặc [fillColor]), bo góc 12, không viền; hậu tố đơn vị qua [suffixText].
 class AppTextField extends StatelessWidget {
   const AppTextField({
     super.key,
@@ -15,6 +16,12 @@ class AppTextField extends StatelessWidget {
     this.onSubmitted,
     this.validator,
     this.suffixText,
+    this.onChanged,
+    this.autofocus = false,
+    this.inputFormatters,
+    this.helperText,
+    this.fillColor,
+    this.textAlign = TextAlign.start,
   });
 
   final TextEditingController controller;
@@ -26,6 +33,12 @@ class AppTextField extends StatelessWidget {
   final ValueChanged<String>? onSubmitted;
   final String? Function(String?)? validator;
   final String? suffixText;
+  final ValueChanged<String>? onChanged;
+  final bool autofocus;
+  final List<TextInputFormatter>? inputFormatters;
+  final String? helperText;
+  final Color? fillColor;
+  final TextAlign textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -37,27 +50,35 @@ class AppTextField extends StatelessWidget {
       textInputAction: textInputAction,
       onFieldSubmitted: onSubmitted,
       validator: validator,
+      onChanged: onChanged,
+      autofocus: autofocus,
+      inputFormatters: inputFormatters,
+      textAlign: textAlign,
       style: TextStyle(color: context.colors.ink, fontSize: 17),
       decoration: InputDecoration(
         labelText: label,
         suffixText: suffixText,
+        suffixStyle: TextStyle(color: context.colors.inkSoft, fontSize: 17),
+        helperText: helperText,
+        helperStyle: TextStyle(color: context.colors.inkSoft),
         labelStyle: TextStyle(color: context.colors.inkSoft),
+        floatingLabelStyle: TextStyle(color: context.colors.brandText),
         filled: true,
-        fillColor: context.colors.card,
+        fillColor: fillColor ?? context.colors.card,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.control),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: context.colors.brand, width: 1.5),
+          borderRadius: BorderRadius.circular(AppRadius.control),
+          borderSide: BorderSide(color: context.colors.brandText, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.control),
           borderSide: BorderSide(color: context.colors.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.control),
           borderSide: BorderSide(color: context.colors.danger, width: 1.5),
         ),
       ),
@@ -65,7 +86,7 @@ class AppTextField extends StatelessWidget {
   }
 }
 
-/// Nút chính màu thương hiệu, có trạng thái đang xử lý.
+/// Nút chính nền vàng thương hiệu (chữ `onBrand`), cao 50, có trạng thái đang xử lý.
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
@@ -86,7 +107,7 @@ class PrimaryButton extends StatelessWidget {
       label: loading ? '$label, đang xử lý' : label,
       child: SizedBox(
         width: double.infinity,
-        height: 52,
+        height: 50,
         child: FilledButton(
           onPressed: loading ? null : onPressed,
           style: FilledButton.styleFrom(
@@ -138,7 +159,7 @@ class ErrorText extends StatelessWidget {
         child: Text(
           message!,
           textAlign: TextAlign.center,
-          style: TextStyle(color: context.colors.danger, fontSize: 14),
+          style: context.text.caption.copyWith(color: context.colors.danger),
         ),
       ),
     );

@@ -5,54 +5,75 @@ import 'package:healthtrack/widgets/activity_rings.dart';
 import 'package:healthtrack/widgets/app_form.dart';
 import 'package:healthtrack/widgets/metric_card.dart';
 import 'package:healthtrack/widgets/section_header.dart';
+import 'package:healthtrack/widgets/settings_group.dart';
 
 Widget _host(Widget child) => MaterialApp(
   theme: AppTheme.dark,
   home: Scaffold(body: SafeArea(child: child)),
 );
 
-Widget _foundationWidgetsScreen(TextEditingController controller) =>
-    MaterialApp(
-      theme: AppTheme.dark,
-      home: Scaffold(
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+Widget _foundationWidgetsScreen(
+  TextEditingController controller, {
+  ThemeData? theme,
+}) => MaterialApp(
+  theme: theme ?? AppTheme.dark,
+  home: Scaffold(
+    body: SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SectionHeader('Hôm nay'),
+            MetricCard(
+              title: 'Nước uống',
+              icon: Icons.water_drop,
+              color: AppColors.water,
+              value: '1,2',
+              unit: 'LÍT',
+              caption: 'Cập nhật hôm nay',
+              trend: const [0.4, 0.8, 0.6, 1.2, 1.0],
+            ),
+            const SizedBox(height: 24),
+            const Center(
+              child: ActivityRings(
+                size: 140,
+                rings: [
+                  RingData(color: AppColors.steps, progress: 0.68),
+                  RingData(color: AppColors.sleep, progress: 0.82),
+                  RingData(color: AppColors.water, progress: 1.05),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            SettingsGroup(
+              title: 'Thông tin cá nhân',
               children: [
-                const SectionHeader('Hôm nay'),
-                MetricCard(
-                  title: 'Nước uống',
-                  icon: Icons.water_drop,
-                  color: AppColors.water,
-                  value: '1,2',
-                  unit: 'LÍT',
-                  caption: 'Cập nhật hôm nay',
-                  trend: const [0.4, 0.8, 0.6, 1.2, 1.0],
+                SettingsRow(
+                  title: 'Chiều cao',
+                  value: '172 cm',
+                  icon: Icons.height,
+                  iconColor: AppColors.water,
+                  onTap: () {},
                 ),
-                const SizedBox(height: 24),
-                const Center(
-                  child: ActivityRings(
-                    size: 140,
-                    rings: [
-                      RingData(color: AppColors.steps, progress: 0.68),
-                      RingData(color: AppColors.sleep, progress: 0.82),
-                      RingData(color: AppColors.water, progress: 1.05),
-                    ],
-                  ),
+                SettingsRow.toggle(
+                  title: 'Chế độ riêng tư',
+                  value: true,
+                  onChanged: (_) {},
                 ),
-                const SizedBox(height: 24),
-                AppTextField(controller: controller, label: 'Ghi chú'),
-                const SizedBox(height: 12),
-                const PrimaryButton(label: 'Lưu', onPressed: null),
-                const ErrorText('Không thể lưu dữ liệu'),
               ],
             ),
-          ),
+            const SizedBox(height: 24),
+            AppTextField(controller: controller, label: 'Ghi chú'),
+            const SizedBox(height: 12),
+            const PrimaryButton(label: 'Lưu', onPressed: null),
+            const ErrorText('Không thể lưu dữ liệu'),
+          ],
         ),
       ),
-    );
+    ),
+  ),
+);
 
 void main() {
   testWidgets('SectionHeader hiển thị tiêu đề và nhận thao tác nhấn', (
@@ -170,18 +191,26 @@ void main() {
     );
   });
 
-  testWidgets('golden bộ widget nền ở hai kích thước màn hình', (tester) async {
+  testWidgets('golden bộ widget nền: hai kích thước tối và một bản sáng', (
+    tester,
+  ) async {
     final controller = TextEditingController();
     addTearDown(controller.dispose);
-    final sizes = {
-      'foundation_widgets_small.png': const Size(375, 812),
-      'foundation_widgets_large.png': const Size(430, 932),
+    final cases = {
+      'foundation_widgets_small.png': (const Size(375, 812), AppTheme.dark),
+      'foundation_widgets_large.png': (const Size(430, 932), AppTheme.dark),
+      'foundation_widgets_small_light.png': (
+        const Size(375, 812),
+        AppTheme.light,
+      ),
     };
 
     tester.view.devicePixelRatio = 1;
-    for (final entry in sizes.entries) {
-      tester.view.physicalSize = entry.value;
-      await tester.pumpWidget(_foundationWidgetsScreen(controller));
+    for (final entry in cases.entries) {
+      tester.view.physicalSize = entry.value.$1;
+      await tester.pumpWidget(
+        _foundationWidgetsScreen(controller, theme: entry.value.$2),
+      );
       await tester.pump(const Duration(milliseconds: 1200));
       expect(tester.takeException(), isNull);
       await expectLater(

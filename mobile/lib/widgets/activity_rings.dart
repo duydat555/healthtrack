@@ -14,15 +14,15 @@ class RingData {
 }
 
 /// Các vòng đồng tâm kiểu Activity Rings. Vòng đầu tiên ở ngoài cùng.
-/// Mỗi vòng có gradient quét theo cung và vầng sáng nhẹ ở Dark Mode.
+/// Mỗi vòng có gradient quét nhẹ theo cung, không có vầng sáng.
 /// Vòng chạy từ 0 lên tiến độ khi hiện ra (bỏ qua nếu bật Giảm chuyển động).
 class ActivityRings extends StatelessWidget {
   const ActivityRings({
     super.key,
     required this.rings,
     this.size = 140,
-    this.strokeWidth = 18,
-    this.gap = 4,
+    this.strokeWidth = 14,
+    this.gap = 3,
     this.center,
   });
 
@@ -36,7 +36,6 @@ class ActivityRings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glow = context.isDark;
     return Semantics(
       label:
           'Vòng tiến độ: ${rings.map((r) => '${(r.progress * 100).round()}%').join(', ')}',
@@ -47,7 +46,7 @@ class ActivityRings extends StatelessWidget {
         builder: (context, t, _) => SizedBox.square(
           dimension: size,
           child: CustomPaint(
-            painter: _RingsPainter(rings, strokeWidth, gap, t, glow),
+            painter: _RingsPainter(rings, strokeWidth, gap, t),
             child: center == null ? null : Center(child: center),
           ),
         ),
@@ -57,13 +56,12 @@ class ActivityRings extends StatelessWidget {
 }
 
 class _RingsPainter extends CustomPainter {
-  _RingsPainter(this.rings, this.stroke, this.gap, this.t, this.glow);
+  _RingsPainter(this.rings, this.stroke, this.gap, this.t);
 
   final List<RingData> rings;
   final double stroke;
   final double gap;
   final double t;
-  final bool glow;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -80,7 +78,7 @@ class _RingsPainter extends CustomPainter {
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = stroke
-          ..color = ring.color.withValues(alpha: 0.16),
+          ..color = ring.color.withValues(alpha: 0.18),
       );
 
       final progress = ring.progress * t;
@@ -89,8 +87,8 @@ class _RingsPainter extends CustomPainter {
       final sweep = 2 * math.pi * fraction;
 
       // Gradient quét: đuôi tối hơn, đầu sáng hơn, nên nhìn ra chiều chạy của vòng.
-      final light = Color.lerp(ring.color, Colors.white, 0.3)!;
-      final dark = Color.lerp(ring.color, Colors.black, 0.18)!;
+      final light = Color.lerp(ring.color, Colors.white, 0.22)!;
+      final dark = Color.lerp(ring.color, Colors.black, 0.12)!;
       final shader = SweepGradient(
         startAngle: 0,
         endAngle: math.pi * 2,
@@ -109,20 +107,6 @@ class _RingsPainter extends CustomPainter {
         ..strokeWidth = stroke
         ..shader = shader;
 
-      if (glow) {
-        canvas.drawArc(
-          rect,
-          -math.pi / 2,
-          sweep,
-          false,
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeCap = StrokeCap.round
-            ..strokeWidth = stroke
-            ..color = ring.color.withValues(alpha: 0.45)
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
-        );
-      }
       canvas.drawArc(rect, -math.pi / 2, sweep, false, arc);
 
       // Vượt mục tiêu: đầu vòng đè lên đuôi, thêm bóng cho thấy chồng lớp
@@ -144,6 +128,5 @@ class _RingsPainter extends CustomPainter {
       old.t != t ||
       old.stroke != stroke ||
       old.gap != gap ||
-      old.glow != glow ||
       old.rings != rings;
 }

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
 
-/// Thẻ chỉ số: tên có màu nhấn, số lớn, đường xu hướng nhỏ.
+/// Thẻ chỉ số kiểu Apple Health: icon và tên theo màu danh mục, giờ cập nhật bên phải, số lớn kèm
+/// đơn vị nhỏ hơn, đường xu hướng mảnh.
 class MetricCard extends StatelessWidget {
   const MetricCard({
     super.key,
@@ -13,6 +14,7 @@ class MetricCard extends StatelessWidget {
     required this.unit,
     required this.caption,
     required this.trend,
+    this.timeLabel,
   });
 
   final String title;
@@ -24,6 +26,9 @@ class MetricCard extends StatelessWidget {
 
   /// Các điểm của đường xu hướng, theo thứ tự thời gian.
   final List<double> trend;
+
+  /// Mốc cập nhật nhỏ ở góc phải tiêu đề (ví dụ "09:41"); null thì ẩn.
+  final String? timeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -37,60 +42,47 @@ class MetricCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5),
-                      child: Icon(icon, color: color, size: 16),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
+                  Icon(icon, color: color, size: 18),
+                  const SizedBox(width: AppSpacing.xs),
                   Expanded(
                     child: Text(
                       title,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: c.inkSoft,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: context.text.cardTitle.copyWith(color: color),
                     ),
                   ),
+                  if (timeLabel != null)
+                    Text(timeLabel!, style: context.text.caption),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.sm),
               Text.rich(
                 TextSpan(
                   children: [
                     TextSpan(
                       text: value,
-                      style: AppFonts.number(32, color: c.ink),
+                      style: AppFonts.number(30, color: c.ink),
                     ),
                     TextSpan(
                       text: ' $unit',
-                      style: TextStyle(
-                        fontSize: 15,
+                      style: context.text.secondary.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: c.inkSoft,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(caption, style: TextStyle(fontSize: 13, color: c.inkSoft)),
-              const SizedBox(height: 14),
+              const SizedBox(height: AppSpacing.xxs),
+              Text(caption, style: context.text.caption),
+              const SizedBox(height: AppSpacing.sm),
               SizedBox(
-                height: 34,
+                height: 32,
                 width: double.infinity,
                 child: CustomPaint(painter: _SparkPainter(trend, color)),
               ),
@@ -135,18 +127,18 @@ class _SparkPainter extends CustomPainter {
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [color.withValues(alpha: 0.28), color.withValues(alpha: 0)],
+          colors: [color.withValues(alpha: 0.18), color.withValues(alpha: 0)],
         ).createShader(Offset.zero & size),
     );
     canvas.drawPath(
       path,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.5
+        ..strokeWidth = 2
         ..strokeCap = StrokeCap.round
         ..color = color,
     );
-    canvas.drawCircle(at(points.length - 1), 4, Paint()..color = color);
+    canvas.drawCircle(at(points.length - 1), 3, Paint()..color = color);
   }
 
   @override

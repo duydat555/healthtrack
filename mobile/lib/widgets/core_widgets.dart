@@ -69,12 +69,12 @@ class SecondaryButton extends StatelessWidget {
   }
 }
 
-/// Thẻ nền chuẩn bo góc 20, hỗ trợ nhấn tương tác và viền tùy chọn.
-class AppCard extends StatelessWidget {
+/// Thẻ nền chuẩn: bề mặt đục, bo 16, không bóng. Có [onTap] thì mờ nhẹ khi nhấn (kiểu iOS).
+class AppCard extends StatefulWidget {
   const AppCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(18),
+    this.padding = const EdgeInsets.all(AppSpacing.md),
     this.color,
     this.borderColor,
     this.onTap,
@@ -89,34 +89,56 @@ class AppCard extends StatelessWidget {
   final String? semanticLabel;
 
   @override
+  State<AppCard> createState() => _AppCardState();
+}
+
+class _AppCardState extends State<AppCard> {
+  bool _pressed = false;
+
+  void _setPressed(bool v) {
+    if (widget.onTap != null && _pressed != v) setState(() => _pressed = v);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final colorR = color ?? context.colors.card;
     final radius = BorderRadius.circular(AppRadius.card);
-    Widget inner = Padding(padding: padding, child: child);
-
-    if (onTap != null) {
-      inner = InkWell(onTap: onTap, borderRadius: radius, child: inner);
-    }
-
     final box = DecoratedBox(
       decoration: BoxDecoration(
-        color: colorR,
+        color: widget.color ?? context.colors.card,
         borderRadius: radius,
-        border: borderColor == null ? null : Border.all(color: borderColor!),
+        border: widget.borderColor == null
+            ? null
+            : Border.all(color: widget.borderColor!),
       ),
       child: Material(
         color: Colors.transparent,
         borderRadius: radius,
-        child: inner,
+        child: Padding(padding: widget.padding, child: widget.child),
       ),
     );
 
-    if (semanticLabel == null && onTap == null) return box;
+    if (widget.semanticLabel == null && widget.onTap == null) return box;
+
+    Widget result = box;
+    if (widget.onTap != null) {
+      result = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: widget.onTap,
+        onTapDown: (_) => _setPressed(true),
+        onTapUp: (_) => _setPressed(false),
+        onTapCancel: () => _setPressed(false),
+        child: AnimatedOpacity(
+          opacity: _pressed ? 0.6 : 1,
+          duration: AppMotion.of(context, AppMotion.fast),
+          child: box,
+        ),
+      );
+    }
     return Semantics(
       container: true,
-      button: onTap != null,
-      label: semanticLabel,
-      child: box,
+      button: widget.onTap != null,
+      label: widget.semanticLabel,
+      child: result,
     );
   }
 }
@@ -200,7 +222,7 @@ class AppBottomSheet extends StatelessWidget {
                 Expanded(
                   child: Semantics(
                     header: true,
-                    child: Text(title, style: AppTextStyles.sectionTitle),
+                    child: Text(title, style: context.text.sectionTitle),
                   ),
                 ),
                 Semantics(
@@ -264,7 +286,18 @@ class _AppSkeletonState extends State<AppSkeleton>
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1200),
-  )..repeat();
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Giảm chuyển động: dừng ánh chạy, chỉ còn khối tĩnh
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.stop();
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
+  }
 
   @override
   void dispose() {
@@ -371,7 +404,7 @@ class ErrorState extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodySoft,
+              style: context.text.secondary,
             ),
             const SizedBox(height: 10),
             Semantics(
@@ -402,7 +435,8 @@ class ErrorState extends StatelessWidget {
   }
 }
 
-/// Trạng thái rỗng chuẩn khi chưa có dữ liệu.
+/// Trạng thái rỗng chuẩn khi chưa có dữ liệu: icon trong vòng tròn nhạt, lời giải thích, và
+/// (tùy chọn) một nút hành động chính màu vàng.
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
@@ -419,38 +453,48 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Semantics(
       label: message,
       child: AppCard(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: context.colors.inkSoft, size: 42),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodySoft,
-            ),
-            if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 12),
-              Semantics(
-                button: true,
-                label: actionLabel,
-                child: TextButton(
-                  onPressed: onAction,
-                  child: Text(
-                    actionLabel!,
-                    style: TextStyle(
-                      color: context.colors.brandText,
-                      fontSize: 15,
-                    ),
-                  ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.ml,
+          vertical: AppSpacing.lg,
+        ),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: c.backgroundSecondary,
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Icon(icon, color: c.inkSoft, size: 28),
                 ),
               ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: context.text.secondary,
+              ),
+              if (actionLabel != null && onAction != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                Semantics(
+                  button: true,
+                  label: actionLabel,
+                  child: FilledButton(
+                    onPressed: onAction,
+                    child: Text(actionLabel!),
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
