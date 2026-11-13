@@ -36,7 +36,8 @@ struct LiquidGlassTabBarView: View {
     @ObservedObject var model: TabBarModel
     @Namespace private var glassNS
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var dragIndex: Int?
+    @State private var fingerX: CGFloat?
+    @State private var barHeight: CGFloat = 56
     @State private var barWidth: CGFloat = 1
     private let haptic = UISelectionFeedbackGenerator()
 
@@ -68,54 +69,65 @@ struct LiquidGlassTabBarView: View {
         }
     }
 
-    /// Tab đang hiển thị là đang chọn: khi đang kéo thì là tab dưới ngón tay.
-    private var shownIndex: Int { dragIndex ?? model.selected }
+    private var itemWidth: CGFloat { max(barWidth - 8, 1) / CGFloat(max(model.items.count, 1)) }
 
-    private func index(at x: CGFloat) -> Int {
-        let inner = max(barWidth - 8, 1)
-        let i = Int((x - 4) / inner * CGFloat(model.items.count))
-        return min(max(i, 0), model.items.count - 1)
+    /// Tâm của thấu kính: bám ngón tay khi đang kéo (không vượt mép thanh), về giữa tab đang chọn
+    /// khi không kéo.
+    private var lensCenter: CGFloat {
+        let half = itemWidth / 2
+        if let x = fingerX { return min(max(x, 4 + half), barWidth - 4 - half) }
+        return 4 + itemWidth * (CGFloat(model.selected) + 0.5)
     }
 
+    /// Tab nằm dưới thấu kính; dùng để tô sáng icon và chữ.
+    private var shownIndex: Int {
+        min(max(Int((lensCenter - 4) / itemWidth), 0), max(model.items.count - 1, 0))
+    }
+
+    private var pressing: Bool { fingerX != nil }
+
     private func tabs(native: Bool) -> some View {
-        HStack(spacing: 0) {
-            ForEach(model.items) { item in
-                tabLabel(item, native: native)
+        ZStack(alignment: .leading) {
+            // Thấu kính nằm dưới nhãn để icon và chữ luôn rõ
+            lens(native: native)
+            HStack(spacing: 0) {
+                ForEach(model.items) { item in
+                    tabLabel(item)
+                }
             }
+            .padding(4)
         }
-        .padding(4)
         .background(
             GeometryReader { g in
-                Color.clear.task(id: g.size.width) { barWidth = g.size.width }
+                Color.clear.task(id: g.size.width) { barWidth = g.size.width; barHeight = g.size.height }
             }
         )
         .contentShape(Rectangle())
-        // Nhấn giữ rồi kéo qua các tab: thấu kính chạy theo ngón tay, thả tay mới chuyển tab.
-        // Chạm nhanh cũng đi qua đây nên một cử chỉ lo cả hai trường hợp.
+        // Nhấn giữ rồi kéo: thấu kính phình ra và chạy theo ngón tay (có haptic khi qua tab),
+        // thả tay thì co lại vào tab gần nhất. Chạm nhanh cũng đi qua đây.
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
-                    let i = index(at: value.location.x)
-                    if i != dragIndex {
-                        if dragIndex != nil { haptic.selectionChanged() }
-                        dragIndex = i
-                    }
+                    let before = shownIndex
+                    fingerX = value.location.x
+                    if shownIndex != before { haptic.selectionChanged() }
                 }
                 .onEnded { value in
-                    let i = index(at: value.location.x)
-                    dragIndex = nil
+                    let i = min(max(Int((value.location.x - 4) / itemWidth), 0), model.items.count - 1)
+                    fingerX = nil
                     if i != model.selected {
                         model.selected = i
                         model.onSelect(i)
                     }
                 }
         )
-        .animation(spring, value: shownIndex)
+        .animation(pressing ? .interactiveSpring(response: 0.18, dampingFraction: 0.85) : spring, value: lensCenter)
+        .animation(spring, value: pressing)
         .accessibilityElement(children: .contain)
     }
 
     @ViewBuilder
-    private func tabLabel(_ item: TabItem, native: Bool) -> some View {
+    private func tabLabel(_ item: TabItem) -> some View {
         let isSelected = item.id == shownIndex
         VStack(spacing: 2) {
             // Icon mang màu thương hiệu; chữ dùng màu chính để đủ tương phản trên kính
@@ -129,7 +141,9 @@ struct LiquidGlassTabBarView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .background { lens(isSelected: isSelected, native: native) }
+        // Dưới thấu kính đang phình, nội dung tab được phóng to như qua kính lúp
+        .scaleEffect(isSelected && pressing ? 1.18 : 1)
+        .zIndex(isSelected ? 2 : 0)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(item.title)
         .accessibilityAddTraits(item.id == model.selected ? [.isButton, .isSelected] : .isButton)
@@ -139,18 +153,23 @@ struct LiquidGlassTabBarView: View {
         }
     }
 
-    /// Thấu kính của tab đang chọn: kính thật (iOS 26+) hoặc viên màu nhạt (iOS cũ hơn).
+    /// Một thấu kính duy nhất. iOS 26+: kính thật, phình to ra ngoài thanh khi nhấn giữ.
     @ViewBuilder
-    private func lens(isSelected: Bool, native: Bool) -> some View {
-        if isSelected {
+    private func lens(native: Bool) -> some View {
+        let scale = pressing ? CGSize(width: 1.28, height: 1.2) : CGSize(width: 1, height: 1)
+        Group {
             if #available(iOS 26.0, *), native {
                 Capsule().fill(Color.clear)
-                    .glassEffect(.regular.tint(model.tint.opacity(0.14)), in: .capsule)
-                    .glassEffectID("lens", in: glassNS)
+                    .glassEffect(.regular.tint(model.tint.opacity(pressing ? 0.08 : 0.14)), in: .capsule)
             } else {
                 Capsule().fill(model.tint.opacity(0.16))
             }
         }
+        .frame(width: max(itemWidth - 2, 1), height: 48)
+        .scaleEffect(scale)
+        .offset(x: lensCenter - max(itemWidth - 2, 1) / 2)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 
     private var addButton: some View {
