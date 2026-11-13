@@ -11,6 +11,8 @@ Future<({FakeBackend backend, dynamic container})> _openAdd(
   final app = await pumpApp(tester, overrides: overrides);
   await tester.tap(find.byIcon(Icons.add));
   await tester.pumpAndSettle();
+  await tester.ensureVisible(find.widgetWithText(ChoiceChip, kind));
+  await tester.pumpAndSettle();
   await tester.tap(find.widgetWithText(ChoiceChip, kind));
   await tester.pumpAndSettle();
   return (backend: app.backend, container: app.container);

@@ -56,6 +56,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Đồng bộ Apple Health'), findsOneWidget);
+      await tester.ensureVisible(find.byType(Switch));
+      await tester.pumpAndSettle();
       await tester.tap(find.byType(Switch));
       await tester.pumpAndSettle();
 

@@ -134,9 +134,8 @@ class _TrendChartsScreenState extends ConsumerState<TrendChartsScreen> {
           header: true,
           child: Text(
             'Xu hướng',
-            style: TextStyle(
+            style: AppTextStyles.sectionTitle.copyWith(
               color: context.colors.ink,
-              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -185,6 +184,12 @@ class _TrendChartsScreenState extends ConsumerState<TrendChartsScreen> {
                                 .adapt(m.color)
                                 .withValues(alpha: 0.24),
                             backgroundColor: context.colors.card,
+                            showCheckmark: false,
+                            side: BorderSide(
+                              color: m.key == _metric
+                                  ? context.colors.adapt(m.color)
+                                  : context.colors.separator,
+                            ),
                             labelStyle: TextStyle(
                               color: context.colors.ink,
                               fontWeight: FontWeight.w600,

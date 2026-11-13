@@ -277,19 +277,25 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                _kindChip(_Kind.water, 'Nước'),
-                _kindChip(_Kind.weight, 'Cân nặng'),
-                _kindChip(_Kind.sleep, 'Ngủ'),
-                _kindChip(_Kind.medicine, 'Thuốc'),
-                _kindChip(_Kind.steps, 'Bước chân'),
-                _kindChip(_Kind.meal, 'Bữa ăn'),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              child: Row(
+                children: [
+                  _kindChip(_Kind.water, 'Nước', Icons.water_drop_rounded),
+                  _kindChip(_Kind.weight, 'Cân nặng', Icons.monitor_weight),
+                  _kindChip(_Kind.sleep, 'Ngủ', Icons.bedtime_rounded),
+                  _kindChip(_Kind.medicine, 'Thuốc', Icons.medication_rounded),
+                  _kindChip(
+                    _Kind.steps,
+                    'Bước chân',
+                    Icons.directions_walk_rounded,
+                  ),
+                  _kindChip(_Kind.meal, 'Bữa ăn', Icons.restaurant_rounded),
+                ],
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             switch (_kind) {
               _Kind.water => _water(),
               _Kind.weight => _weightForm(),
@@ -305,19 +311,46 @@ class _AddScreenState extends ConsumerState<AddScreen> {
     );
   }
 
-  Widget _kindChip(_Kind kind, String label) => Semantics(
-    button: true,
-    selected: _kind == kind,
-    label: 'Chọn ghi chỉ số $label',
-    child: ChoiceChip(
-      label: Text(label),
-      selected: _kind == kind,
-      onSelected: (_) => setState(() {
-        _kind = kind;
-        _error = null;
-      }),
-    ),
-  );
+  Color _kindColor(_Kind kind) {
+    final c = context.colors;
+    return switch (kind) {
+      _Kind.water => c.water,
+      _Kind.weight => c.weight,
+      _Kind.sleep => c.sleep,
+      _Kind.medicine => c.brand,
+      _Kind.steps => c.steps,
+      _Kind.meal => c.meal,
+    };
+  }
+
+  Widget _kindChip(_Kind kind, String label, IconData icon) {
+    final color = _kindColor(kind);
+    final selected = _kind == kind;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: 'Chọn ghi chỉ số $label',
+        child: ChoiceChip(
+          avatar: Icon(
+            icon,
+            size: 18,
+            color: selected ? context.colors.ink : color,
+          ),
+          label: Text(label),
+          selected: selected,
+          showCheckmark: false,
+          selectedColor: color.withValues(alpha: 0.28),
+          side: BorderSide(color: selected ? color : context.colors.separator),
+          onSelected: (_) => setState(() {
+            _kind = kind;
+            _error = null;
+          }),
+        ),
+      ),
+    );
+  }
 
   Widget _water() {
     final logs = ref.watch(waterLogsProvider);

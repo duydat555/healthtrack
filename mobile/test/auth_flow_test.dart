@@ -109,6 +109,10 @@ void main() {
     final app = await pumpApp(tester);
     app.container.read(routerProvider).go('/profile');
     await tester.pumpAndSettle();
+    await tester.ensureVisible(
+      find.widgetWithText(OutlinedButton, 'Đăng xuất'),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(OutlinedButton, 'Đăng xuất'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(TextButton, 'Đăng xuất'));
