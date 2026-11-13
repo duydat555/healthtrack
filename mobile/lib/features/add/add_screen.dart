@@ -7,6 +7,7 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
+import '../../widgets/form_sheet.dart';
 import '../auth/auth_controller.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
@@ -410,10 +411,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         const SizedBox(height: 24),
         Text(
           'Hôm nay đã uống',
-          style: TextStyle(
-            color: context.colors.ink,
-            fontWeight: FontWeight.w600,
-          ),
+          style: context.text.cardTitle.copyWith(fontSize: 16),
         ),
         const SizedBox(height: 8),
         logs.when(
@@ -438,11 +436,11 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                         ),
                         title: Text(
                           '${formatNumber(item.amountMl, digits: 0)} ml',
-                          style: TextStyle(color: context.colors.ink),
+                          style: context.text.body.copyWith(fontSize: 16),
                         ),
                         subtitle: Text(
                           formatTime(item.loggedAt),
-                          style: TextStyle(color: context.colors.inkSoft),
+                          style: context.text.secondary,
                         ),
                         trailing: Semantics(
                           button: true,
@@ -523,7 +521,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           const SizedBox(height: 10),
           Text(
             'Mẹo: Cập nhật chiều cao trong Hồ sơ để tự động tính BMI.',
-            style: TextStyle(color: context.colors.inkSoft, fontSize: 13),
+            style: context.text.caption,
           ),
         ],
         const SizedBox(height: 20),
@@ -535,10 +533,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         const SizedBox(height: 24),
         Text(
           'Các lần ghi gần đây',
-          style: TextStyle(
-            color: context.colors.ink,
-            fontWeight: FontWeight.w600,
-          ),
+          style: context.text.cardTitle.copyWith(fontSize: 16),
         ),
         const SizedBox(height: 8),
         logs.when(
@@ -563,12 +558,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                         ),
                         title: Text(
                           '${formatNumber(item.weightKg)} kg',
-                          style: TextStyle(color: context.colors.ink),
+                          style: context.text.body.copyWith(fontSize: 16),
                         ),
                         subtitle: Text(
                           '${_formatDay(item.loggedAt)} · '
                           '${item.bmi == null ? 'Chưa có BMI' : 'BMI ${formatNumber(item.bmi!)} (${bmiLabel(item.bmi!)})'}',
-                          style: TextStyle(color: context.colors.inkSoft),
+                          style: context.text.secondary,
                         ),
                         trailing: Semantics(
                           button: true,
@@ -634,10 +629,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        Text(
-          'Chất lượng giấc ngủ',
-          style: TextStyle(color: context.colors.inkSoft),
-        ),
+        Text('Chất lượng giấc ngủ', style: context.text.secondary),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -668,10 +660,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         const SizedBox(height: 24),
         Text(
           'Các giấc ngủ gần đây',
-          style: TextStyle(
-            color: context.colors.ink,
-            fontWeight: FontWeight.w600,
-          ),
+          style: context.text.cardTitle.copyWith(fontSize: 16),
         ),
         const SizedBox(height: 8),
         logs.when(
@@ -696,12 +685,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                         ),
                         title: Text(
                           formatDuration(item.durationMinutes),
-                          style: TextStyle(color: context.colors.ink),
+                          style: context.text.body.copyWith(fontSize: 16),
                         ),
                         subtitle: Text(
                           '${formatTime(item.startAt)} → ${formatTime(item.endAt)}'
                           '${item.quality == null ? '' : ' · ${item.quality}/5 sao'}',
-                          style: TextStyle(color: context.colors.inkSoft),
+                          style: context.text.secondary,
                         ),
                         trailing: Semantics(
                           button: true,
@@ -764,10 +753,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         const SizedBox(height: 20),
         Text(
           'Các ngày gần đây',
-          style: TextStyle(
-            color: context.colors.ink,
-            fontWeight: FontWeight.w600,
-          ),
+          style: context.text.cardTitle.copyWith(fontSize: 16),
         ),
         const SizedBox(height: 8),
         logs.when(
@@ -789,12 +775,9 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                         contentPadding: EdgeInsets.zero,
                         title: Text(
                           '${formatNumber(item.steps)} bước',
-                          style: TextStyle(color: context.colors.ink),
+                          style: context.text.body.copyWith(fontSize: 16),
                         ),
-                        subtitle: Text(
-                          item.day,
-                          style: TextStyle(color: context.colors.inkSoft),
-                        ),
+                        subtitle: Text(item.day, style: context.text.secondary),
                       ),
                   ],
                 ),
@@ -872,7 +855,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           loading: () => const LinearProgressIndicator(),
           error: (_, _) => Text(
             'Chưa tải được tổng calories hôm nay.',
-            style: TextStyle(color: context.colors.inkSoft),
+            style: context.text.secondary,
           ),
           data: (total) => Text(
             'Tổng hôm nay: ${formatNumber(total)} kcal',
@@ -885,10 +868,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
         const SizedBox(height: 8),
         Text(
           'Bữa ăn gần đây',
-          style: TextStyle(
-            color: context.colors.ink,
-            fontWeight: FontWeight.w600,
-          ),
+          style: context.text.cardTitle.copyWith(fontSize: 16),
         ),
         const SizedBox(height: 8),
         meals.when(
@@ -909,16 +889,16 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                         contentPadding: EdgeInsets.zero,
                         title: Text(
                           item.name,
-                          style: TextStyle(color: context.colors.ink),
+                          style: context.text.body.copyWith(fontSize: 16),
                         ),
                         subtitle: Text(
                           '${types[item.mealType] ?? item.mealType} · '
                           '${_formatDay(item.loggedAt)} ${formatTime(item.loggedAt)}',
-                          style: TextStyle(color: context.colors.inkSoft),
+                          style: context.text.secondary,
                         ),
                         trailing: Text(
                           '${formatNumber(item.calories)} kcal',
-                          style: TextStyle(color: context.colors.inkSoft),
+                          style: context.text.secondary,
                         ),
                       ),
                   ],
@@ -964,13 +944,7 @@ class _BmiBanner extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: context.colors.inkSoft,
-                      fontSize: 13,
-                    ),
-                  ),
+                  Text(title, style: context.text.caption),
                   const SizedBox(height: 2),
                   Text(
                     'BMI ${formatNumber(bmi)} · $label',
@@ -1008,7 +982,7 @@ class _TimeTile extends StatelessWidget {
     child: ListTile(
       onTap: onTap,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      title: Text(label, style: TextStyle(color: context.colors.inkSoft)),
+      title: Text(label, style: context.text.secondary),
       trailing: Text(
         time.format(context),
         style: TextStyle(
@@ -1056,14 +1030,11 @@ class _Medicines extends ConsumerWidget {
                   child: ListTile(
                     title: Text(
                       m.name,
-                      style: TextStyle(color: context.colors.ink),
+                      style: context.text.body.copyWith(fontSize: 16),
                     ),
                     subtitle: m.dosage == null
                         ? null
-                        : Text(
-                            m.dosage!,
-                            style: TextStyle(color: context.colors.inkSoft),
-                          ),
+                        : Text(m.dosage!, style: context.text.secondary),
                     trailing: FilledButton(
                       style: FilledButton.styleFrom(
                         backgroundColor: context.colors.brand,
@@ -1103,61 +1074,94 @@ class _Medicines extends ConsumerWidget {
   }
 
   Future<void> _addMedication(BuildContext context, WidgetRef ref) async {
-    final name = TextEditingController();
-    final dosage = TextEditingController();
-    final ok = await showDialog<bool>(
+    var name = '';
+    var dosage = '';
+    final messenger = ScaffoldMessenger.of(context);
+    final added = await showFormSheet(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: context.colors.card,
-        titleTextStyle: TextStyle(
-          color: context.colors.ink,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
-        contentTextStyle: TextStyle(color: context.colors.inkSoft),
-        title: const Text('Thêm thuốc'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppTextField(controller: name, label: 'Tên thuốc'),
-            const SizedBox(height: 12),
-            AppTextField(
-              controller: dosage,
-              label: 'Liều lượng (không bắt buộc)',
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Hủy'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Thêm'),
-          ),
-        ],
+      title: 'Thêm thuốc',
+      saveLabel: 'Thêm',
+      builder: (_, form) => _MedicationForm(
+        form: form,
+        onChanged: (n, d) {
+          name = n;
+          dosage = d;
+        },
       ),
+      onSave: () async {
+        try {
+          await ref
+              .read(dioProvider)
+              .post<void>(
+                '/medications',
+                data: {
+                  'name': name.trim(),
+                  if (dosage.trim().isNotEmpty) 'dosage': dosage.trim(),
+                },
+              );
+          ref.invalidate(medicationsProvider);
+          refreshHealthData(ref);
+          onDone();
+          return true;
+        } catch (e) {
+          messenger.showSnackBar(SnackBar(content: Text(apiErrorMessage(e))));
+          return false;
+        }
+      },
     );
-    if (ok != true || name.text.trim().isEmpty) return;
-    try {
-      await ref
-          .read(dioProvider)
-          .post<void>(
-            '/medications',
-            data: {
-              'name': name.text.trim(),
-              if (dosage.text.trim().isNotEmpty) 'dosage': dosage.text.trim(),
-            },
-          );
-      ref.invalidate(medicationsProvider);
-      refreshHealthData(ref);
-      onDone();
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(apiErrorMessage(e))));
-      }
+    if (added == true) {
+      messenger.showSnackBar(const SnackBar(content: Text('Đã thêm thuốc')));
     }
   }
+}
+
+/// Form thêm thuốc trong form sheet: tên bắt buộc, liều lượng tùy chọn.
+class _MedicationForm extends StatefulWidget {
+  const _MedicationForm({required this.form, required this.onChanged});
+
+  final FormSheetController form;
+  final void Function(String name, String dosage) onChanged;
+
+  @override
+  State<_MedicationForm> createState() => _MedicationFormState();
+}
+
+class _MedicationFormState extends State<_MedicationForm> {
+  final _name = TextEditingController();
+  final _dosage = TextEditingController();
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _dosage.dispose();
+    super.dispose();
+  }
+
+  void _changed() {
+    widget.onChanged(_name.text, _dosage.text);
+    widget.form.update(
+      dirty: _name.text.trim().isNotEmpty || _dosage.text.trim().isNotEmpty,
+      valid: _name.text.trim().isNotEmpty,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      AppTextField(
+        controller: _name,
+        label: 'Tên thuốc',
+        autofocus: true,
+        textInputAction: TextInputAction.next,
+        onChanged: (_) => _changed(),
+      ),
+      const SizedBox(height: AppSpacing.sm),
+      AppTextField(
+        controller: _dosage,
+        label: 'Liều lượng (không bắt buộc)',
+        textInputAction: TextInputAction.done,
+        onChanged: (_) => _changed(),
+      ),
+    ],
+  );
 }

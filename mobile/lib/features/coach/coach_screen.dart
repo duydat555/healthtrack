@@ -150,7 +150,7 @@ class _Intro extends StatelessWidget {
                 label: Text(s),
                 backgroundColor: c.card,
                 side: BorderSide.none,
-                labelStyle: TextStyle(color: c.ink),
+                labelStyle: context.text.body.copyWith(fontSize: 16),
                 onPressed: () => onPick(s),
               ),
           ],
@@ -192,8 +192,7 @@ class _Bubble extends StatelessWidget {
             children: [
               if (typing && status == null)
                 Text('...', style: TextStyle(color: c.inkSoft, fontSize: 18)),
-              if (status != null)
-                Text(status!, style: TextStyle(color: c.inkSoft, fontSize: 13)),
+              if (status != null) Text(status!, style: context.text.caption),
               if (message.text.isNotEmpty)
                 Text(
                   message.text,
@@ -274,7 +273,7 @@ class _InputBar extends StatelessWidget {
               maxLines: 4,
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => onSend(),
-              style: TextStyle(color: c.ink),
+              style: context.text.body.copyWith(fontSize: 16),
               decoration: InputDecoration(
                 hintText: 'Nhắn cho Coach',
                 filled: true,

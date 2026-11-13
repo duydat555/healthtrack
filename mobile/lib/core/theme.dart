@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart' show CupertinoThemeData;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:liquid_glass/liquid_glass.dart' show LiquidGlassTabBar;
 
 /// Màu và kiểu chữ dùng chung. Không hard-code màu trong màn hình, hãy lấy từ đây
@@ -468,6 +469,11 @@ abstract final class AppTheme {
         foregroundColor: p.ink,
         elevation: 0,
         scrolledUnderElevation: 0,
+        // Thanh trạng thái theo nền app: nền sáng thì chữ tối và ngược lại (nếu để mặc định, AppBar
+        // trong suốt làm đồng hồ nhạt gần như biến mất ở chế độ sáng)
+        systemOverlayStyle: p.isDark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
       ),
       // Thành phần kiểu iOS (action sheet, bánh xe ngày) lấy màu chữ nhấn từ đây; vàng tươi `brand`
       // không đủ tương phản trên nền sáng nên dùng `brandText`.

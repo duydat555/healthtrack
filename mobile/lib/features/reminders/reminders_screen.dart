@@ -406,7 +406,7 @@ class _ReminderFormSheetState extends ConsumerState<_ReminderFormSheet> {
                           .adapt(meta.color)
                           .withValues(alpha: 0.25),
                       backgroundColor: context.colors.cardHigh,
-                      labelStyle: TextStyle(color: context.colors.ink),
+                      labelStyle: context.text.body.copyWith(fontSize: 16),
                       onSelected: _busy
                           ? null
                           : (_) => setState(() => _kind = meta.kind),
