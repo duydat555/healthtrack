@@ -11,6 +11,7 @@ import '../../widgets/count_up.dart';
 import '../../widgets/metric_card.dart';
 import '../../widgets/section_header.dart';
 import '../auth/auth_controller.dart';
+import '../gamification/health_score_card.dart';
 import '../health/health_providers.dart';
 import '../../widgets/core_widgets.dart';
 
@@ -99,6 +100,8 @@ class HomeScreen extends ConsumerWidget {
                   onRetry: () => ref.invalidate(todaySummaryProvider),
                 ),
               ),
+              const SizedBox(height: 12),
+              const HealthScoreCard(),
               const SizedBox(height: 8),
               const SectionHeader('Chỉ số cơ thể'),
               body.when(

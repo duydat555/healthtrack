@@ -119,6 +119,33 @@ Map<String, FakeHandler> defaultRoutes() {
         'duration_minutes': 480,
       },
     ]),
+    'GET /gamification/summary': (_) => const FakeResponse(200, {
+      'score': 62,
+      'components': <Object>[],
+      'streak': 3,
+      'best_streak': 5,
+      'challenge': {
+        'code': 'water_week',
+        'title': 'Uống đủ nước 5 ngày trong tuần',
+        'progress': 2,
+        'target': 5,
+      },
+      'new_achievements': <Object>[],
+    }),
+    'GET /gamification/achievements': (_) => const FakeResponse(200, [
+      {
+        'code': 'first_log',
+        'title': 'Bước đầu tiên',
+        'description': 'Ghi chỉ số sức khỏe đầu tiên',
+        'earned_at': '2026-11-10T08:00:00Z',
+      },
+      {
+        'code': 'streak_7',
+        'title': 'Một tuần bền bỉ',
+        'description': 'Đạt từ 70 điểm 7 ngày liên tiếp',
+        'earned_at': null,
+      },
+    ]),
     'GET /stats/summary': (_) => const FakeResponse(200, {
       'date': '2026-11-09',
       'weight': null,
