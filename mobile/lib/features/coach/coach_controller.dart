@@ -88,7 +88,7 @@ class CoachController extends Notifier<CoachState> {
       clearStatus: true,
     );
     try {
-      final provider = ref.read(privateModeProvider) ? 'local' : 'claude';
+      final provider = ref.read(privateModeProvider) ? 'local' : 'auto';
       await for (final e
           in ref
               .read(coachRepositoryProvider)

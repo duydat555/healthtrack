@@ -32,6 +32,8 @@ class CoachRepository {
     final res = await _dio.get<Map<String, dynamic>>(
       '/coach/weekly',
       queryParameters: {'tz_offset': _tzOffset},
+      // AI local có thể mất vài chục giây cho lần sinh đầu tiên trong tuần
+      options: Options(receiveTimeout: const Duration(minutes: 2)),
     );
     return WeeklyInsight.fromJson(res.data!);
   }
@@ -40,7 +42,7 @@ class CoachRepository {
   /// bằng một dòng trống.
   Stream<CoachEvent> chat(
     List<ChatMessage> history, {
-    String provider = 'claude',
+    String provider = 'auto',
   }) async* {
     final res = await _dio.post<ResponseBody>(
       '/coach/chat',

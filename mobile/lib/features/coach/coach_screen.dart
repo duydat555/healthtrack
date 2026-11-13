@@ -41,7 +41,9 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
   }
 
   void _send([String? text]) {
-    final value = text ?? _input.text;
+    var value = text ?? _input.text;
+    // Giới hạn độ dài khi gửi, không dùng maxLength vì nó làm hỏng gõ Telex trên iOS
+    if (value.length > 1000) value = value.substring(0, 1000);
     if (value.trim().isEmpty) return;
     _input.clear();
     ref.read(coachControllerProvider.notifier).send(value);
@@ -270,13 +272,11 @@ class _InputBar extends StatelessWidget {
               controller: controller,
               minLines: 1,
               maxLines: 4,
-              maxLength: 1000,
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => onSend(),
               style: TextStyle(color: c.ink),
               decoration: InputDecoration(
                 hintText: 'Nhắn cho Coach',
-                counterText: '',
                 filled: true,
                 fillColor: c.card,
                 border: OutlineInputBorder(

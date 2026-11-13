@@ -84,6 +84,8 @@ void main() {
       );
       final sent = (req.data as Map)['messages'] as List;
       expect(sent.single, {'role': 'user', 'content': 'vừa uống 500ml'});
+      // Mặc định để máy chủ tự chọn (ưu tiên AI local), không ép Claude
+      expect((req.data as Map)['provider'], 'auto');
       // Số liệu đã bị làm mới: đọc lại sẽ gọi máy chủ thay vì dùng bản cũ
       app.container.read(todaySummaryProvider);
       await tester.pumpAndSettle();

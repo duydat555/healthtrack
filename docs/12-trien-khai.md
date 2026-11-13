@@ -101,3 +101,14 @@ Model local chỉ trả lời dựa trên số liệu được tóm tắt sẵn 
 | `mlx-community/Qwen3.5-9B-MLX-4bit` | 0,23 giây | khoảng 25 token/giây | khoảng 4 GB |
 
 Chọn Qwen3.5 9B 4-bit làm mặc định: trả lời tiếng Việt tự nhiên, đủ nhanh để hiện từng chữ và còn dư RAM. Đã thử đầu cuối: app gọi backend (Docker), backend đọc số liệu của người dùng demo và gọi server MLX, câu trả lời dựa đúng trên số liệu đó. Lần đầu bật server mất thêm vài phút để tải khoảng 5,9 GB.
+
+## Dùng Coach từ iPhone qua Tailscale
+
+Mac mini chạy backend (`make up`) và AI local (`make llm`); iPhone nối vào qua Tailscale nên không cần mở cổng ra Internet.
+
+1. Cài Tailscale trên Mac mini và iPhone, đăng nhập cùng một tài khoản. Lấy IP của Mac mini bằng `tailscale ip -4` (ví dụ `100.88.248.82`).
+2. Chạy app trỏ vào Mac mini: `flutter run --dart-define=API_URL=http://100.88.248.82:8200/api/v1` (cổng là `BACKEND_PORT` trong `.env`).
+3. Không cần `ANTHROPIC_API_KEY`: Coach tự chọn AI local khi server MLX đang chạy (`provider=auto`).
+4. Muốn HTTPS có chứng chỉ hợp lệ: bật Serve một lần tại https://login.tailscale.com/f/serve rồi chạy `tailscale serve --bg --https=443 http://localhost:8200`. Khi đó `API_URL=https://<tên-máy>.<tailnet>.ts.net/api/v1`.
+
+Nếu Coach báo lỗi: kiểm tra `make llm` đang chạy (`scripts/local-llm.sh status`) và `GET /api/v1/coach/providers` trả `local: true`.
