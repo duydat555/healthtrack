@@ -324,7 +324,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         alpha: 0.28,
                       ),
                       backgroundColor: context.colors.card,
-                      labelStyle: TextStyle(color: context.colors.ink),
+                      labelStyle: context.text.body.copyWith(fontSize: 16),
                       onSelected: (_) => setState(() => _gender = e.key),
                     ),
                   ),
@@ -344,16 +344,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  title: Text(
-                    'Ngày sinh',
-                    style: TextStyle(color: context.colors.inkSoft),
-                  ),
+                  title: Text('Ngày sinh', style: context.text.secondary),
                   trailing: Text(
                     _birthDate == null ? 'Chọn ngày' : _formatDate(_birthDate!),
-                    style: TextStyle(
-                      color: context.colors.ink,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: context.text.cardTitle.copyWith(fontSize: 16),
                   ),
                 ),
               ),

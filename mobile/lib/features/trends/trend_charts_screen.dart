@@ -190,9 +190,8 @@ class _TrendChartsScreenState extends ConsumerState<TrendChartsScreen> {
                                   ? context.colors.adapt(m.color)
                                   : context.colors.separator,
                             ),
-                            labelStyle: TextStyle(
-                              color: context.colors.ink,
-                              fontWeight: FontWeight.w600,
+                            labelStyle: context.text.cardTitle.copyWith(
+                              fontSize: 16,
                             ),
                             onSelected: (_) => setState(() {
                               _metric = m.key;
@@ -668,10 +667,7 @@ class _TrendStatsRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: TextStyle(color: context.colors.inkSoft, fontSize: 13),
-                ),
+                Text(label, style: context.text.caption),
                 const SizedBox(height: 6),
                 Text(
                   '${formatNumber(val, digits: meta.digits)} ${meta.unit}',

@@ -114,48 +114,58 @@ class _Badge extends StatelessWidget {
       label:
           '${item.title}. ${item.description}. ${earned ? 'Đã đạt' : 'Chưa đạt'}',
       excludeSemantics: true,
-      child: Opacity(
-        opacity: earned ? 1 : 0.5,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: c.card,
-            borderRadius: BorderRadius.circular(AppRadius.card),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: earned ? accent.gradient : null,
-                    color: earned ? null : c.cardHigh,
-                    shape: BoxShape.circle,
-                    boxShadow: earned && c.isDark ? accent.glow : null,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.circular(AppRadius.card),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Chưa đạt: vòng xám và icon xám; chữ vẫn giữ nguyên độ tương phản để đọc được
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: earned ? accent.gradient : null,
+                  color: earned ? null : c.cardHigh,
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  child: Icon(
+                    AchievementsScreen._icons[item.code] ?? Icons.star,
+                    color: earned
+                        ? (c.isDark ? Colors.black : Colors.white)
+                        : c.inkSoft,
+                    size: 26,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Icon(
-                      AchievementsScreen._icons[item.code] ?? Icons.star,
-                      color: earned
-                          ? (c.isDark ? Colors.black : Colors.white)
-                          : c.inkSoft,
-                      size: 26,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(item.title, style: context.text.cardTitle),
+              const SizedBox(height: AppSpacing.xxs),
+              Text(item.description, style: context.text.caption),
+              const SizedBox(height: AppSpacing.xs),
+              // Trạng thái bằng chữ và icon, không chỉ bằng màu
+              Row(
+                children: [
+                  Icon(
+                    earned ? Icons.check_circle : Icons.lock_outline,
+                    size: 14,
+                    color: earned ? c.success : c.textTertiary,
+                  ),
+                  const SizedBox(width: AppSpacing.xxs),
+                  Text(
+                    earned ? 'Đã đạt' : 'Chưa đạt',
+                    style: context.text.caption.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: earned ? c.success : c.textTertiary,
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  item.title,
-                  style: AppTextStyles.cardTitle.copyWith(color: c.ink),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  item.description,
-                  style: TextStyle(fontSize: 13, color: c.inkSoft),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
