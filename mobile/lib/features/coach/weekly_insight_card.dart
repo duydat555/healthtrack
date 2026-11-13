@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme.dart';
+import '../../widgets/core_widgets.dart';
 import 'coach_controller.dart';
 
 /// Thẻ "Nhận xét tuần" trên Tổng quan. Ẩn nếu Coach chưa được bật hoặc đang lỗi, vì đây chỉ là phần thêm.
@@ -23,48 +24,36 @@ class WeeklyInsightCard extends ConsumerWidget {
               label:
                   'Nhận xét tuần của Coach: ${insight.content}. Bấm để trò chuyện.',
               excludeSemantics: true,
-              child: Material(
-                color: c.card,
-                borderRadius: BorderRadius.circular(AppRadius.card + 4),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(AppRadius.card + 4),
-                  onTap: () => context.push('/coach'),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              child: AppCard(
+                onTap: () => context.push('/coach'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.chat_bubble_outline,
-                              size: 18,
-                              color: c.water,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Nhận xét tuần',
-                                style: AppTextStyles.cardTitle.copyWith(
-                                  color: c.ink,
-                                ),
-                              ),
-                            ),
-                            Icon(Icons.chevron_right, color: c.inkSoft),
-                          ],
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 18,
+                          color: c.water,
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          insight.content,
-                          style: TextStyle(
-                            fontSize: 15,
-                            height: 1.35,
-                            color: c.inkSoft,
+                        const SizedBox(width: AppSpacing.xs),
+                        Expanded(
+                          child: Text(
+                            'Nhận xét tuần',
+                            style: context.text.cardTitle,
                           ),
                         ),
+                        Icon(Icons.chevron_right, color: c.inkSoft, size: 20),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      insight.content,
+                      maxLines: 6,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.text.secondary,
+                    ),
+                  ],
                 ),
               ),
             ),

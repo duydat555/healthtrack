@@ -84,87 +84,75 @@ class _Body extends StatelessWidget {
           'Điểm sức khỏe hôm nay ${s.score} trên 100. Chuỗi ${s.streak} ngày liền. '
           '${ch.title}: ${ch.progress} trên ${ch.target}. Bấm để xem huy hiệu.',
       excludeSemantics: true,
-      child: Material(
-        color: c.card,
-        borderRadius: BorderRadius.circular(AppRadius.card + 4),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(AppRadius.card + 4),
-          onTap: () => context.push('/achievements'),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                ActivityRings(
-                  size: 92,
-                  strokeWidth: 12,
-                  rings: [RingData(color: c.steps, progress: s.score / 100)],
-                  center: CountUp(
-                    value: s.score.toDouble(),
-                    style: AppFonts.number(28, color: c.ink),
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      child: AppCard(
+        onTap: () => context.push('/achievements'),
+        child: Row(
+          children: [
+            ActivityRings(
+              size: 76,
+              strokeWidth: 10,
+              rings: [RingData(color: c.steps, progress: s.score / 100)],
+              center: CountUp(
+                value: s.score.toDouble(),
+                style: AppFonts.number(24, color: c.ink),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Điểm sức khỏe',
-                              style: AppTextStyles.cardTitle.copyWith(
-                                color: c.ink,
-                              ),
-                            ),
-                          ),
-                          Icon(Icons.chevron_right, color: c.inkSoft),
-                        ],
+                      Expanded(
+                        child: Text(
+                          'Điểm sức khỏe',
+                          style: context.text.cardTitle,
+                        ),
                       ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.local_fire_department,
-                            size: 18,
-                            color: s.streak > 0 ? c.steps : c.inkSoft,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            s.streak > 0
-                                ? '${s.streak} ngày liền'
-                                : 'Chưa có chuỗi ngày',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: c.inkSoft,
-                            ),
-                          ),
-                        ],
+                      Icon(Icons.chevron_right, color: c.inkSoft, size: 20),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xxs),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.local_fire_department,
+                        size: 16,
+                        color: s.streak > 0 ? c.steps : c.inkSoft,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(width: AppSpacing.xxs),
                       Text(
-                        ch.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 13, color: c.inkSoft),
-                      ),
-                      const SizedBox(height: 6),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: ch.target == 0 ? 0 : ch.progress / ch.target,
-                          minHeight: 6,
-                          color: c.water,
-                          backgroundColor: c.water.withValues(alpha: 0.18),
+                        s.streak > 0
+                            ? '${s.streak} ngày liền'
+                            : 'Chưa có chuỗi ngày',
+                        style: context.text.caption.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    ch.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.caption,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: LinearProgressIndicator(
+                      value: ch.target == 0 ? 0 : ch.progress / ch.target,
+                      minHeight: 5,
+                      color: c.water,
+                      backgroundColor: c.water.withValues(alpha: 0.18),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
