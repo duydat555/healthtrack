@@ -8,7 +8,7 @@ import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
 import '../auth/auth_controller.dart';
-import 'profile_state_widgets.dart';
+import '../../widgets/core_widgets.dart';
 
 const _genderLabels = <String, String>{
   'male': 'Nam',

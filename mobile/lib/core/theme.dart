@@ -231,10 +231,7 @@ extension AccentX on Color {
   LinearGradient get gradient => LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color.lerp(this, Colors.white, 0.28)!,
-      this,
-    ],
+    colors: [Color.lerp(this, Colors.white, 0.28)!, this],
   );
 
   /// Vầng sáng mờ phía sau phần tử nổi bật (chỉ dùng ở Dark Mode).
@@ -249,21 +246,25 @@ abstract final class AppFonts {
   static const display = 'BricolageGrotesque';
 
   /// Trục độ đậm và độ hẹp của font biến thiên.
-  static List<FontVariation> variation({double weight = 700, double width = 100}) => [
+  static List<FontVariation> variation({
+    double weight = 700,
+    double width = 100,
+  }) => [
     FontVariation('wght', weight),
     FontVariation('wdth', width),
     const FontVariation('opsz', 48),
   ];
 
   /// Số liệu lớn: số có độ rộng đều để không nhảy khi đếm lên.
-  static TextStyle number(double size, {Color color = AppColors.ink}) => TextStyle(
-    fontFamily: display,
-    fontSize: size,
-    height: 1.0,
-    color: color,
-    fontVariations: variation(weight: 760, width: 92),
-    fontFeatures: const [FontFeature.tabularFigures()],
-  );
+  static TextStyle number(double size, {Color color = AppColors.ink}) =>
+      TextStyle(
+        fontFamily: display,
+        fontSize: size,
+        height: 1.0,
+        color: color,
+        fontVariations: variation(weight: 760, width: 92),
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
 }
 
 /// Hệ thống kiểu chữ chuẩn hóa cho toàn bộ ứng dụng.

@@ -6,7 +6,7 @@ import 'package:liquid_glass/liquid_glass.dart';
 import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
-import '../../widgets/state_widgets.dart';
+import '../../widgets/core_widgets.dart';
 import '../health/health_providers.dart';
 
 /// Màn Chỉ số: các thẻ Liquid Glass (chạm để mở rộng, hiệu ứng morph) với số liệu thật.

@@ -10,7 +10,7 @@ import '../auth/auth_controller.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../health/models.dart';
-import 'add_state_widgets.dart';
+import '../../widgets/core_widgets.dart';
 
 enum _Kind { water, weight, sleep, medicine, steps, meal }
 

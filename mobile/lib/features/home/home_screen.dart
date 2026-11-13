@@ -11,7 +11,7 @@ import '../../widgets/metric_card.dart';
 import '../../widgets/section_header.dart';
 import '../auth/auth_controller.dart';
 import '../health/health_providers.dart';
-import 'dashboard_states.dart';
+import '../../widgets/core_widgets.dart';
 
 /// Màn Tổng quan (Dashboard), bố cục theo app Fitness của Apple, dữ liệu lấy từ backend.
 class HomeScreen extends ConsumerWidget {
