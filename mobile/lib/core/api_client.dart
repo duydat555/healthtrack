@@ -16,8 +16,9 @@ const _authPaths = ['/auth/login', '/auth/register', '/auth/refresh'];
 
 BaseOptions _baseOptions() => BaseOptions(
   baseUrl: apiBaseUrl,
-  connectTimeout: const Duration(seconds: 10),
-  receiveTimeout: const Duration(seconds: 10),
+  // Render gói free ngủ khi lâu không có người dùng, lần gọi đầu có thể mất 30-60 giây
+  connectTimeout: const Duration(seconds: 60),
+  receiveTimeout: const Duration(seconds: 60),
   contentType: Headers.jsonContentType,
 );
 
@@ -104,6 +105,21 @@ class AuthInterceptor extends Interceptor {
       return null;
     }
   }
+}
+
+/// Gọi nhẹ tới máy chủ ngay khi mở app để đánh thức Render trước khi người dùng đăng nhập.
+/// Mọi lỗi đều bỏ qua.
+Future<void> warmUpServer() async {
+  try {
+    final root = Uri.parse(apiBaseUrl).replace(path: '/health');
+    await Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 90),
+        receiveTimeout: const Duration(seconds: 90),
+        validateStatus: (_) => true,
+      ),
+    ).getUri<void>(root);
+  } catch (_) {}
 }
 
 /// Dio dùng chung cho toàn app.
