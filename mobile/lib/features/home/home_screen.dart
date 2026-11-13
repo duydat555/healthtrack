@@ -72,7 +72,7 @@ class HomeScreen extends ConsumerWidget {
                       child: Text('Tổng quan', style: context.text.largeTitle),
                     ),
                   ),
-                  _RoundIconButton(
+                  RoundIconButton(
                     tooltip: 'Hỏi Coach',
                     icon: Icons.chat_bubble_outline,
                     onTap: () => context.push('/coach'),
@@ -160,51 +160,6 @@ const _empty = TodaySummary(
   medsTaken: 0,
   medsTotal: 0,
 );
-
-/// Nút tròn nhỏ ở đầu trang (nền thẻ nổi), vùng chạm 44.
-class _RoundIconButton extends StatelessWidget {
-  const _RoundIconButton({
-    required this.tooltip,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String tooltip;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return Tooltip(
-      message: tooltip,
-      child: Semantics(
-        button: true,
-        label: tooltip,
-        excludeSemantics: true,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: SizedBox.square(
-            dimension: 44,
-            child: Center(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: c.cardHigh,
-                  shape: BoxShape.circle,
-                ),
-                child: SizedBox.square(
-                  dimension: 36,
-                  child: Icon(icon, size: 19, color: c.ink),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class _RingsCard extends StatelessWidget {
   const _RingsCard({required this.summary});

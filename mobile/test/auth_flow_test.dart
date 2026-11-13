@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:healthtrack/app/router.dart';
+import 'package:healthtrack/widgets/settings_group.dart';
 import 'package:healthtrack/features/home/home_screen.dart';
 
 import 'helpers/fake_backend.dart';
@@ -109,11 +110,9 @@ void main() {
     final app = await pumpApp(tester);
     app.container.read(routerProvider).go('/profile');
     await tester.pumpAndSettle();
-    await tester.ensureVisible(
-      find.widgetWithText(OutlinedButton, 'Đăng xuất'),
-    );
+    await tester.ensureVisible(find.widgetWithText(SettingsRow, 'Đăng xuất'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Đăng xuất'));
+    await tester.tap(find.widgetWithText(SettingsRow, 'Đăng xuất'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(TextButton, 'Đăng xuất'));
     await tester.pumpAndSettle();

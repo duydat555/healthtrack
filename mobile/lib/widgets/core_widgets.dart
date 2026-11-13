@@ -501,3 +501,51 @@ class EmptyState extends StatelessWidget {
     );
   }
 }
+
+/// Nút tròn nhỏ ở đầu trang (nền thẻ nổi), vùng chạm 44. [semanticLabel] mặc định là [tooltip].
+class RoundIconButton extends StatelessWidget {
+  const RoundIconButton({
+    super.key,
+    required this.tooltip,
+    required this.icon,
+    required this.onTap,
+    this.semanticLabel,
+  });
+
+  final String tooltip;
+  final String? semanticLabel;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Tooltip(
+      message: tooltip,
+      child: Semantics(
+        button: true,
+        label: semanticLabel ?? tooltip,
+        excludeSemantics: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: SizedBox.square(
+            dimension: 44,
+            child: Center(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: c.cardHigh,
+                  shape: BoxShape.circle,
+                ),
+                child: SizedBox.square(
+                  dimension: 36,
+                  child: Icon(icon, size: 19, color: c.ink),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
