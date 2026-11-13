@@ -86,9 +86,7 @@ class GoalsScreen extends ConsumerWidget {
               header: true,
               child: Text(
                 'Mục tiêu',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.pageTitle.copyWith(
                   color: context.colors.ink,
                 ),
               ),

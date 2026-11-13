@@ -233,9 +233,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             child: Text(
               'Chào mừng đến với HealthTrack',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTextStyles.pageTitle.copyWith(
                 fontSize: 28,
-                fontWeight: FontWeight.w800,
                 color: context.colors.ink,
               ),
             ),
@@ -282,9 +281,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               header: true,
               child: Text(
                 'Thông tin cá nhân',
-                style: TextStyle(
+                style: AppTextStyles.pageTitle.copyWith(
                   fontSize: 28,
-                  fontWeight: FontWeight.w800,
                   color: context.colors.ink,
                 ),
               ),
@@ -388,9 +386,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               header: true,
               child: Text(
                 'Chỉ số ban đầu',
-                style: TextStyle(
+                style: AppTextStyles.pageTitle.copyWith(
                   fontSize: 28,
-                  fontWeight: FontWeight.w800,
                   color: context.colors.ink,
                 ),
               ),

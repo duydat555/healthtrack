@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
 
-/// Tiêu đề mục kiểu Fitness: chữ đậm cỡ lớn kèm mũi tên.
+/// Tiêu đề mục: chữ hiển thị đậm, có mũi tên khi bấm được.
 class SectionHeader extends StatelessWidget {
   const SectionHeader(this.title, {super.key, this.onTap});
 
@@ -24,15 +24,13 @@ class SectionHeader extends StatelessWidget {
               Flexible(
                 child: Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: c.ink,
-                  ),
+                  style: AppTextStyles.sectionTitle.copyWith(color: c.ink),
                 ),
               ),
-              const SizedBox(width: 6),
-              Icon(Icons.chevron_right, color: c.inkSoft, size: 22),
+              if (onTap != null) ...[
+                const SizedBox(width: 6),
+                Icon(Icons.chevron_right, color: c.inkSoft, size: 22),
+              ],
             ],
           ),
         ),

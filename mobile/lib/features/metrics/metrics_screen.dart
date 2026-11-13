@@ -32,9 +32,7 @@ class MetricsScreen extends ConsumerWidget {
                       header: true,
                       child: Text(
                         'Chỉ số',
-                        style: TextStyle(
-                          fontSize: 34,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.pageTitle.copyWith(
                           color: context.colors.ink,
                         ),
                       ),

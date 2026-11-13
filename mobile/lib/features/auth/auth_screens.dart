@@ -40,11 +40,7 @@ class _AuthScaffold extends StatelessWidget {
                       header: true,
                       child: Text(
                         title,
-                        style: TextStyle(
-                          fontSize: 34,
-                          fontWeight: FontWeight.w800,
-                          color: c.ink,
-                        ),
+                        style: AppTextStyles.pageTitle.copyWith(color: c.ink),
                       ),
                     ),
                     const SizedBox(height: 6),

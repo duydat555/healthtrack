@@ -7,7 +7,7 @@ import 'helpers/fake_backend.dart';
 
 void main() {
   testWidgets(
-    'Dashboard hiển thị đủ 5 nhóm chỉ số chính và sử dụng LiquidGlass',
+    'Dashboard hiển thị đủ 5 nhóm chỉ số chính và dùng thẻ phẳng, không phủ Liquid Glass',
     (tester) async {
       await pumpApp(
         tester,
@@ -22,7 +22,8 @@ void main() {
         },
       );
 
-      expect(find.byType(LiquidGlass), findsWidgets);
+      // Thẻ nội dung là bề mặt phẳng, Liquid Glass chỉ dành cho lớp nổi (docs/05)
+      expect(find.byType(LiquidGlass), findsNothing);
       expect(find.text('Bước chân'), findsOneWidget);
       expect(find.textContaining('7.200', findRichText: true), findsOneWidget);
       expect(find.text('Calories'), findsOneWidget);

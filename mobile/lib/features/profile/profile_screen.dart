@@ -262,9 +262,7 @@ class ProfileScreen extends ConsumerWidget {
                         header: true,
                         child: Text(
                           'Hồ sơ',
-                          style: TextStyle(
-                            fontSize: 34,
-                            fontWeight: FontWeight.w800,
+                          style: AppTextStyles.pageTitle.copyWith(
                             color: context.colors.ink,
                           ),
                         ),
@@ -295,11 +293,7 @@ class ProfileScreen extends ConsumerWidget {
                         backgroundColor: context.colors.cardHigh,
                         child: Text(
                           user.initial,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: context.colors.ink,
-                          ),
+                          style: AppFonts.number(24, color: context.colors.ink),
                         ),
                       ),
                       const SizedBox(width: 14),

@@ -212,9 +212,8 @@ class _ReminderTile extends StatelessWidget {
                     children: [
                       Text(
                         reminder.formattedTime,
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w700,
+                        style: AppFonts.number(
+                          26,
                           color: reminder.enabled
                               ? context.colors.ink
                               : context.colors.inkSoft,
