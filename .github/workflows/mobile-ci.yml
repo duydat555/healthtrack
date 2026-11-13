@@ -23,11 +23,14 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed lib test integration_test packages/liquid_glass/lib packages/liquid_glass/test
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test packages/liquid_glass/lib packages/liquid_glass/test packages/health_bridge/lib packages/health_bridge/test
       - run: flutter analyze
       - run: flutter test
       - name: Test plugin liquid_glass
         working-directory: mobile/packages/liquid_glass
+        run: flutter pub get && flutter test
+      - name: Test plugin health_bridge
+        working-directory: mobile/packages/health_bridge
         run: flutter pub get && flutter test
 
   build-ios:

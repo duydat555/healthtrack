@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:healthtrack/core/api_client.dart';
 import 'package:healthtrack/core/token_storage.dart';
@@ -205,6 +206,7 @@ pumpApp(
   WidgetTester tester, {
   bool loggedIn = true,
   Map<String, FakeHandler> overrides = const {},
+  List<Override> providerOverrides = const [],
 }) async {
   final backend = FakeBackend({...defaultRoutes(), ...overrides});
   final storage = MemoryTokenStorage(
@@ -227,6 +229,7 @@ pumpApp(
     retry: noRetry,
     overrides: [
       tokenStorageProvider.overrideWithValue(storage),
+      ...providerOverrides,
       dioProvider.overrideWith((ref) {
         dio.interceptors.add(
           AuthInterceptor(

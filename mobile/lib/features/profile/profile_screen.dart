@@ -8,6 +8,7 @@ import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
 import '../auth/auth_controller.dart';
+import '../health/healthkit_sync.dart';
 import '../../widgets/core_widgets.dart';
 
 const _genderLabels = <String, String>{
@@ -361,6 +362,8 @@ class ProfileScreen extends ConsumerWidget {
                         hint: 'Uống nước, uống thuốc, đi ngủ',
                         onTap: () => context.push('/reminders'),
                       ),
+                      Divider(height: 1, color: context.colors.separator),
+                      const _HealthSyncRow(),
                     ],
                   ),
                 ),
@@ -428,4 +431,41 @@ class _ProfileRow extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Công tắc đồng bộ Apple Health. Ẩn khi máy không có HealthKit.
+class _HealthSyncRow extends ConsumerWidget {
+  const _HealthSyncRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(healthSyncProvider);
+    if (!s.available) return const SizedBox.shrink();
+    final c = context.colors;
+    final subtitle =
+        s.error ??
+        (s.busy
+            ? 'Đang đồng bộ...'
+            : s.lastSync != null
+            ? 'Đã đồng bộ lúc ${formatTime(s.lastSync!)}'
+            : 'Bước chân, giấc ngủ, cân nặng');
+    return SwitchListTile(
+      dense: true,
+      visualDensity: VisualDensity.compact,
+      activeThumbColor: Colors.white,
+      activeTrackColor: c.brand,
+      value: s.enabled,
+      onChanged: s.busy
+          ? null
+          : (v) => ref.read(healthSyncProvider.notifier).setEnabled(v),
+      title: Text(
+        'Đồng bộ Apple Health',
+        style: TextStyle(color: c.ink, fontSize: 15),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(color: s.error == null ? c.inkSoft : c.danger),
+      ),
+    );
+  }
 }

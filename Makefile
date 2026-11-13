@@ -52,7 +52,9 @@ mobile-dev: ## Chạy app trên Simulator và tự hot reload khi lưu file Dart
 mobile-test:
 	cd mobile && flutter test
 	cd mobile/packages/liquid_glass && flutter test
+	cd mobile/packages/health_bridge && flutter test
 
 mobile-lint:
 	cd mobile && flutter analyze
 	cd mobile/packages/liquid_glass && flutter analyze
+	cd mobile/packages/health_bridge && flutter analyze

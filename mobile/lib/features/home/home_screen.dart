@@ -13,6 +13,7 @@ import '../../widgets/section_header.dart';
 import '../auth/auth_controller.dart';
 import '../gamification/health_score_card.dart';
 import '../health/health_providers.dart';
+import '../health/healthkit_sync.dart';
 import '../../widgets/core_widgets.dart';
 
 /// Màn Tổng quan (Dashboard), bố cục theo app Fitness của Apple, dữ liệu lấy từ backend.
@@ -52,6 +53,7 @@ class HomeScreen extends ConsumerWidget {
               LiquidGlassTabBar.height + 48,
             ),
             children: [
+              const _AutoSync(),
               Text(
                 formatHeaderDate(DateTime.now()),
                 style: TextStyle(
@@ -549,4 +551,25 @@ class _WaterWeekChart extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Đồng bộ Apple Health một lần khi mở Tổng quan (nếu người dùng đã bật).
+class _AutoSync extends ConsumerStatefulWidget {
+  const _AutoSync();
+
+  @override
+  ConsumerState<_AutoSync> createState() => _AutoSyncState();
+}
+
+class _AutoSyncState extends ConsumerState<_AutoSync> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(healthSyncProvider.notifier).syncIfEnabled();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }
