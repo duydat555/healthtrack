@@ -77,3 +77,13 @@ Neon và Supabase còn có sao lưu/khôi phục theo thời điểm trong trang
 
 ## AI Coach (Claude)
 Thêm biến môi trường `ANTHROPIC_API_KEY` trên Render (mục Environment) để bật `/api/v1/coach`. Để trống thì Coach trả 503 và phần còn lại của API chạy bình thường. Model mặc định: chat `claude-haiku-5-5`, nhận xét tuần `claude-sonnet-5-5` (đổi bằng `COACH_CHAT_MODEL`, `COACH_WEEKLY_MODEL`). Mỗi người dùng tối đa 20 lượt gọi Coach mỗi phút (`COACH_RATE_LIMIT`).
+
+## AI local trên Mac (MLX)
+Chế độ riêng tư chạy model trên chính Mac Apple Silicon của bạn, dữ liệu sức khỏe không đi ra ngoài.
+1. `make llm` tự cài `mlx-lm` vào `~/.cache/healthtrack-llm/venv`, tải model rồi mở server tại `http://127.0.0.1:8090/v1` (API giống OpenAI). Lần đầu tải vài GB. `make llm-stop` để tắt, `make llm-bench` để đo tốc độ.
+2. Model mặc định `mlx-community/Qwen3.5-9B-MLX-4bit`; đổi bằng `LLM_MODEL=... make llm`.
+3. Backend chạy trong Docker trên cùng Mac: đặt `LOCAL_LLM_URL=http://host.docker.internal:8090/v1` trong `.env` rồi `make up`.
+4. Backend trên Render không với tới Mac trong mạng nhà. Muốn dùng từ xa, mở Tailscale hoặc Cloudflare Tunnel từ Mac, đặt `LOCAL_LLM_URL` trỏ tới đó và đặt `LOCAL_LLM_API_KEY` để bảo vệ.
+5. `GET /coach/providers` cho biết nguồn nào đang dùng được; `POST /coach/chat` nhận `provider` là `auto` (ưu tiên local, mất kết nối thì dùng Claude), `local` hoặc `claude`.
+
+Model local chỉ trả lời dựa trên số liệu được tóm tắt sẵn trong lời nhắc; ghi chỉ số bằng câu tự nhiên cần Claude (tool use).

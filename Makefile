@@ -37,6 +37,17 @@ test: ## Test backend
 lint:
 	docker compose exec backend ruff check .
 
+## ---------- AI local (MLX trên Mac Apple Silicon) ----------
+llm: ## Chạy server MLX (lần đầu tự cài và tải model)
+	./scripts/local-llm.sh setup
+	./scripts/local-llm.sh start
+
+llm-stop:
+	./scripts/local-llm.sh stop
+
+llm-bench: ## Đo tok/s của model đang chạy
+	./scripts/local-llm.sh bench
+
 ## ---------- Mobile (Flutter, chạy trực tiếp trên Mac) ----------
 mobile-setup: ## Cài package Flutter (plugin iOS dùng Swift Package Manager, không cần pod install)
 	cd mobile && flutter pub get
