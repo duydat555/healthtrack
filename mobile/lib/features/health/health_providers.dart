@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../gamification/models.dart';
 import 'health_repository.dart';
 import 'models.dart';
 
@@ -178,10 +179,20 @@ final trendSeriesProvider = FutureProvider.autoDispose
           .statsTrendSeries(q.metric, range: q.range),
     );
 
+final gamificationProvider = FutureProvider.autoDispose<GamificationSummary>(
+  (ref) => ref.watch(healthRepositoryProvider).gamificationSummary(),
+);
+
+final achievementsProvider = FutureProvider.autoDispose<List<Achievement>>(
+  (ref) => ref.watch(healthRepositoryProvider).achievements(),
+);
+
 /// Làm mới mọi dữ liệu hiển thị sau khi ghi thêm.
 void refreshHealthData(WidgetRef ref) {
   ref
     ..invalidate(todaySummaryProvider)
+    ..invalidate(gamificationProvider)
+    ..invalidate(achievementsProvider)
     ..invalidate(bodyDataProvider)
     ..invalidate(goalsProvider)
     ..invalidate(medicationsProvider)

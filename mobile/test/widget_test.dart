@@ -9,7 +9,8 @@ void main() {
   ) async {
     await pumpApp(tester);
     expect(find.text('Hôm nay'), findsWidgets);
-    expect(find.byType(ActivityRings), findsOneWidget);
+    // vòng 3 chỉ số hôm nay và vòng Health Score
+    expect(find.byType(ActivityRings), findsNWidgets(2));
     // 500 + 300 ml nước hôm nay, mục tiêu mặc định 2 lít
     expect(find.textContaining('0,8', findRichText: true), findsWidgets);
     expect(find.textContaining('/2 lít', findRichText: true), findsOneWidget);

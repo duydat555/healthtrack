@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/api_client.dart';
+import '../gamification/models.dart';
 import 'models.dart';
 
 /// Gọi các endpoint dữ liệu sức khỏe. Thời gian gửi lên là UTC.
@@ -42,6 +43,25 @@ class HealthRepository {
       queryParameters: {'tz_offset': _tzOffset},
     );
     return StatsSummary.fromJson(res.data!);
+  }
+
+  Future<GamificationSummary> gamificationSummary() async {
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/gamification/summary',
+      queryParameters: {'tz_offset': _tzOffset},
+    );
+    return GamificationSummary.fromJson(res.data!);
+  }
+
+  Future<List<Achievement>> achievements() async {
+    final res = await _dio.get<List<dynamic>>(
+      '/gamification/achievements',
+      queryParameters: {'tz_offset': _tzOffset},
+    );
+    return [
+      for (final j in res.data!)
+        Achievement.fromJson(j as Map<String, dynamic>),
+    ];
   }
 
   /// Giá trị theo ngày của một chỉ số, cũ trước và hôm nay ở cuối; ngày không có dữ liệu là null.
