@@ -118,9 +118,10 @@ def week_start(tz_offset: int) -> Any:
 
 
 async def weekly_insight(
-    db: AsyncSession, user: User, client: Any, tz_offset: int
+    db: AsyncSession, user: User, client: Any, tz_offset: int, *, local: bool = False
 ) -> WeeklyInsight:
-    """Nhận xét của tuần hiện tại; sinh một lần rồi lưu lại."""
+    """Nhận xét của tuần hiện tại; sinh một lần rồi lưu lại. `local=True` dùng AI local
+    (server MLX), khi đó `client` không cần."""
     start = week_start(tz_offset)
     row = (
         await db.execute(
@@ -133,19 +134,24 @@ async def weekly_insight(
         stats = await coach_tools.get_stats(db, user, 7, tz_offset)
         goals = await coach_tools.get_goals(db, user)
         digest = json.dumps({"stats": stats, "goals": goals}, ensure_ascii=False)
-        response = await client.messages.create(
-            model=settings.COACH_WEEKLY_MODEL,
-            max_tokens=1000,
-            system=WEEKLY_PROMPT,
-            messages=[{"role": "user", "content": digest}],
-        )
-        if response.stop_reason == "refusal":
-            text = REFUSAL_TEXT
+        if local:
+            from app.services import coach_local
+
+            text = await coach_local.complete(WEEKLY_PROMPT, digest)
+            model = settings.LOCAL_LLM_MODEL.rsplit("/", 1)[-1][:60]
         else:
-            text = "".join(b.text for b in response.content if b.type == "text").strip()
-        row = CoachInsight(
-            user_id=user.id, week_start=start, content=text, model=settings.COACH_WEEKLY_MODEL
-        )
+            response = await client.messages.create(
+                model=settings.COACH_WEEKLY_MODEL,
+                max_tokens=1000,
+                system=WEEKLY_PROMPT,
+                messages=[{"role": "user", "content": digest}],
+            )
+            if response.stop_reason == "refusal":
+                text = REFUSAL_TEXT
+            else:
+                text = "".join(b.text for b in response.content if b.type == "text").strip()
+            model = settings.COACH_WEEKLY_MODEL
+        row = CoachInsight(user_id=user.id, week_start=start, content=text, model=model)
         db.add(row)
         await db.commit()
     return WeeklyInsight(week_start=row.week_start, content=row.content, model=row.model)

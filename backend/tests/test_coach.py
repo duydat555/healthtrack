@@ -70,6 +70,14 @@ class FakeClient:
         return self.script.pop(0)[1]
 
 
+@pytest.fixture(autouse=True)
+def no_real_local_llm(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test không được gọi server MLX thật dù .env trên máy có cấu hình."""
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "LOCAL_LLM_URL", "")
+
+
 @pytest.fixture
 def use_client() -> Iterator[Any]:
     coach_limiter.reset()
@@ -338,3 +346,17 @@ def test_think_filter_handles_split_tags() -> None:
     f = _ThinkFilter()
     parts = ["Xin <th", "ink>bí mật</th", "ink>\nChào", " bạn"]
     assert "".join(f.feed(p) for p in parts) + f.flush() == "Xin Chào bạn"
+
+
+async def test_weekly_works_with_local_only(
+    client: AsyncClient, use_client: Any, local_llm: Any
+) -> None:
+    use_client(None)  # không có khóa Claude
+    local_llm["lines"] = sse_lines("<think>x</think>Tuần ", "tốt.")
+    h = await auth_headers(client)
+    first = (await client.get(WEEKLY, headers=h)).json()
+    second = (await client.get(WEEKLY, headers=h)).json()
+    assert first == second
+    assert first["content"] == "Tuần tốt."
+    assert first["model"] == "Qwen3.5-9B-MLX-4bit"
+    assert len(local_llm["bodies"]) == 1
