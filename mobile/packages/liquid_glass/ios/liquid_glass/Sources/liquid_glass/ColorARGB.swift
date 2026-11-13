@@ -30,3 +30,14 @@ final class HostedPlatformView<Content: View>: NSObject, FlutterPlatformView {
 
     func view() -> UIView { host.view }
 }
+
+extension UIColor {
+    /// Màu từ số ARGB 32 bit mà Dart gửi sang (`Color.toARGB32()`).
+    convenience init(argb: Int) {
+        self.init(
+            red: CGFloat((argb >> 16) & 0xFF) / 255,
+            green: CGFloat((argb >> 8) & 0xFF) / 255,
+            blue: CGFloat(argb & 0xFF) / 255,
+            alpha: CGFloat((argb >> 24) & 0xFF) / 255)
+    }
+}

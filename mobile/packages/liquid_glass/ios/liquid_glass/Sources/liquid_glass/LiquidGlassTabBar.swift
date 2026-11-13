@@ -198,6 +198,11 @@ final class LiquidGlassTabBarFactory: NSObject, FlutterPlatformViewFactory {
         let items = (params["items"] as? [[String: Any]] ?? []).enumerated().map { index, raw in
             TabItem(id: index, title: raw["title"] as? String ?? "", symbol: raw["symbol"] as? String ?? "circle")
         }
+        let channel = FlutterMethodChannel(name: "\(Self.viewType)/\(viewId)", binaryMessenger: messenger)
+        // iOS 26+: dùng UITabBar thật của hệ thống để có đủ hiệu ứng thấu kính của Apple
+        if #available(iOS 26.0, *) {
+            return NativeTabBarPlatformView(frame: frame, params: params, channel: channel)
+        }
         let tint = (params["tint"] as? Int).map { Color(argb: $0) } ?? .green
         let model = TabBarModel(
             items: items,
@@ -205,7 +210,6 @@ final class LiquidGlassTabBarFactory: NSObject, FlutterPlatformViewFactory {
             tint: tint,
             showsAdd: params["showsAdd"] as? Bool ?? true
         )
-        let channel = FlutterMethodChannel(name: "\(Self.viewType)/\(viewId)", binaryMessenger: messenger)
         model.onSelect = { channel.invokeMethod("onSelect", arguments: $0) }
         model.onAdd = { channel.invokeMethod("onAdd", arguments: nil) }
         // Dart báo tab đang chọn (khi đổi do go_router hoặc code), cập nhật lại giao diện.

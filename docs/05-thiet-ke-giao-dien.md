@@ -54,21 +54,17 @@ Chỉ dùng để báo điều gì vừa thay đổi: vòng đầy lên khi mở
 
 ## Thanh tab Liquid Glass (`LiquidGlassTabBar`)
 
-**Kiến trúc.** Dart (`mobile/lib/app/app_shell.dart`) giữ trạng thái điều hướng bằng `StatefulNavigationShell` của go_router. Thanh tab là một Platform View (`UiKitView`, `healthtrack/liquid_glass_tab_bar`) do Swift vẽ (`LiquidGlassTabBar.swift`); Dart gửi `setSelected`, Swift gửi `onSelect` và `onAdd` qua MethodChannel, nên chỉ có một nguồn trạng thái là go_router.
+**Kiến trúc.** Dart (`mobile/lib/app/app_shell.dart`) giữ trạng thái điều hướng bằng `StatefulNavigationShell` của go_router. Thanh tab là một Platform View (`UiKitView`, `healthtrack/liquid_glass_tab_bar`); Dart gửi `setSelected`, Swift gửi `onSelect` và `onAdd` qua MethodChannel, nên chỉ có một nguồn trạng thái là go_router.
 
-**API iOS 26+ (công khai, đã kiểm trên SDK Xcode 27.2):** `GlassEffectContainer`, `glassEffect(_:in:)`, `.interactive()`, `.tint()` và `glassEffectID(_:in:)`. Thanh tab là một viên kính; tab đang chọn là một thấu kính kính thứ hai mang `glassEffectID("lens")`, nên khi đổi tab hệ thống tự chảy và hòa kính từ vị trí cũ sang mới (không dùng phóng to hay làm mờ giả). Nút `+` là viên kính riêng có tint thương hiệu, để tách khỏi nhóm tab và dễ chạm.
+**iOS 26+: `UITabBarController` thật của hệ thống** (`NativeTabBar.swift`). Thấu kính chọn tab, hiệu ứng nhấn giữ phình ra và kéo qua các tab, khúc xạ ở rìa kính, haptic và trợ năng (VoiceOver, Giảm trong suốt, Giảm chuyển động) đều là hành vi có sẵn của hệ thống. Bài học: đã thử tự vẽ bằng SwiftUI (`GlassEffectContainer`, `glassEffectID`, cử chỉ kéo tự viết) nhưng không tái tạo được hiệu ứng thấu kính của Apple; các package Flutter làm thanh tab iOS 26 (ví dụ `native_glass_navbar`, `real_liquid_glass`) đều nhúng `UITabBar` thật. Nút thêm nhanh `+` là `UIButton` với `UIButton.Configuration.prominentGlass()`, đứng riêng bên phải để không ảnh hưởng số tab.
 
-**Nhấn giữ và kéo.** Một `DragGesture(minimumDistance: 0)` phủ cả thanh tab: nhấn là thấu kính phình to ra ngoài thanh (như Apple Music) và chạy liên tục theo ngón tay, tab dưới thấu kính được phóng to, có haptic khi qua mỗi tab; thả tay thì thấu kính co lại vào tab gần nhất và mới chuyển tab. Chỉ có một thấu kính duy nhất, nằm dưới nhãn. Chạm nhanh cũng đi qua cử chỉ này. VoiceOver dùng `accessibilityAction` trên từng tab.
+**Chế độ sáng/tối.** `overrideUserInterfaceStyle` theo nền của app, không theo cài đặt hệ thống. Màu thương hiệu đặt qua `tabBar.tintColor`.
 
-**Tương phản.** Icon tab đang chọn mang màu thương hiệu; chữ dùng màu chính để đủ tương phản trên kính. Kính lấy màu từ nội dung phía sau, không tô màu thương hiệu lên cả thanh.
-
-**Chế độ sáng/tối.** `HostedPlatformView` ép `overrideUserInterfaceStyle` theo nền của app, nên kính và chữ luôn khớp nền dù cài đặt hệ thống khác.
-
-**Trợ năng.** Giảm trong suốt do hệ thống tự áp dụng cho kính; Giảm chuyển động tắt animation lò xo của thanh (`accessibilityReduceMotion`). Nhãn VoiceOver giữ nguyên, tab đang chọn có trait `isSelected`.
+**iOS dưới 26.** Dùng thanh SwiftUI cũ (`LiquidGlassTabBar.swift`, `.ultraThinMaterial`).
 
 **Dự phòng (không phải Liquid Glass thật).** iOS dưới 26 dùng `.ultraThinMaterial` trong SwiftUI; Android và test dùng `BackdropFilter` + `ImageFilter.blur` của Flutter. Đây chỉ là mờ nền, không có khúc xạ quang học.
 
-**Hiệu năng.** Chỉ một Platform View cho thanh tab, không có vòng animation chạy nền; chuyển động do Core Animation của hệ thống xử lý.
+**Hiệu năng.** Chỉ một Platform View cho thanh tab, không có vòng animation chạy nền; chuyển động do hệ thống xử lý.
 
 **Giới hạn đã biết.** Khúc xạ ở rìa kính do hệ thống quyết định và phụ thuộc vào Flutter texture phía sau; không thể chỉnh độ khúc xạ. Thương hiệu hiện là đỏ `AppColors.brand` (Mực biển), không phải vàng.
 
