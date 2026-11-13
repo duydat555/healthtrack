@@ -107,10 +107,12 @@ async def weekly(
     user: CurrentUser, db: DbSession, client: CoachClient, tz_offset: TzOffset = 0
 ) -> WeeklyInsight:
     """Nhận xét tuần này; lưu lại nên các lần gọi sau trong tuần không tốn thêm."""
-    _need_claude(client)
+    use_local = await coach_local.is_available()
+    if not use_local:
+        _need_claude(client)
     _limit(user.id)
     try:
-        return await coach_service.weekly_insight(db, user, client, tz_offset)
+        return await coach_service.weekly_insight(db, user, client, tz_offset, local=use_local)
     except Exception:
         raise HTTPException(
             status.HTTP_502_BAD_GATEWAY, "Không tạo được nhận xét lúc này"

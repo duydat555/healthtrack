@@ -100,6 +100,29 @@ class _ThinkFilter:
         return rest
 
 
+async def complete(system: str, user_text: str) -> str:
+    """Một lượt hỏi, gom lại thành một chuỗi (dùng cho nhận xét tuần)."""
+    body = {
+        "model": settings.LOCAL_LLM_MODEL,
+        "stream": True,
+        "max_tokens": 800,
+        "chat_template_kwargs": {"enable_thinking": False},
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user_text},
+        ],
+    }
+    think = _ThinkFilter()
+    out = ""
+    async for line in _lines(body):
+        if not line.startswith("data:") or line.endswith("[DONE]"):
+            continue
+        choices = json.loads(line[5:]).get("choices") or [{}]
+        if delta := (choices[0].get("delta") or {}).get("content"):
+            out += think.feed(delta)
+    return (out + think.flush()).strip()
+
+
 async def stream_chat(
     db: AsyncSession, user: User, messages: list[CoachMessage], tz_offset: int
 ) -> AsyncIterator[dict[str, Any]]:
@@ -128,4 +151,4 @@ async def stream_chat(
     yield {"type": "done"}
 
 
-__all__ = ["SYSTEM_PROMPT", "configured", "is_available", "stream_chat"]
+__all__ = ["SYSTEM_PROMPT", "complete", "configured", "is_available", "stream_chat"]
