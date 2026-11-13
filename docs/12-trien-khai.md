@@ -92,3 +92,12 @@ Chế độ riêng tư chạy model trên chính Mac Apple Silicon của bạn, 
 5. `GET /coach/providers` cho biết nguồn nào đang dùng được; `POST /coach/chat` nhận `provider` là `auto` (ưu tiên local, mất kết nối thì dùng Claude), `local` hoặc `claude`.
 
 Model local chỉ trả lời dựa trên số liệu được tóm tắt sẵn trong lời nhắc; ghi chỉ số bằng câu tự nhiên cần Claude (tool use).
+
+### Kết quả đo AI local (Mac mini M6, 32 GB RAM, 13/11/2026)
+Đo bằng `make llm-bench` với một câu hỏi tiếng Việt, tắt chế độ suy nghĩ.
+
+| Model | Thời gian tới token đầu | Tốc độ sinh | RAM tiến trình |
+|---|---|---|---|
+| `mlx-community/Qwen3.5-9B-MLX-4bit` | 0,23 giây | khoảng 25 token/giây | khoảng 4 GB |
+
+Chọn Qwen3.5 9B 4-bit làm mặc định: trả lời tiếng Việt tự nhiên, đủ nhanh để hiện từng chữ và còn dư RAM. Đã thử đầu cuối: app gọi backend (Docker), backend đọc số liệu của người dùng demo và gọi server MLX, câu trả lời dựa đúng trên số liệu đó. Lần đầu bật server mất thêm vài phút để tải khoảng 5,9 GB.
