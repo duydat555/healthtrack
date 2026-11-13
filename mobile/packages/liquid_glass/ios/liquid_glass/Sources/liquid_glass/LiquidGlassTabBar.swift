@@ -36,6 +36,9 @@ struct LiquidGlassTabBarView: View {
     @ObservedObject var model: TabBarModel
     @Namespace private var glassNS
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var dragIndex: Int?
+    @State private var barWidth: CGFloat = 1
+    private let haptic = UISelectionFeedbackGenerator()
 
     private var spring: Animation? {
         reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.78)
@@ -65,40 +68,75 @@ struct LiquidGlassTabBarView: View {
         }
     }
 
+    /// Tab đang hiển thị là đang chọn: khi đang kéo thì là tab dưới ngón tay.
+    private var shownIndex: Int { dragIndex ?? model.selected }
+
+    private func index(at x: CGFloat) -> Int {
+        let inner = max(barWidth - 8, 1)
+        let i = Int((x - 4) / inner * CGFloat(model.items.count))
+        return min(max(i, 0), model.items.count - 1)
+    }
+
     private func tabs(native: Bool) -> some View {
         HStack(spacing: 0) {
             ForEach(model.items) { item in
-                tabButton(item, native: native)
+                tabLabel(item, native: native)
             }
         }
         .padding(4)
-        .animation(spring, value: model.selected)
+        .background(
+            GeometryReader { g in
+                Color.clear.task(id: g.size.width) { barWidth = g.size.width }
+            }
+        )
+        .contentShape(Rectangle())
+        // Nhấn giữ rồi kéo qua các tab: thấu kính chạy theo ngón tay, thả tay mới chuyển tab.
+        // Chạm nhanh cũng đi qua đây nên một cử chỉ lo cả hai trường hợp.
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { value in
+                    let i = index(at: value.location.x)
+                    if i != dragIndex {
+                        if dragIndex != nil { haptic.selectionChanged() }
+                        dragIndex = i
+                    }
+                }
+                .onEnded { value in
+                    let i = index(at: value.location.x)
+                    dragIndex = nil
+                    if i != model.selected {
+                        model.selected = i
+                        model.onSelect(i)
+                    }
+                }
+        )
+        .animation(spring, value: shownIndex)
+        .accessibilityElement(children: .contain)
     }
 
     @ViewBuilder
-    private func tabButton(_ item: TabItem, native: Bool) -> some View {
-        let isSelected = item.id == model.selected
-        Button {
+    private func tabLabel(_ item: TabItem, native: Bool) -> some View {
+        let isSelected = item.id == shownIndex
+        VStack(spacing: 2) {
+            // Icon mang màu thương hiệu; chữ dùng màu chính để đủ tương phản trên kính
+            Image(systemName: item.symbol)
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(isSelected ? model.tint : Color.secondary)
+            Text(item.title)
+                .font(.system(size: 10, weight: isSelected ? .semibold : .medium))
+                .lineLimit(1)
+                .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background { lens(isSelected: isSelected, native: native) }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(item.title)
+        .accessibilityAddTraits(item.id == model.selected ? [.isButton, .isSelected] : .isButton)
+        .accessibilityAction {
             model.selected = item.id
             model.onSelect(item.id)
-        } label: {
-            VStack(spacing: 2) {
-                // Icon mang màu thương hiệu; chữ dùng màu chính để đủ tương phản trên kính
-                Image(systemName: item.symbol)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(isSelected ? model.tint : Color.secondary)
-                Text(item.title)
-                    .font(.system(size: 10, weight: isSelected ? .semibold : .medium))
-                    .lineLimit(1)
-                    .foregroundStyle(isSelected ? Color.primary : Color.secondary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .background { lens(isSelected: isSelected, native: native) }
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(item.title)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     /// Thấu kính của tab đang chọn: kính thật (iOS 26+) hoặc viên màu nhạt (iOS cũ hơn).
