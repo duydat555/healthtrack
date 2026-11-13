@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     auth,
+    coach,
     gamification,
     goals,
     health,
@@ -34,3 +35,4 @@ api_router.include_router(goals.router)
 api_router.include_router(stats.router)
 api_router.include_router(gamification.router)
 api_router.include_router(sync.router)
+api_router.include_router(coach.router)

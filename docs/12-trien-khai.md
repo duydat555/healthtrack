@@ -74,3 +74,6 @@ Neon và Supabase còn có sao lưu/khôi phục theo thời điểm trong trang
 - **Dán chuỗi Neon bị xuống dòng thành dấu cách**: `...ap-southeast 1.aws...` thay vì `ap-southeast-1`. Backend báo `socket.gaierror: Name or service not known`, Render báo "Port scan timeout" và deploy `update_failed`. Khi dán `DATABASE_URL`, kiểm tra chuỗi nằm trên một dòng, không có dấu cách.
 - **Địa chỉ Render có hậu tố ngẫu nhiên** (`-w0sm`), nên `CORS_ORIGINS` đặt theo `healthtrack-api.onrender.com` là sai. Dùng địa chỉ thật hiển thị trên Render.
 - **Deploy Hook không lấy được qua API Render**, phải sao chép từ *Settings > Deploy Hook* trong giao diện.
+
+## AI Coach (Claude)
+Thêm biến môi trường `ANTHROPIC_API_KEY` trên Render (mục Environment) để bật `/api/v1/coach`. Để trống thì Coach trả 503 và phần còn lại của API chạy bình thường. Model mặc định: chat `claude-haiku-5-5`, nhận xét tuần `claude-sonnet-5-5` (đổi bằng `COACH_CHAT_MODEL`, `COACH_WEEKLY_MODEL`). Mỗi người dùng tối đa 20 lượt gọi Coach mỗi phút (`COACH_RATE_LIMIT`).
