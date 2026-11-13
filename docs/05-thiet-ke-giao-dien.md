@@ -58,7 +58,7 @@ Chỉ dùng để báo điều gì vừa thay đổi: vòng đầy lên khi mở
 
 **iOS 26+: `UITabBarController` thật của hệ thống** (`NativeTabBar.swift`). Thấu kính chọn tab, hiệu ứng nhấn giữ phình ra và kéo qua các tab, khúc xạ ở rìa kính, haptic và trợ năng (VoiceOver, Giảm trong suốt, Giảm chuyển động) đều là hành vi có sẵn của hệ thống. Bài học: đã thử tự vẽ bằng SwiftUI (`GlassEffectContainer`, `glassEffectID`, cử chỉ kéo tự viết) nhưng không tái tạo được hiệu ứng thấu kính của Apple; các package Flutter làm thanh tab iOS 26 (ví dụ `native_glass_navbar`, `real_liquid_glass`) đều nhúng `UITabBar` thật. Nút thêm nhanh `+` là `UIButton` với `UIButton.Configuration.prominentGlass()`, đứng riêng bên phải để không ảnh hưởng số tab.
 
-**Chế độ sáng/tối.** `overrideUserInterfaceStyle` theo nền của app, không theo cài đặt hệ thống. Màu thương hiệu đặt qua `tabBar.tintColor`.
+**Kích thước và vị trí.** Chiều cao viên kính do hệ thống quyết định (khoảng 60 đến 62pt, theo báo cáo của developer trên diễn đàn Apple, không có số chính thức). Platform View phải kéo dài xuống sát đáy màn hình (cao `LiquidGlassTabBar.height` cộng lề an toàn dưới, không bọc `SafeArea`) để `UITabBar` tự đặt lề dưới như app Apple: viên kính nằm trong vùng home indicator, cách đáy khoảng 22 đến 24pt. Đặt Platform View phía trên vùng an toàn thì thanh bị nổi cao. Nút `+` căn theo tâm viên kính thật (tìm theo hình học, không dùng tên lớp riêng tư).\n\n**Chế độ sáng/tối.** `overrideUserInterfaceStyle` theo nền của app, không theo cài đặt hệ thống. Màu thương hiệu đặt qua `tabBar.tintColor`.
 
 **iOS dưới 26.** Dùng thanh SwiftUI cũ (`LiquidGlassTabBar.swift`, `.ultraThinMaterial`).
 

@@ -39,25 +39,23 @@ class AppShell extends StatelessWidget {
         backgroundColor: Colors.transparent,
         extendBody: true,
         body: navigationShell,
-        bottomNavigationBar: SafeArea(
-          minimum: const EdgeInsets.only(bottom: 8),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            child: Semantics(
-              container: true,
-              label: 'Thanh điều hướng chính gồm 4 mục và nút thêm nhanh',
-              child: LiquidGlassTabBar(
-                items: _tabs,
-                tint: context.colors.brand,
-                dark: context.isDark,
-                currentIndex: navigationShell.currentIndex,
-                onTap: (i) => navigationShell.goBranch(
-                  i,
-                  // Chạm lại tab đang chọn thì quay về màn hình gốc của tab đó
-                  initialLocation: i == navigationShell.currentIndex,
-                ),
-                onAdd: () => context.push('/add'),
+        // Không bọc SafeArea: thanh tab tự xử lý lề dưới (xem LiquidGlassTabBar)
+        bottomNavigationBar: Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Semantics(
+            container: true,
+            label: 'Thanh điều hướng chính gồm 4 mục và nút thêm nhanh',
+            child: LiquidGlassTabBar(
+              items: _tabs,
+              tint: context.colors.brand,
+              dark: context.isDark,
+              currentIndex: navigationShell.currentIndex,
+              onTap: (i) => navigationShell.goBranch(
+                i,
+                // Chạm lại tab đang chọn thì quay về màn hình gốc của tab đó
+                initialLocation: i == navigationShell.currentIndex,
               ),
+              onAdd: () => context.push('/add'),
             ),
           ),
         ),
