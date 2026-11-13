@@ -254,6 +254,7 @@ Future<T?> showAppBottomSheet<T>({
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
+    useRootNavigator: true,
     backgroundColor: context.colors.card,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(

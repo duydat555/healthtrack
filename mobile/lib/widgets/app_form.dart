@@ -20,6 +20,7 @@ class AppTextField extends StatelessWidget {
     this.autofocus = false,
     this.inputFormatters,
     this.helperText,
+    this.errorText,
     this.fillColor,
     this.textAlign = TextAlign.start,
   });
@@ -37,6 +38,7 @@ class AppTextField extends StatelessWidget {
   final bool autofocus;
   final List<TextInputFormatter>? inputFormatters;
   final String? helperText;
+  final String? errorText;
   final Color? fillColor;
   final TextAlign textAlign;
 
@@ -60,6 +62,7 @@ class AppTextField extends StatelessWidget {
         suffixText: suffixText,
         suffixStyle: TextStyle(color: context.colors.inkSoft, fontSize: 17),
         helperText: helperText,
+        errorText: errorText,
         helperStyle: TextStyle(color: context.colors.inkSoft),
         labelStyle: TextStyle(color: context.colors.inkSoft),
         floatingLabelStyle: TextStyle(color: context.colors.brandText),

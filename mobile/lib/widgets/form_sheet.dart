@@ -53,6 +53,8 @@ Future<bool?> showFormSheet({
   return showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
+    // Navigator gốc: sheet phủ cả thanh tab nổi (nếu không thanh tab native vẽ đè lên form)
+    useRootNavigator: true,
     useSafeArea: true,
     enableDrag: false,
     backgroundColor: context.colors.background,
