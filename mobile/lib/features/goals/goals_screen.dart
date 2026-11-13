@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:liquid_glass/liquid_glass.dart';
 
 import '../../core/api_client.dart';
 import '../../core/format.dart';
@@ -79,7 +78,7 @@ class GoalsScreen extends ConsumerWidget {
             16,
             12,
             16,
-            LiquidGlassTabBar.height + 48,
+            AppLayout.tabBarInset(context),
           ),
           children: [
             Semantics(
@@ -233,7 +232,7 @@ class _GoalTile extends ConsumerWidget {
             trailing: Text(
               target == null ? 'Đặt' : 'Sửa',
               style: TextStyle(
-                color: context.colors.brand,
+                color: context.colors.brandText,
                 fontWeight: FontWeight.w600,
               ),
             ),

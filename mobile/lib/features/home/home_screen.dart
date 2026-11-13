@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:liquid_glass/liquid_glass.dart';
 
 import '../../core/api_client.dart';
 import '../../core/format.dart';
@@ -33,7 +32,7 @@ class HomeScreen extends ConsumerWidget {
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          color: context.colors.brand,
+          color: context.colors.brandText,
           onRefresh: () async {
             refreshHealthData(ref);
             refreshStepMealData(ref);
@@ -52,7 +51,7 @@ class HomeScreen extends ConsumerWidget {
               16,
               12,
               16,
-              LiquidGlassTabBar.height + 48,
+              AppLayout.tabBarInset(context),
             ),
             children: [
               const _AutoSync(),

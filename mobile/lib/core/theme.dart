@@ -1,30 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_glass/liquid_glass.dart' show LiquidGlassTabBar;
 
 /// Màu và kiểu chữ dùng chung. Không hard-code màu trong màn hình, hãy lấy từ đây
 /// hoặc qua `context.colors` để hỗ trợ cả Light Mode và Dark Mode.
 abstract final class AppColors {
-  // Nền và chữ (Dark Mode mặc định theo phong cách Fitness)
-  // "Mực biển": nền xanh đêm thay cho đen tuyền, thẻ nổi lên bằng sắc xanh chứ không bằng viền.
-  static const background = Color(0xFF0A1A2A);
-  static const card = Color(0xFF12293D);
-  static const cardHigh = Color(0xFF1B3A55);
-  static const separator = Color(0xFF2A4A66);
-  static const ink = Color(0xFFF2F7F5);
+  // "Calm Health": nền đen tuyền kiểu Apple Fitness, thẻ xám than nổi lên bằng sắc nền chứ không bằng viền.
+  static const background = Color(0xFF000000);
+  static const card = Color(0xFF1C1C1E);
+  static const cardHigh = Color(0xFF2C2C2E);
+  static const separator = Color(0xFF38383A);
+  static const ink = Color(0xFFF5F5F7);
 
-  // Issue #100: Tăng độ tương phản chữ phụ/nhãn tab (xám sáng hơn đạt contrast >= 4.5:1)
-  static const inkSoft = Color(0xFF9FB6C4);
+  // Chữ phụ đạt >= 4.5:1 trên nền và thẻ
+  static const inkSoft = Color(0xFF9E9EA6);
 
-  // Issue #101: Màu nhấn của từng chỉ số (cũng là màu của vòng Activity Rings)
-  static const steps = Color(0xFFFF8A4C); // bước chân: cam hổ phách
+  // Màu nhấn của từng chỉ số (cũng là màu của vòng Activity Rings). Chỉ dùng để phân biệt
+  // loại dữ liệu, không phải màu thương hiệu.
+  static const steps = Color(0xFF30D158); // bước chân: xanh lá
   static const meds = Color(0xFFFF6F61); // thuốc (vòng thứ nhất): san hô
-  static const sleep = Color(0xFFA08CFF); // giấc ngủ: tím phấn
-  static const water = Color(0xFF38D6C9); // nước uống: ngọc lam
-  static const weight = Color(0xFFE8C547); // cân nặng: vàng nắng
-  static const meal = Color(0xFFF26D9B); // bữa ăn: hồng cánh sen
+  static const sleep = Color(0xFFB39DFF); // giấc ngủ: tím nhạt
+  static const water = Color(0xFF32D4E8); // nước uống: cyan
+  static const weight = Color(0xFFFFB340); // cân nặng: vàng hổ phách ấm
+  static const meal = Color(0xFFF26D9B); // bữa ăn: hồng
   static const medicine = Color(0xFF5AA9FF); // thuốc: xanh trời
 
-  /// Màu thương hiệu: nút nổi, tab đang chọn. Chữ trắng trên màu này đạt 4.5:1.
-  static const brand = Color(0xFFD93A2E);
+  /// Màu thương hiệu: vàng. Dùng để tô nút chính, tab đang chọn, điểm nhấn. Chữ/icon đặt
+  /// trên nền này phải dùng [onBrand]; chữ màu thương hiệu trên nền thường dùng `brandText`.
+  static const brand = Color(0xFFFFD60A);
+  static const onBrand = Color(0xFF1C1C1E);
   static const danger = Color(0xFFFF6B6B);
 }
 
@@ -48,6 +51,14 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
     required this.medicine,
     required this.brand,
     required this.danger,
+    required this.backgroundSecondary,
+    required this.textTertiary,
+    required this.border,
+    required this.onBrand,
+    required this.brandText,
+    required this.success,
+    required this.warning,
+    required this.disabled,
   });
 
   final bool isDark;
@@ -67,6 +78,26 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
   final Color brand;
   final Color danger;
 
+  /// Nền lõm phụ (ô nhập, vùng nhóm). Khác `card` là bề mặt nổi.
+  final Color backgroundSecondary;
+
+  /// Chữ thứ ba: chỉ cho chú thích không quan trọng, không dùng cho thông tin cần đọc.
+  final Color textTertiary;
+  final Color border;
+
+  /// Chữ và icon đặt trên nền [brand].
+  final Color onBrand;
+
+  /// Chữ màu thương hiệu trên nền thường (đạt 4.5:1 ở cả sáng và tối).
+  final Color brandText;
+  final Color success;
+  final Color warning;
+  final Color disabled;
+
+  /// Tên gọi theo vai trò, trùng với `card` và `cardHigh`.
+  Color get surface => card;
+  Color get surfaceElevated => cardHigh;
+
   /// Đổi một màu nhấn của bảng màu tối (hằng `AppColors.x` khai báo ở cấp cao nhất, nơi không có
   /// `context`) sang màu tương ứng của bảng màu hiện tại. Màu lạ được giữ nguyên.
   Color adapt(Color c) {
@@ -80,6 +111,7 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
       AppColors.meal: meal,
       AppColors.medicine: medicine,
       AppColors.danger: danger,
+      AppColors.brand: brand,
       AppColors.ink: ink,
       AppColors.inkSoft: inkSoft,
     };
@@ -103,26 +135,43 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
     medicine: AppColors.medicine,
     brand: AppColors.brand,
     danger: AppColors.danger,
+    backgroundSecondary: Color(0xFF111113),
+    textTertiary: Color(0xFF8E8E93),
+    border: Color(0xFF48484A),
+    onBrand: AppColors.onBrand,
+    brandText: Color(0xFFFFD60A),
+    success: Color(0xFF30D158),
+    warning: Color(0xFFFF9F0A),
+    disabled: Color(0xFF636366),
   );
 
-  /// Bảng màu Light Mode chuẩn WCAG AA (>= 4.5:1 trên nền trắng #FFFFFF & xám nhạt #F2F2F7).
+  /// Bảng màu Light Mode kiểu Apple Health: nền xám nhạt, thẻ trắng. Màu nhấn đạt >= 4.5:1
+  /// trên thẻ trắng và nền.
   static const light = AppColorPalette(
     isDark: false,
-    background: Color(0xFFEEF4F3),
+    background: Color(0xFFF2F2F7),
     card: Color(0xFFFFFFFF),
-    cardHigh: Color(0xFFDCE8E6),
-    separator: Color(0xFFC3D3D0),
-    ink: Color(0xFF0C2233),
-    inkSoft: Color(0xFF3F5A6B),
-    steps: Color(0xFFB2470F),
+    cardHigh: Color(0xFFE5E5EA),
+    separator: Color(0xFFD1D1D6),
+    ink: Color(0xFF1C1C1E),
+    inkSoft: Color(0xFF58585E),
+    steps: Color(0xFF1B7F37),
     meds: Color(0xFFC2412F),
     sleep: Color(0xFF5B45D6),
-    water: Color(0xFF00796F),
-    weight: Color(0xFF8A6A00),
+    water: Color(0xFF00758A),
+    weight: Color(0xFF9A4F00),
     meal: Color(0xFFB8325F),
     medicine: Color(0xFF1559B8),
-    brand: Color(0xFFC2412F),
+    brand: Color(0xFFFFC400),
     danger: Color(0xFFC62828),
+    backgroundSecondary: Color(0xFFE9E9EF),
+    textTertiary: Color(0xFF6C6C70),
+    border: Color(0xFFC7C7CC),
+    onBrand: Color(0xFF1C1C1E),
+    brandText: Color(0xFF7A5700),
+    success: Color(0xFF1E7F3A),
+    warning: Color(0xFF9A5B00),
+    disabled: Color(0xFFAEAEB2),
   );
 
   @override
@@ -143,6 +192,14 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
     Color? medicine,
     Color? brand,
     Color? danger,
+    Color? backgroundSecondary,
+    Color? textTertiary,
+    Color? border,
+    Color? onBrand,
+    Color? brandText,
+    Color? success,
+    Color? warning,
+    Color? disabled,
   }) => AppColorPalette(
     isDark: isDark ?? this.isDark,
     background: background ?? this.background,
@@ -160,6 +217,14 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
     medicine: medicine ?? this.medicine,
     brand: brand ?? this.brand,
     danger: danger ?? this.danger,
+    backgroundSecondary: backgroundSecondary ?? this.backgroundSecondary,
+    textTertiary: textTertiary ?? this.textTertiary,
+    border: border ?? this.border,
+    onBrand: onBrand ?? this.onBrand,
+    brandText: brandText ?? this.brandText,
+    success: success ?? this.success,
+    warning: warning ?? this.warning,
+    disabled: disabled ?? this.disabled,
   );
 
   @override
@@ -182,6 +247,18 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
       medicine: Color.lerp(medicine, other.medicine, t)!,
       brand: Color.lerp(brand, other.brand, t)!,
       danger: Color.lerp(danger, other.danger, t)!,
+      backgroundSecondary: Color.lerp(
+        backgroundSecondary,
+        other.backgroundSecondary,
+        t,
+      )!,
+      textTertiary: Color.lerp(textTertiary, other.textTertiary, t)!,
+      border: Color.lerp(border, other.border, t)!,
+      onBrand: Color.lerp(onBrand, other.onBrand, t)!,
+      brandText: Color.lerp(brandText, other.brandText, t)!,
+      success: Color.lerp(success, other.success, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      disabled: Color.lerp(disabled, other.disabled, t)!,
     );
   }
 }
@@ -196,20 +273,34 @@ extension ThemeContextX on BuildContext {
   }
 
   bool get isDark => colors.isDark;
+
+  /// Kiểu chữ theo vai trò, đã có màu đúng của chế độ sáng/tối hiện tại.
+  AppText get text => AppText(colors);
 }
 
 abstract final class AppRadius {
-  static const card = 20.0;
-  static const control = 14.0;
-  static const sheet = 24.0;
+  static const card = 16.0;
+  static const control = 12.0;
+  static const sheet = 20.0;
   static const pill = 999.0;
 }
 
+/// Thang khoảng cách 4 / 8 / 12 / 16 / 20 / 24 / 32.
 abstract final class AppSpacing {
-  static const xs = 6.0;
-  static const sm = 10.0;
+  static const xxs = 4.0;
+  static const xs = 8.0;
+  static const sm = 12.0;
   static const md = 16.0;
+  static const ml = 20.0;
   static const lg = 24.0;
+  static const xl = 32.0;
+}
+
+/// Kích thước bố cục dùng chung.
+abstract final class AppLayout {
+  /// Đệm cuối danh sách để nội dung cuộn ra khỏi thanh tab nổi (gồm vùng home indicator).
+  static double tabBarInset(BuildContext context) =>
+      LiquidGlassTabBar.height + MediaQuery.viewPaddingOf(context).bottom + 16;
 }
 
 /// Chuyển động có chủ đích: chỉ dùng để báo điều gì vừa thay đổi (vòng đầy lên, số đếm, xác nhận ghi).
@@ -225,74 +316,106 @@ abstract final class AppMotion {
       MediaQuery.disableAnimationsOf(context) ? Duration.zero : d;
 }
 
-/// Gradient và vầng sáng theo màu của từng chỉ số, dùng cho vòng, thanh và biểu đồ.
+/// Gradient theo màu của từng chỉ số, dùng cho vòng, thanh và biểu đồ.
 extension AccentX on Color {
   /// Từ màu gốc sang một sắc sáng hơn, đi theo chiều vòng cung.
   LinearGradient get gradient => LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color.lerp(this, Colors.white, 0.28)!, this],
+    colors: [Color.lerp(this, Colors.white, 0.2)!, this],
   );
 
-  /// Vầng sáng mờ phía sau phần tử nổi bật (chỉ dùng ở Dark Mode).
+  /// Vầng sáng mờ phía sau phần tử nổi bật. Thiết kế mới hạn chế dùng; giữ để tương thích.
   List<BoxShadow> get glow => [
-    BoxShadow(color: withValues(alpha: 0.35), blurRadius: 24, spreadRadius: -4),
+    BoxShadow(color: withValues(alpha: 0.25), blurRadius: 16, spreadRadius: -4),
   ];
 }
 
-/// Họ chữ hiển thị: Bricolage Grotesque (OFL, có tiếng Việt) cho tiêu đề và số liệu.
-/// Chữ thân dùng font hệ thống để Dynamic Type và VoiceOver hoạt động chuẩn.
+/// Chữ dùng font hệ thống (SF Pro trên iOS) để Dynamic Type và VoiceOver hoạt động chuẩn.
 abstract final class AppFonts {
-  static const display = 'BricolageGrotesque';
-
-  /// Trục độ đậm và độ hẹp của font biến thiên.
-  static List<FontVariation> variation({
-    double weight = 700,
-    double width = 100,
-  }) => [
-    FontVariation('wght', weight),
-    FontVariation('wdth', width),
-    const FontVariation('opsz', 48),
-  ];
-
   /// Số liệu lớn: số có độ rộng đều để không nhảy khi đếm lên.
-  static TextStyle number(double size, {Color color = AppColors.ink}) =>
-      TextStyle(
-        fontFamily: display,
-        fontSize: size,
-        height: 1.0,
-        color: color,
-        fontVariations: variation(weight: 760, width: 92),
-        fontFeatures: const [FontFeature.tabularFigures()],
-      );
+  static TextStyle number(
+    double size, {
+    Color color = AppColors.ink,
+    FontWeight weight = FontWeight.w600,
+  }) => TextStyle(
+    fontSize: size,
+    height: 1.0,
+    color: color,
+    fontWeight: weight,
+    fontFeatures: const [FontFeature.tabularFigures()],
+  );
 }
 
-/// Hệ thống kiểu chữ chuẩn hóa cho toàn bộ ứng dụng.
+/// Kiểu chữ theo vai trò, màu lấy theo chế độ sáng/tối: `context.text.title`...
+class AppText {
+  const AppText(this.c);
+  final AppColorPalette c;
+
+  /// Tiêu đề lớn của màn hình.
+  TextStyle get largeTitle => TextStyle(
+    fontSize: 34,
+    height: 1.12,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0.37,
+    color: c.ink,
+  );
+
+  /// Đầu mục trong màn hình.
+  TextStyle get sectionTitle => TextStyle(
+    fontSize: 20,
+    height: 1.2,
+    fontWeight: FontWeight.w600,
+    color: c.ink,
+  );
+
+  TextStyle get cardTitle => TextStyle(
+    fontSize: 15,
+    height: 1.25,
+    fontWeight: FontWeight.w600,
+    color: c.ink,
+  );
+
+  /// Con số chính của thẻ số liệu.
+  TextStyle get metric => AppFonts.number(32, color: c.ink);
+
+  TextStyle get body => TextStyle(fontSize: 17, height: 1.3, color: c.ink);
+
+  TextStyle get secondary =>
+      TextStyle(fontSize: 15, height: 1.3, color: c.inkSoft);
+
+  TextStyle get caption =>
+      TextStyle(fontSize: 13, height: 1.25, color: c.inkSoft);
+
+  /// Chữ trên nút chính (nền vàng).
+  TextStyle get button =>
+      TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: c.onBrand);
+}
+
+/// Kiểu chữ tĩnh cũ, màu của Dark Mode. Màn hình mới nên dùng `context.text` để có màu đúng.
 abstract final class AppTextStyles {
-  static final pageTitle = TextStyle(
-    fontFamily: AppFonts.display,
-    fontSize: 36,
-    height: 1.05,
-    letterSpacing: -0.5,
-    fontVariations: AppFonts.variation(weight: 780, width: 90),
+  static const pageTitle = TextStyle(
+    fontSize: 34,
+    height: 1.12,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0.37,
     color: AppColors.ink,
   );
 
-  static final sectionTitle = TextStyle(
-    fontFamily: AppFonts.display,
-    fontSize: 22,
-    height: 1.15,
-    fontVariations: AppFonts.variation(weight: 700, width: 95),
-    color: AppColors.ink,
-  );
-
-  static const cardTitle = TextStyle(
-    fontSize: 16,
+  static const sectionTitle = TextStyle(
+    fontSize: 20,
+    height: 1.2,
     fontWeight: FontWeight.w600,
     color: AppColors.ink,
   );
 
-  static final metricValue = AppFonts.number(34);
+  static const cardTitle = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    color: AppColors.ink,
+  );
+
+  static final metricValue = AppFonts.number(32);
 
   static const body = TextStyle(fontSize: 15, color: AppColors.ink);
 
@@ -302,44 +425,84 @@ abstract final class AppTextStyles {
 
   static const button = TextStyle(
     fontSize: 17,
-    fontWeight: FontWeight.w700,
-    color: Colors.white,
+    fontWeight: FontWeight.w600,
+    color: AppColors.onBrand,
   );
 }
 
 abstract final class AppTheme {
-  static ThemeData get dark => ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.dark,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.brand,
-      brightness: Brightness.dark,
-    ).copyWith(surface: AppColors.background),
-    scaffoldBackgroundColor: AppColors.background,
-    appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent,
-      foregroundColor: AppColors.ink,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-    ),
-    extensions: const [AppColorPalette.dark],
-  );
+  static ThemeData get dark => _build(AppColorPalette.dark, Brightness.dark);
 
-  /// Giao diện Sáng hỗ trợ chế độ hệ thống (Light Mode) với độ tương phản WCAG AA.
-  static ThemeData get light => ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.light,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColorPalette.light.brand,
-      brightness: Brightness.light,
-    ).copyWith(surface: AppColorPalette.light.background),
-    scaffoldBackgroundColor: AppColorPalette.light.background,
-    appBarTheme: AppBarTheme(
-      backgroundColor: Colors.transparent,
-      foregroundColor: AppColorPalette.light.ink,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-    ),
-    extensions: const [AppColorPalette.light],
-  );
+  /// Giao diện Sáng (Light Mode) với độ tương phản WCAG AA.
+  static ThemeData get light => _build(AppColorPalette.light, Brightness.light);
+
+  static ThemeData _build(AppColorPalette p, Brightness b) {
+    final scheme = ColorScheme(
+      brightness: b,
+      primary: p.brand,
+      onPrimary: p.onBrand,
+      secondary: p.brand,
+      onSecondary: p.onBrand,
+      error: p.danger,
+      onError: Colors.white,
+      surface: p.card,
+      onSurface: p.ink,
+      surfaceContainerHighest: p.cardHigh,
+      onSurfaceVariant: p.inkSoft,
+      outline: p.border,
+      outlineVariant: p.separator,
+    );
+    final controlShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppRadius.control),
+    );
+    return ThemeData(
+      useMaterial3: true,
+      brightness: b,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: p.background,
+      dividerColor: p.separator,
+      dividerTheme: DividerThemeData(color: p.separator, thickness: 0.5),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        foregroundColor: p.ink,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
+      textSelectionTheme: TextSelectionThemeData(cursorColor: p.brandText),
+      switchTheme: SwitchThemeData(
+        thumbColor: const WidgetStatePropertyAll(Colors.white),
+        trackColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected)
+              ? p.brand
+              : (p.isDark ? const Color(0xFF39393D) : const Color(0xFFE0E0E5)),
+        ),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: p.brand,
+          foregroundColor: p.onBrand,
+          minimumSize: const Size(0, 50),
+          shape: controlShape,
+          textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: p.cardHigh,
+        contentTextStyle: TextStyle(fontSize: 15, color: p.ink),
+        shape: controlShape,
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: p.card,
+        modalBackgroundColor: p.card,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadius.sheet),
+          ),
+        ),
+      ),
+      extensions: [p],
+    );
+  }
 }

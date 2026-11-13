@@ -18,47 +18,46 @@ double _contrastRatio(Color foreground, Color background) {
 }
 
 void main() {
-  test('màu văn bản và chỉ số Light/Dark Mode đạt chuẩn tương phản WCAG AA (>= 4.5:1)', () {
+  test('màu chữ và màu nhấn Light/Dark Mode đạt chuẩn tương phản WCAG AA (>= 4.5:1)', () {
     for (final palette in const [AppColorPalette.light, AppColorPalette.dark]) {
+      // Chữ trên nền và trên thẻ
+      for (final text in [palette.ink, palette.inkSoft, palette.brandText]) {
+        expect(
+          _contrastRatio(text, palette.background),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(_contrastRatio(text, palette.card), greaterThanOrEqualTo(4.5));
+      }
+      // Chữ trên nền vàng thương hiệu
       expect(
-        _contrastRatio(palette.ink, palette.background),
+        _contrastRatio(palette.onBrand, palette.brand),
         greaterThanOrEqualTo(4.5),
       );
-      expect(
-        _contrastRatio(palette.ink, palette.card),
-        greaterThanOrEqualTo(4.5),
-      );
-      expect(
-        _contrastRatio(palette.inkSoft, palette.background),
-        greaterThanOrEqualTo(4.5),
-      );
-      expect(
-        _contrastRatio(palette.inkSoft, palette.card),
-        greaterThanOrEqualTo(4.5),
-      );
+      // Màu nhấn của chỉ số khi dùng làm chữ hoặc nét vẽ
+      for (final accent in [
+        palette.steps,
+        palette.meds,
+        palette.water,
+        palette.sleep,
+        palette.weight,
+        palette.meal,
+        palette.medicine,
+        palette.danger,
+        palette.success,
+        palette.warning,
+      ]) {
+        expect(
+          _contrastRatio(accent, palette.card),
+          greaterThanOrEqualTo(4.5),
+          reason: 'accent $accent trên thẻ ${palette.isDark ? "tối" : "sáng"}',
+        );
+        expect(
+          _contrastRatio(accent, palette.background),
+          greaterThanOrEqualTo(4.5),
+          reason: 'accent $accent trên nền ${palette.isDark ? "tối" : "sáng"}',
+        );
+      }
     }
-
-    // Light Mode: mọi màu nhấn đều >= 4.5:1 trên nền card trắng và nền background
-    const light = AppColorPalette.light;
-    for (final accent in [
-      light.brand,
-      light.water,
-      light.sleep,
-      light.weight,
-      light.meal,
-      light.medicine,
-      light.danger,
-    ]) {
-      expect(_contrastRatio(accent, light.card), greaterThanOrEqualTo(4.5));
-      expect(
-        _contrastRatio(accent, light.background),
-        greaterThanOrEqualTo(4.5),
-      );
-    }
-    expect(
-      _contrastRatio(Colors.white, light.brand),
-      greaterThanOrEqualTo(4.5),
-    );
   });
 
   testWidgets('app cấu hình ThemeMode.system và thích ứng Light/Dark Mode', (

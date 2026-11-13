@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:liquid_glass/liquid_glass.dart';
 
 import '../../core/api_client.dart';
 import '../../core/format.dart';
@@ -139,7 +138,10 @@ class ProfileScreen extends ConsumerWidget {
                               style: TextStyle(color: context.colors.ink),
                             ),
                             trailing: user.gender == e.key
-                                ? Icon(Icons.check, color: context.colors.brand)
+                                ? Icon(
+                                    Icons.check,
+                                    color: context.colors.brandText,
+                                  )
                                 : null,
                             onTap: () => Navigator.pop(ctx, e.key),
                           ),
@@ -255,7 +257,7 @@ class ProfileScreen extends ConsumerWidget {
                 16,
                 12,
                 16,
-                LiquidGlassTabBar.height + 48,
+                AppLayout.tabBarInset(context),
               ),
               children: [
                 Row(
@@ -560,7 +562,7 @@ class _ProfileHero extends StatelessWidget {
               ),
               child: Text(
                 initial,
-                style: AppFonts.number(28, color: Colors.white),
+                style: AppFonts.number(28, color: c.onBrand),
               ),
             ),
             const SizedBox(width: 16),

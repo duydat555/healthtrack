@@ -21,7 +21,7 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorR = color ?? context.colors.brand;
+    final colorR = color ?? context.colors.brandText;
     final child = loading
         ? SizedBox.square(
             dimension: 20,
@@ -131,7 +131,7 @@ class AppBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorR = color ?? context.colors.brand;
+    final colorR = color ?? context.colors.brandText;
     return Semantics(
       label: label,
       child: Container(
@@ -328,7 +328,9 @@ class LoadingState extends StatelessWidget {
               child: SizedBox(
                 height: height,
                 child: Center(
-                  child: CircularProgressIndicator(color: context.colors.brand),
+                  child: CircularProgressIndicator(
+                    color: context.colors.brandText,
+                  ),
                 ),
               ),
             ),
@@ -381,12 +383,15 @@ class ErrorState extends StatelessWidget {
                 onPressed: onRetry,
                 icon: Icon(
                   Icons.refresh,
-                  color: context.colors.brand,
+                  color: context.colors.brandText,
                   size: 18,
                 ),
                 label: Text(
                   retryLabel,
-                  style: TextStyle(color: context.colors.brand, fontSize: 16),
+                  style: TextStyle(
+                    color: context.colors.brandText,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),
@@ -437,7 +442,10 @@ class EmptyState extends StatelessWidget {
                   onPressed: onAction,
                   child: Text(
                     actionLabel!,
-                    style: TextStyle(color: context.colors.brand, fontSize: 15),
+                    style: TextStyle(
+                      color: context.colors.brandText,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
               ),

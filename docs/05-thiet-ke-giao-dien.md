@@ -1,43 +1,75 @@
 # Thiết kế giao diện
 
-## Hướng thẩm mỹ: "Mực biển"
-**Chủ đề:** nhật ký sức khỏe hằng ngày của người trẻ Việt Nam, mở app vài lần mỗi ngày để ghi nhanh và nhìn lại. Việc chính của giao diện là cho thấy hôm nay mình đã làm được bao nhiêu chỉ bằng một cái nhìn.
+## Hướng thẩm mỹ: "Calm Health"
+**Chủ đề:** nhật ký sức khỏe hằng ngày của người trẻ Việt Nam, mở app vài lần mỗi ngày để ghi nhanh và nhìn lại. Việc chính của giao diện là cho thấy hôm nay mình đã làm được bao nhiêu chỉ bằng một cái nhìn (trong 3 giây).
 
-**Cảm giác:** bình tĩnh như mặt nước ban đêm, con số nổi bật như đèn trên bảng điều khiển. Nền xanh biển đêm thay cho đen tuyền, mỗi chỉ số là một sắc riêng lấy từ vật thật: nước (ngọc lam), giấc ngủ (tím phấn), bước chân (cam hổ phách), cân nặng (vàng nắng), bữa ăn (hồng cánh sen), thuốc (san hô).
+**Cảm giác:** chính xác, rõ ràng, ấm và có chiều sâu. Cao cấp nhưng không phô trương, tối giản nhưng không trống, thân thiện nhưng không trẻ con, chuyên nghiệp nhưng không lạnh như bệnh viện. Đẹp nhờ phân cấp, cân đối và dễ dùng chứ không nhờ hiệu ứng.
 
-**Điểm nhấn duy nhất:** vòng hoạt động ở Tổng quan, có gradient và vầng sáng nhẹ. Mọi thứ xung quanh giữ yên tĩnh: thẻ phẳng, không viền, không bóng đổ lặp lại.
+**Hướng tham khảo:** Apple Health ở chế độ sáng (nền xám nhạt, thẻ trắng) và Apple Fitness ở chế độ tối (nền đen, thẻ xám than, vòng hoạt động). Giao diện **theo cài đặt hệ thống** (`ThemeMode.system`), cả hai chế độ được thiết kế và kiểm tra như nhau.
 
-**Đã bỏ khỏi bản cũ:** nền đen tuyền kèm màu nhấn neon (kiểu mặc định của app thể dục), nhãn chữ HOA tràn lan, thẻ nào cũng bo giống nhau.
+**Nguyên tắc nhận diện:**
+- **Màu thương hiệu là vàng.** Dùng có chủ đích: nút chính, tab đang chọn, nút `+`, điểm nhấn quan trọng. Không tô vàng cho mọi thẻ.
+- Màu của từng chỉ số chỉ để phân biệt loại dữ liệu, không phải màu thương hiệu thứ hai.
+- Thẻ nội dung là bề mặt đục, phân lớp bằng sắc nền; hầu như không viền, không bóng. Liquid Glass chỉ dành cho lớp nổi (thanh tab, nút `+`).
+- Mỗi phần tử có một lý do chức năng. Không gradient và không kính trang trí.
 
-### Bảng màu (Dark Mode là mặc định)
-| Vai trò | Tên | Dark | Light |
-|---|---|---|---|
-| Nền | Mực biển | `#0A1A2A` | `#EEF4F3` |
-| Thẻ | Nước sâu | `#12293D` | `#FFFFFF` |
-| Thẻ nâng | Sóng | `#1B3A55` | `#DCE8E6` |
-| Chữ chính | Sương | `#F2F7F5` | `#0C2233` |
-| Chữ phụ | Mây | `#9FB6C4` | `#3F5A6B` |
-| Thương hiệu, nút nổi | Đỏ son | `#D93A2E` | `#C2412F` |
+**Đã bỏ khỏi bản "Mực biển":** nền xanh đêm, thương hiệu đỏ son, font Bricolage Grotesque, tiêu đề quá to, vầng sáng quanh vòng.
+
+### Bảng màu
+| Vai trò (token) | Dark | Light |
+|---|---|---|
+| `background` (nền) | `#000000` | `#F2F2F7` |
+| `card` = `surface` (thẻ) | `#1C1C1E` | `#FFFFFF` |
+| `cardHigh` = `surfaceElevated` (thẻ nổi) | `#2C2C2E` | `#E5E5EA` |
+| `backgroundSecondary` (nền lõm: ô nhập) | `#111113` | `#E9E9EF` |
+| `ink` (chữ chính) | `#F5F5F7` | `#1C1C1E` |
+| `inkSoft` (chữ phụ) | `#9E9EA6` | `#58585E` |
+| `textTertiary` (chú thích, không dùng cho thông tin cần đọc) | `#8E8E93` | `#6C6C70` |
+| `separator` / `border` | `#38383A` / `#48484A` | `#D1D1D6` / `#C7C7CC` |
+| `brand` (vàng, màu tô) | `#FFD60A` | `#FFC400` |
+| `onBrand` (chữ/icon trên nền vàng) | `#1C1C1E` | `#1C1C1E` |
+| `brandText` (chữ màu thương hiệu trên nền thường) | `#FFD60A` | `#7A5700` |
+| `danger` / `success` / `warning` | `#FF6B6B` / `#30D158` / `#FF9F0A` | `#C62828` / `#1E7F3A` / `#9A5B00` |
+| `disabled` | `#636366` | `#AEAEB2` |
+
+Vàng tươi trên nền sáng không đủ tương phản làm chữ, nên tách ba token: `brand` để tô nền, `onBrand` cho chữ đặt trên nền vàng, `brandText` khi cần chữ hoặc icon màu thương hiệu trên nền thường.
 
 | Chỉ số | Dark | Light |
 |---|---|---|
-| Bước chân (cam hổ phách) | `#FF8A4C` | `#B2470F` |
+| Bước chân (xanh lá) | `#30D158` | `#1B7F37` |
 | Thuốc, vòng thứ nhất (san hô) | `#FF6F61` | `#C2412F` |
-| Giấc ngủ (tím phấn) | `#A08CFF` | `#5B45D6` |
-| Nước uống (ngọc lam) | `#38D6C9` | `#00796F` |
-| Cân nặng (vàng nắng) | `#E8C547` | `#8A6A00` |
-| Bữa ăn (hồng cánh sen) | `#F26D9B` | `#B8325F` |
+| Giấc ngủ (tím nhạt) | `#B39DFF` | `#5B45D6` |
+| Nước uống (cyan) | `#32D4E8` | `#00758A` |
+| Cân nặng (hổ phách ấm) | `#FFB340` | `#9A4F00` |
+| Bữa ăn (hồng) | `#F26D9B` | `#B8325F` |
 | Thuốc, thẻ (xanh trời) | `#5AA9FF` | `#1559B8` |
 
-Mọi màu chữ và màu nhấn đạt tương phản >= 4.5:1 trên nền và thẻ ở cả hai chế độ (đã kiểm bằng công thức WCAG). Chữ trắng trên nút thương hiệu đạt 4.57:1.
+Mọi màu chữ và màu nhấn đạt tương phản >= 4.5:1 trên nền và thẻ ở cả hai chế độ, kể cả `onBrand` trên `brand` (test `theme_accessibility_test.dart` kiểm bằng công thức WCAG). Không dùng màu làm tín hiệu duy nhất: kèm nhãn chữ, icon hoặc phần trăm.
 
 ### Kiểu chữ
-- **Tiêu đề và số liệu:** Bricolage Grotesque (OFL, có đủ dấu tiếng Việt), font biến thiên đóng gói tại `mobile/assets/fonts/`. Tiêu đề dùng độ đậm 700 đến 780 và hơi hẹp (`wdth` 90 đến 95); số liệu dùng chữ số đều bề rộng (`tabularFigures`) để không nhảy khi đếm lên.
-- **Chữ thân:** font hệ thống của iOS, để Dynamic Type và VoiceOver hoạt động chuẩn.
-- **Câu chữ:** chữ thường theo câu, không dùng chữ HOA cho nhãn và đơn vị. Nút ghi đúng việc sẽ xảy ra ("Thêm nước", "Lưu").
+Dùng font hệ thống (SF Pro trên iOS) cho mọi chữ để Dynamic Type và VoiceOver hoạt động chuẩn. Số liệu dùng chữ số đều bề rộng (`tabularFigures`). Kiểu chữ lấy qua `context.text` (đã có màu đúng chế độ):
+
+| Vai trò | Kiểu | Cỡ, độ đậm |
+|---|---|---|
+| Tiêu đề lớn của màn | `largeTitle` | 34, 700 |
+| Đầu mục | `sectionTitle` | 20, 600 |
+| Tiêu đề thẻ | `cardTitle` | 15, 600 |
+| Số chính | `metric` | 32, 600, chữ số đều |
+| Nội dung | `body` | 17 |
+| Thông tin phụ | `secondary` | 15 |
+| Chú thích | `caption` | 13 |
+| Nhãn nút | `button` | 17, 600 |
+
+Tạo phân cấp bằng cỡ, độ đậm, khoảng cách và độ tương phản, không in đậm mọi tiêu đề. Câu chữ theo câu, không dùng chữ HOA tràn lan; nút ghi đúng việc sẽ xảy ra ("Thêm nước", "Lưu").
+
+### Khoảng cách, bo góc, đổ bóng
+- Khoảng cách `AppSpacing`: 4 / 8 / 12 / 16 / 20 / 24 / 32 (`xxs`, `xs`, `sm`, `md`, `ml`, `lg`, `xl`).
+- Bo góc `AppRadius`: thẻ 16, ô điều khiển 12, sheet 20, viên thuốc (pill). Phần tử lồng trong thẻ bo đồng tâm (bán kính nhỏ hơn đúng bằng lề trong).
+- Đệm cuối danh sách để không bị thanh tab che: `AppLayout.tabBarInset(context)`.
+- Gần như không dùng bóng đổ và viền; phân lớp bằng sắc nền.
 
 ### Chuyển động
-Chỉ dùng để báo điều gì vừa thay đổi: vòng đầy lên khi mở màn Tổng quan, số đếm lên khi giá trị đổi, rung nhẹ (haptic) khi ghi dữ liệu xong. Không dùng hiệu ứng trượt và mờ dần cho mỗi thẻ. Mọi thời lượng lấy từ `AppMotion`, và bằng 0 khi người dùng bật Giảm chuyển động.
+Chỉ dùng để báo điều gì vừa thay đổi: vòng đầy lên khi mở màn Tổng quan, số đếm lên khi giá trị đổi, rung nhẹ (haptic) khi ghi dữ liệu xong. Lò xo nhẹ, không nảy lâu, không có hiệu ứng trang trí chạy liên tục và không trượt/mờ dần cho mỗi thẻ. Mọi thời lượng lấy từ `AppMotion`, và bằng 0 khi người dùng bật Giảm chuyển động.
 
 ## Nguyên tắc
 - Giao diện chính là **iPhone**, dùng **Liquid Glass của iOS 26** cho lớp nổi.
@@ -66,7 +98,7 @@ Chỉ dùng để báo điều gì vừa thay đổi: vòng đầy lên khi mở
 
 **Hiệu năng.** Chỉ một Platform View cho thanh tab, không có vòng animation chạy nền; chuyển động do hệ thống xử lý.
 
-**Giới hạn đã biết.** Khúc xạ ở rìa kính do hệ thống quyết định và phụ thuộc vào Flutter texture phía sau; không thể chỉnh độ khúc xạ. Thương hiệu hiện là đỏ `AppColors.brand` (Mực biển), không phải vàng.
+**Giới hạn đã biết.** Khúc xạ ở rìa kính do hệ thống quyết định và phụ thuộc vào Flutter texture phía sau; không thể chỉnh độ khúc xạ. Màu thương hiệu của thanh tab là vàng (`brand`).
 
 ## Widget `LiquidGlass`
 ```dart

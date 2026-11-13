@@ -137,7 +137,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           onPressed: _busy ? null : () => context.go('/register'),
           child: Text(
             'Chưa có tài khoản? Đăng ký',
-            style: TextStyle(color: context.colors.brand, fontSize: 15),
+            style: TextStyle(color: context.colors.brandText, fontSize: 15),
           ),
         ),
       ],
@@ -239,7 +239,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           onPressed: _busy ? null : () => context.go('/login'),
           child: Text(
             'Đã có tài khoản? Đăng nhập',
-            style: TextStyle(color: context.colors.brand, fontSize: 15),
+            style: TextStyle(color: context.colors.brandText, fontSize: 15),
           ),
         ),
       ],
@@ -254,6 +254,8 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: context.colors.background,
-    body: Center(child: CircularProgressIndicator(color: context.colors.brand)),
+    body: Center(
+      child: CircularProgressIndicator(color: context.colors.brandText),
+    ),
   );
 }
