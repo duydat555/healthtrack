@@ -45,36 +45,10 @@ class MetricsScreen extends ConsumerWidget {
                       child: Text('Chỉ số', style: context.text.largeTitle),
                     ),
                   ),
-                  Semantics(
-                    button: true,
-                    label: 'Xem biểu đồ xu hướng',
-                    excludeSemantics: true,
-                    child: Tooltip(
-                      message: 'Xem biểu đồ xu hướng',
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => context.push('/trends'),
-                        child: SizedBox.square(
-                          dimension: 44,
-                          child: Center(
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: context.colors.cardHigh,
-                                shape: BoxShape.circle,
-                              ),
-                              child: SizedBox.square(
-                                dimension: 36,
-                                child: Icon(
-                                  Icons.show_chart_rounded,
-                                  size: 20,
-                                  color: context.colors.ink,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  RoundIconButton(
+                    tooltip: 'Xem biểu đồ xu hướng',
+                    icon: Icons.show_chart_rounded,
+                    onTap: () => context.push('/trends'),
                   ),
                 ],
               ),

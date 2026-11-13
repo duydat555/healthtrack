@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoThemeData;
 import 'package:flutter/material.dart';
 import 'package:liquid_glass/liquid_glass.dart' show LiquidGlassTabBar;
 
@@ -467,6 +468,14 @@ abstract final class AppTheme {
         foregroundColor: p.ink,
         elevation: 0,
         scrolledUnderElevation: 0,
+      ),
+      // Thành phần kiểu iOS (action sheet, bánh xe ngày) lấy màu chữ nhấn từ đây; vàng tươi `brand`
+      // không đủ tương phản trên nền sáng nên dùng `brandText`.
+      cupertinoOverrideTheme: CupertinoThemeData(
+        brightness: b,
+        primaryColor: p.brandText,
+        scaffoldBackgroundColor: p.background,
+        barBackgroundColor: p.card,
       ),
       textSelectionTheme: TextSelectionThemeData(cursorColor: p.brandText),
       switchTheme: SwitchThemeData(
