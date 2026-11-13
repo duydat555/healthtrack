@@ -201,6 +201,29 @@ class _Bubble extends StatelessWidget {
                     color: mine ? Colors.white : c.ink,
                   ),
                 ),
+              if (!mine && message.source != null && message.text.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        message.source == 'local'
+                            ? Icons.lock_outline
+                            : Icons.cloud_outlined,
+                        size: 13,
+                        color: c.inkSoft,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        message.source == 'local'
+                            ? 'Chạy trên Mac của bạn'
+                            : 'Claude',
+                        style: TextStyle(color: c.inkSoft, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
               for (final m in message.logged)
                 Padding(
                   padding: const EdgeInsets.only(top: 6),

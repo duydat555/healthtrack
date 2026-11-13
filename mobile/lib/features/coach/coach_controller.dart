@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/api_client.dart';
+import '../../core/settings_storage.dart';
 import '../health/health_providers.dart';
 import 'coach_models.dart';
 import 'coach_repository.dart';
@@ -32,6 +33,34 @@ const _toolStatus = {
   'log_entry': 'Đang ghi giúp bạn...',
 };
 
+const _privateKey = 'coach_private_mode';
+
+/// Chế độ riêng tư: khi bật, Coach trả lời bằng model chạy trên Mac của bạn thay vì Claude.
+class PrivateModeNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    ref.read(settingsStorageProvider).read(_privateKey).then((v) {
+      if (v == '1') state = true;
+    });
+    return false;
+  }
+
+  Future<void> set(bool value) async {
+    state = value;
+    await ref
+        .read(settingsStorageProvider)
+        .write(_privateKey, value ? '1' : '0');
+  }
+}
+
+final privateModeProvider = NotifierProvider<PrivateModeNotifier, bool>(
+  PrivateModeNotifier.new,
+);
+
+final coachProvidersProvider = FutureProvider.autoDispose<CoachProviders>(
+  (ref) => ref.watch(coachRepositoryProvider).providers(),
+);
+
 class CoachController extends Notifier<CoachState> {
   @override
   CoachState build() => const CoachState();
@@ -59,8 +88,14 @@ class CoachController extends Notifier<CoachState> {
       clearStatus: true,
     );
     try {
-      await for (final e in ref.read(coachRepositoryProvider).chat(history)) {
+      final provider = ref.read(privateModeProvider) ? 'local' : 'claude';
+      await for (final e
+          in ref
+              .read(coachRepositoryProvider)
+              .chat(history, provider: provider)) {
         switch (e) {
+          case CoachMeta(:final provider):
+            _replaceLast((m) => m.copyWith(source: provider));
           case CoachText(:final text):
             _replaceLast((m) => m.copyWith(text: m.text + text));
             state = state.copyWith(clearStatus: true);
