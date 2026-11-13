@@ -21,7 +21,10 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
         self.channel = channel
         super.init(frame: frame)
         backgroundColor = .clear
-        let tint = (params["tint"] as? Int).map { UIColor(argb: $0) } ?? .systemRed
+        // tint: nền nút +; tabTint: icon và chữ tab đang chọn; onTint: glyph "+" trên nền tint
+        let tint = (params["tint"] as? Int).map { UIColor(argb: $0) } ?? .systemYellow
+        let tabTint = (params["tabTint"] as? Int).map { UIColor(argb: $0) } ?? tint
+        let onTint = (params["onTint"] as? Int).map { UIColor(argb: $0) } ?? .white
         overrideUserInterfaceStyle = (params["dark"] as? Bool ?? false) ? .dark : .light
 
         let items = params["items"] as? [[String: Any]] ?? []
@@ -37,15 +40,18 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
         controller.selectedIndex = min(max(params["selected"] as? Int ?? 0, 0), max(items.count - 1, 0))
         controller.delegate = self
         controller.view.backgroundColor = .clear
-        controller.tabBar.tintColor = tint
+        controller.tabBar.tintColor = tabTint
         addSubview(controller.view)
 
         if showsAdd {
             var config = UIButton.Configuration.prominentGlass()
+            // Ảnh giữ nguyên màu (alwaysOriginal): nếu không, lớp kính hệ thống nhuộm glyph theo nền
+            // và "+" bị mờ, không còn tương phản với nền vàng.
             config.image = UIImage(
                 systemName: "plus",
-                withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .bold))
-            config.baseForegroundColor = .white
+                withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .bold)
+            )?.withTintColor(onTint, renderingMode: .alwaysOriginal)
+            config.baseForegroundColor = onTint
             config.baseBackgroundColor = tint
             config.cornerStyle = .capsule
             addButton.configuration = config

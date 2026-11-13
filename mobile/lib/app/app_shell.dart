@@ -48,6 +48,8 @@ class AppShell extends StatelessWidget {
             child: LiquidGlassTabBar(
               items: _tabs,
               tint: context.colors.brand,
+              tabTint: context.colors.brandText,
+              onTint: context.colors.onBrand,
               dark: context.isDark,
               currentIndex: navigationShell.currentIndex,
               onTap: (i) => navigationShell.goBranch(

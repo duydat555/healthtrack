@@ -34,6 +34,8 @@ class LiquidGlassTabBar extends StatefulWidget {
     required this.onTap,
     this.onAdd,
     this.tint = const Color(0xFF10B981),
+    this.tabTint,
+    this.onTint = Colors.white,
     this.dark = false,
     @visibleForTesting this.forceFallback = false,
   });
@@ -47,7 +49,16 @@ class LiquidGlassTabBar extends StatefulWidget {
 
   /// Nút thêm nhanh; null thì không hiện nút.
   final VoidCallback? onAdd;
+
+  /// Màu tô nền nút thêm nhanh (màu thương hiệu).
   final Color tint;
+
+  /// Màu icon và chữ của tab đang chọn. Mặc định là [tint]; nên đặt màu đậm hơn khi [tint] quá sáng
+  /// để chữ đọc được trên kính sáng (ví dụ vàng thương hiệu).
+  final Color? tabTint;
+
+  /// Màu glyph "+" đặt trên nền [tint].
+  final Color onTint;
 
   /// Vẽ kính ở chế độ tối (dùng khi nền app tối, bất kể cài đặt hệ thống).
   final bool dark;
@@ -109,6 +120,8 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
               'selected': widget.currentIndex,
               'showsAdd': widget.onAdd != null,
               'tint': widget.tint.toARGB32(),
+              'tabTint': (widget.tabTint ?? widget.tint).toARGB32(),
+              'onTint': widget.onTint.toARGB32(),
               'dark': widget.dark,
             },
             creationParamsCodec: const StandardMessageCodec(),
@@ -172,11 +185,7 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
                           color: widget.tint,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.add,
-                          color: Colors.white,
-                          size: 28,
-                        ),
+                        child: Icon(Icons.add, color: widget.onTint, size: 28),
                       ),
                     ),
                   ),
@@ -192,7 +201,7 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
   Widget _fallbackTab(int i) {
     final item = widget.items[i];
     final selected = i == widget.currentIndex;
-    final color = selected ? widget.tint : Colors.black54;
+    final color = selected ? (widget.tabTint ?? widget.tint) : Colors.black54;
     return Semantics(
       button: true,
       selected: selected,
@@ -205,7 +214,9 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
           margin: const EdgeInsets.all(4),
           padding: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: selected ? widget.tint.withValues(alpha: 0.16) : null,
+            color: selected
+                ? (widget.tabTint ?? widget.tint).withValues(alpha: 0.16)
+                : null,
             borderRadius: BorderRadius.circular(32),
           ),
           child: Column(
