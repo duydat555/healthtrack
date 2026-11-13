@@ -52,6 +52,24 @@ Chỉ dùng để báo điều gì vừa thay đổi: vòng đầy lên khi mở
 - `SectionHeader`: tiêu đề mục chữ đậm kèm mũi tên điều hướng.
 - `AppTextField`, `PrimaryButton`, `ErrorText`: bộ thành phần form đồng bộ bo góc 14 và validation.
 
+## Thanh tab Liquid Glass (`LiquidGlassTabBar`)
+
+**Kiến trúc.** Dart (`mobile/lib/app/app_shell.dart`) giữ trạng thái điều hướng bằng `StatefulNavigationShell` của go_router. Thanh tab là một Platform View (`UiKitView`, `healthtrack/liquid_glass_tab_bar`) do Swift vẽ (`LiquidGlassTabBar.swift`); Dart gửi `setSelected`, Swift gửi `onSelect` và `onAdd` qua MethodChannel, nên chỉ có một nguồn trạng thái là go_router.
+
+**API iOS 26+ (công khai, đã kiểm trên SDK Xcode 27.2):** `GlassEffectContainer`, `glassEffect(_:in:)`, `.interactive()`, `.tint()` và `glassEffectID(_:in:)`. Thanh tab là một viên kính; tab đang chọn là một thấu kính kính thứ hai mang `glassEffectID("lens")`, nên khi đổi tab hệ thống tự chảy và hòa kính từ vị trí cũ sang mới (không dùng phóng to hay làm mờ giả). Nút `+` là viên kính riêng có tint thương hiệu, để tách khỏi nhóm tab và dễ chạm.
+
+**Tương phản.** Icon tab đang chọn mang màu thương hiệu; chữ dùng màu chính để đủ tương phản trên kính. Kính lấy màu từ nội dung phía sau, không tô màu thương hiệu lên cả thanh.
+
+**Chế độ sáng/tối.** `HostedPlatformView` ép `overrideUserInterfaceStyle` theo nền của app, nên kính và chữ luôn khớp nền dù cài đặt hệ thống khác.
+
+**Trợ năng.** Giảm trong suốt do hệ thống tự áp dụng cho kính; Giảm chuyển động tắt animation lò xo của thanh (`accessibilityReduceMotion`). Nhãn VoiceOver giữ nguyên, tab đang chọn có trait `isSelected`.
+
+**Dự phòng (không phải Liquid Glass thật).** iOS dưới 26 dùng `.ultraThinMaterial` trong SwiftUI; Android và test dùng `BackdropFilter` + `ImageFilter.blur` của Flutter. Đây chỉ là mờ nền, không có khúc xạ quang học.
+
+**Hiệu năng.** Chỉ một Platform View cho thanh tab, không có vòng animation chạy nền; chuyển động do Core Animation của hệ thống xử lý.
+
+**Giới hạn đã biết.** Khúc xạ ở rìa kính do hệ thống quyết định và phụ thuộc vào Flutter texture phía sau; không thể chỉnh độ khúc xạ. Thương hiệu hiện là đỏ `AppColors.brand` (Mực biển), không phải vàng.
+
 ## Widget `LiquidGlass`
 ```dart
 LiquidGlass(

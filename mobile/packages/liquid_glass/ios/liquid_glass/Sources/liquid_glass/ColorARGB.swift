@@ -22,7 +22,8 @@ final class HostedPlatformView<Content: View>: NSObject, FlutterPlatformView {
         host = UIHostingController(rootView: rootView)
         host.view.frame = frame
         host.view.backgroundColor = .clear
-        if dark { host.overrideUserInterfaceStyle = .dark }
+        // Theo nền app (không theo hệ thống) để kính và chữ luôn hợp với màu phía sau
+        host.overrideUserInterfaceStyle = dark ? .dark : .light
         if #available(iOS 16.4, *) { host.safeAreaRegions = [] }
         super.init()
     }
