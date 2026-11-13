@@ -15,6 +15,7 @@ import '../coach/weekly_insight_card.dart';
 import '../gamification/health_score_card.dart';
 import '../health/health_providers.dart';
 import '../health/healthkit_sync.dart';
+import '../widget/widget_sync.dart';
 import '../../widgets/core_widgets.dart';
 
 /// Màn Tổng quan (Dashboard), bố cục theo app Fitness của Apple, dữ liệu lấy từ backend.
@@ -55,6 +56,7 @@ class HomeScreen extends ConsumerWidget {
             ),
             children: [
               const _AutoSync(),
+              const WidgetSync(),
               Text(
                 formatHeaderDate(DateTime.now()),
                 style: TextStyle(
