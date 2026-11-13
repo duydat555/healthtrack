@@ -1,0 +1,97 @@
+name: Release app
+
+# Build APK (Android) và IPA (iOS) rồi đăng lên GitHub Releases.
+#  - Đẩy tag v* (ví dụ v1.0.1) hoặc chạy tay (Actions > Release app > Run workflow).
+#  - api_url là địa chỉ backend được "đóng" vào app lúc build.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tên bản phát hành (ví dụ v1.0.1)"
+        required: true
+      api_url:
+        description: "Địa chỉ API đóng vào app"
+        required: false
+        default: "https://healthtrack-api-w0sm.onrender.com/api/v1"
+
+permissions:
+  contents: write
+
+env:
+  API_URL: ${{ inputs.api_url || 'https://healthtrack-api-w0sm.onrender.com/api/v1' }}
+  TAG: ${{ inputs.tag || github.ref_name }}
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.9"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build apk --release --dart-define=API_URL=$API_URL
+      - run: cp build/app/outputs/flutter-apk/app-release.apk HealthTrack-${TAG}.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: mobile/HealthTrack-*.apk
+
+  ios:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.9"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # Không có tài khoản Apple Developer nên không ký: IPA này cần được ký lại (Sideloadly,
+      # AltStore, Xcode...) trước khi cài lên iPhone thật.
+      - run: flutter build ios --release --no-codesign --dart-define=API_URL=$API_URL
+      - name: Đóng gói IPA không ký
+        run: |
+          rm -rf Payload && mkdir Payload
+          cp -R build/ios/iphoneos/Runner.app Payload/
+          zip -qry HealthTrack-${TAG}-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ipa
+          path: mobile/HealthTrack-*.ipa
+
+  publish:
+    needs: [android, ios]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Tạo hoặc cập nhật GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          notes="Backend: ${API_URL}
+          - APK: cài trực tiếp trên Android (ký bằng khóa debug, bật 'cài từ nguồn không xác định').
+          - IPA: chưa ký, cần ký lại bằng tài khoản Apple của bạn (Sideloadly, AltStore hoặc Xcode) rồi mới cài được lên iPhone."
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+          else
+            gh release create "$TAG" dist/* --title "HealthTrack $TAG" --notes "$notes" --target "${GITHUB_SHA}"
+          fi
