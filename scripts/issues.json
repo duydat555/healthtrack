@@ -1776,5 +1776,358 @@
    "Áp dụng widget LiquidGlass"
   ],
   "done": false
+ },
+ {
+  "key": "E15",
+  "type": "epic",
+  "phase": 7,
+  "area": "mobile",
+  "title": "Epic: Giao diện mới (frontend-design)",
+  "goal": "Làm lại giao diện theo một hướng thẩm mỹ riêng, có motion có chủ đích, dọn widget trùng lặp."
+ },
+ {
+  "key": "E16",
+  "type": "epic",
+  "phase": 7,
+  "area": "backend",
+  "title": "Epic: Gamification",
+  "goal": "Health Score, streak, huy hiệu và thử thách tuần để người dùng duy trì thói quen."
+ },
+ {
+  "key": "E17",
+  "type": "epic",
+  "phase": 7,
+  "area": "ios",
+  "title": "Epic: Đồng bộ Apple HealthKit",
+  "goal": "Tự kéo bước chân, giấc ngủ, cân nặng từ Apple Health, không trùng khi đồng bộ lại."
+ },
+ {
+  "key": "E18",
+  "type": "epic",
+  "phase": 7,
+  "area": "ios",
+  "title": "Epic: Widget và Live Activity",
+  "goal": "Widget màn hình chính, Lock Screen và Live Activity cho nhịp uống nước."
+ },
+ {
+  "key": "E19",
+  "type": "epic",
+  "phase": 7,
+  "area": "backend",
+  "title": "Epic: AI Coach (Claude API)",
+  "goal": "Trợ lý chat đọc dữ liệu sức khỏe, nhận xét tuần, ghi chỉ số bằng câu tự nhiên."
+ },
+ {
+  "key": "E20",
+  "type": "epic",
+  "phase": 7,
+  "area": "backend",
+  "title": "Epic: AI local trên Mac mini M6 (MLX)",
+  "goal": "Server MLX chạy trên Mac mini, backend gọi qua API tương thích OpenAI để chat riêng tư."
+ },
+ {
+  "key": "T81",
+  "type": "task",
+  "epic": "E15",
+  "phase": 7,
+  "owner": "dat",
+  "area": "mobile",
+  "title": "[Mobile] Chốt hướng thẩm mỹ và hệ thống thiết kế mới",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là Tech Lead, tôi muốn một bộ token thiết kế rõ ràng để mọi màn hình nhất quán.",
+  "ac": [
+   "Cài skill frontend-design, ghi hướng thẩm mỹ vào docs/05",
+   "Cập nhật theme.dart: font số liệu, gradient theo chỉ số, token motion",
+   "Giữ AppColorPalette và hỗ trợ Dynamic Type"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T82",
+  "type": "task",
+  "epic": "E15",
+  "phase": 7,
+  "owner": "dat",
+  "area": "mobile",
+  "title": "[Mobile] Gộp widget trạng thái Loading/Error/Empty trùng lặp",
+  "sp": 2,
+  "prio": "P1",
+  "story": "Là dev, tôi muốn một bộ widget trạng thái duy nhất.",
+  "ac": [
+   "Chỉ còn một nơi định nghĩa trong widgets/core_widgets.dart",
+   "Xóa 5 file trùng, test và analyze vẫn xanh"
+  ],
+  "deps": [
+   "Chốt hướng thẩm mỹ và hệ thống thiết kế mới"
+  ],
+  "done": false
+ },
+ {
+  "key": "T83",
+  "type": "task",
+  "epic": "E15",
+  "phase": 7,
+  "owner": "dat",
+  "area": "mobile",
+  "title": "[Mobile] Làm lại Tổng quan, Thêm, Xu hướng, Hồ sơ theo giao diện mới",
+  "sp": 8,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn app đẹp và dễ đọc.",
+  "ac": [
+   "Vòng hoạt động có animation, số đếm lên, haptic khi ghi dữ liệu",
+   "Tôn trọng disableAnimations",
+   "Ảnh chụp trước và sau cho từng màn trong PR",
+   "Cập nhật golden test sinh trên Linux"
+  ],
+  "deps": [
+   "Chốt hướng thẩm mỹ và hệ thống thiết kế mới"
+  ],
+  "done": false
+ },
+ {
+  "key": "T84",
+  "type": "task",
+  "epic": "E16",
+  "phase": 7,
+  "owner": "dat",
+  "area": "backend",
+  "title": "[BE] API Gamification: Health Score, streak, huy hiệu",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn thấy điểm sức khỏe và chuỗi ngày đạt mục tiêu.",
+  "ac": [
+   "Migration 0011 bảng achievements (unique user_id + code)",
+   "GET /gamification/summary và /gamification/achievements",
+   "Huy hiệu được trao khi ghi log đầu tiên, streak 7 ngày",
+   "Test pytest, coverage không giảm dưới 80%"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T85",
+  "type": "task",
+  "epic": "E16",
+  "phase": 7,
+  "owner": "dat",
+  "area": "mobile",
+  "title": "[Mobile] Thẻ Health Score, chip streak, màn Huy hiệu",
+  "sp": 5,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn xem huy hiệu và nhận thưởng khi đạt mốc.",
+  "ac": [
+   "Thẻ Health Score trên Tổng quan",
+   "Lưới huy hiệu, huy hiệu chưa đạt hiện mờ",
+   "Hiệu ứng confetti khi nhận huy hiệu mới"
+  ],
+  "deps": [
+   "API Gamification"
+  ],
+  "done": false
+ },
+ {
+  "key": "T86",
+  "type": "task",
+  "epic": "E17",
+  "phase": 7,
+  "owner": "dat",
+  "area": "ios",
+  "title": "[iOS] Package health_bridge đọc dữ liệu HealthKit",
+  "sp": 5,
+  "prio": "P0",
+  "story": "Là người dùng iPhone, tôi muốn app tự lấy dữ liệu từ Apple Health.",
+  "ac": [
+   "MethodChannel healthtrack/health: xin quyền và fetch theo khoảng ngày",
+   "Đọc bước chân, giấc ngủ, cân nặng, nhịp tim nghỉ",
+   "Bật capability HealthKit, mô tả quyền bằng tiếng Việt"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T87",
+  "type": "task",
+  "epic": "E17",
+  "phase": 7,
+  "owner": "dat",
+  "area": "backend",
+  "title": "[BE] Endpoint đồng bộ HealthKit không trùng lặp",
+  "sp": 3,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn đồng bộ nhiều lần mà không bị nhân đôi dữ liệu.",
+  "ac": [
+   "Migration 0012 thêm source và external_id (unique khi khác null)",
+   "POST /sync/healthkit upsert theo lô",
+   "Test đồng bộ hai lần không tạo bản ghi trùng"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T88",
+  "type": "task",
+  "epic": "E17",
+  "phase": 7,
+  "owner": "dat",
+  "area": "mobile",
+  "title": "[Mobile] Công tắc đồng bộ Apple Health ở Hồ sơ",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn bật hoặc tắt đồng bộ Apple Health.",
+  "ac": [
+   "Công tắc ở Hồ sơ, tự đồng bộ khi mở app",
+   "Bản ghi hiện nguồn Apple Health"
+  ],
+  "deps": [
+   "Package health_bridge",
+   "Endpoint đồng bộ HealthKit"
+  ],
+  "done": false
+ },
+ {
+  "key": "T89",
+  "type": "task",
+  "epic": "E18",
+  "phase": 7,
+  "owner": "dat",
+  "area": "ios",
+  "title": "[iOS] Widget màn hình chính và Lock Screen",
+  "sp": 5,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn xem vòng hoạt động mà không mở app.",
+  "ac": [
+   "Widget small, medium và accessoryCircular",
+   "Chia sẻ dữ liệu qua App Group, reload timeline khi ghi dữ liệu"
+  ],
+  "deps": [
+   "Thẻ Health Score, chip streak, màn Huy hiệu"
+  ],
+  "done": false
+ },
+ {
+  "key": "T90",
+  "type": "task",
+  "epic": "E18",
+  "phase": 7,
+  "owner": "dat",
+  "area": "ios",
+  "title": "[iOS] Live Activity cho nhịp uống nước",
+  "sp": 3,
+  "prio": "P2",
+  "story": "Là người dùng, tôi muốn theo dõi uống nước ngay trên Dynamic Island.",
+  "ac": [
+   "ActivityKit cập nhật cục bộ",
+   "Hiển thị trên Lock Screen và Dynamic Island"
+  ],
+  "deps": [
+   "Widget màn hình chính và Lock Screen"
+  ],
+  "done": false
+ },
+ {
+  "key": "T91",
+  "type": "task",
+  "epic": "E19",
+  "phase": 7,
+  "owner": "dat",
+  "area": "backend",
+  "title": "[BE] Dịch vụ Coach dùng Claude API với tool use",
+  "sp": 8,
+  "prio": "P0",
+  "story": "Là người dùng, tôi muốn hỏi coach về sức khỏe và ghi chỉ số bằng câu tự nhiên.",
+  "ac": [
+   "Tool get_stats, get_goals, log_entry dùng lại service sẵn có",
+   "POST /coach/chat stream SSE, GET /coach/weekly cache bảng coach_insights (migration 0013)",
+   "ANTHROPIC_API_KEY trong config, render.yaml, .env.example, có rate limit riêng",
+   "System prompt ghi rõ không thay thế chẩn đoán y tế",
+   "Test mock client, không gọi API thật trong CI"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T92",
+  "type": "task",
+  "epic": "E19",
+  "phase": 7,
+  "owner": "dat",
+  "area": "mobile",
+  "title": "[Mobile] Màn Coach chat và thẻ Nhận xét tuần",
+  "sp": 5,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn trò chuyện với coach ngay trong app.",
+  "ac": [
+   "Bong bóng chat stream từng token, chip câu hỏi gợi ý",
+   "Thẻ Nhận xét tuần trên Tổng quan, route /coach"
+  ],
+  "deps": [
+   "Dịch vụ Coach dùng Claude API"
+  ],
+  "done": false
+ },
+ {
+  "key": "T93",
+  "type": "task",
+  "epic": "E20",
+  "phase": 7,
+  "owner": "dat",
+  "area": "devops",
+  "title": "[DevOps] Server MLX trên Mac mini M6",
+  "sp": 3,
+  "prio": "P1",
+  "story": "Là Tech Lead, tôi muốn chạy model local bằng một lệnh.",
+  "ac": [
+   "scripts/local-llm.sh và make llm chạy mlx_lm.server",
+   "Benchmark tok/s, thời gian token đầu, RAM, chốt model, ghi vào docs",
+   "Hướng dẫn trong docs/12"
+  ],
+  "deps": [],
+  "done": false
+ },
+ {
+  "key": "T94",
+  "type": "task",
+  "epic": "E20",
+  "phase": 7,
+  "owner": "dat",
+  "area": "backend",
+  "title": "[BE] Provider LocalLLM và chế độ riêng tư",
+  "sp": 5,
+  "prio": "P1",
+  "story": "Là người dùng, tôi muốn chat mà dữ liệu không rời khỏi mạng nhà.",
+  "ac": [
+   "LOCAL_LLM_URL, LOCAL_LLM_MODEL trong config và .env.example",
+   "LocalLLMProvider cùng interface với Claude, tham số provider=auto|local|claude",
+   "GET /coach/providers báo provider sẵn sàng, tự chuyển sang Claude khi local lỗi",
+   "Test mock HTTP"
+  ],
+  "deps": [
+   "Dịch vụ Coach dùng Claude API",
+   "Server MLX trên Mac mini M6"
+  ],
+  "done": false
+ },
+ {
+  "key": "T95",
+  "type": "task",
+  "epic": "E20",
+  "phase": 7,
+  "owner": "dat",
+  "area": "mobile",
+  "title": "[Mobile] Công tắc chế độ riêng tư và nhãn nguồn trả lời",
+  "sp": 2,
+  "prio": "P2",
+  "story": "Là người dùng, tôi muốn biết câu trả lời đến từ local hay Claude.",
+  "ac": [
+   "Công tắc ở Hồ sơ",
+   "Nhãn Local hoặc Claude trong màn Coach"
+  ],
+  "deps": [
+   "Provider LocalLLM và chế độ riêng tư",
+   "Màn Coach chat và thẻ Nhận xét tuần"
+  ],
+  "done": false
  }
 ]

@@ -34,6 +34,7 @@ PHASES = {
     4: "Phase 4 - Dashboard & Nhắc nhở",
     5: "Phase 5 - Kiểm thử, Deploy & Hoàn thiện",
     6: "Phase 6 - Nghiệm thu & Đóng dự án",
+    7: "Phase 7 - Giao diện mới & Tính năng đột phá",
 }
 LABELS = (
     [("epic", "5319e7", "Nhóm các task cùng mục tiêu"), ("task", "0e8a16", "Một công việc trong WBS"),
