@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,7 +11,7 @@ import '../auth/auth_controller.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../health/models.dart';
-import 'add_state_widgets.dart';
+import '../../widgets/core_widgets.dart';
 
 enum _Kind { water, weight, sleep, medicine, steps, meal }
 
@@ -91,6 +92,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       if (!mounted) return;
       refreshHealthData(ref);
       afterSave?.call();
+      HapticFeedback.mediumImpact(); // xác nhận đã ghi
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(done)));
       if (closeOnSuccess) context.pop();
     } catch (e) {

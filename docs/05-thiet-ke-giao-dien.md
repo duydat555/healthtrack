@@ -1,23 +1,50 @@
 # Thiết kế giao diện
 
-## Nguyên tắc
-- Giao diện chính là **iPhone**, theo phong cách **app Fitness của Apple** kết hợp **Liquid Glass của iOS 26**: nền đen, thẻ xám đậm bo góc 20, màu nhấn rực cho từng chỉ số, vòng Activity Rings ở màn Tổng quan.
-- **Quy chuẩn Liquid Glass:** chỉ dùng cho lớp điều hướng nổi và nhóm thẻ tương tác nổi bật (thanh tab dưới, nút thêm nhanh nổi `+`, nhóm thẻ `LiquidGlassCardGroup`, modal sheet nổi), **không** phủ kính cho toàn bộ danh sách cuộn dài để giữ hiệu năng (tránh tạo nhiều platform view `UiKitView`) và giữ phân cấp thị giác rõ ràng. Thẻ nội dung thông thường dùng bề mặt phẳng `AppColors.card`.
-- Chế độ tối là mặc định (`AppColors.background = #000000`), view kính native dùng `dark: true` để đồng bộ nền và đảm bảo độ tương phản chữ `AppColors.ink` (`#FFFFFF`) / `AppColors.inkSoft` (`#D1D1D6`) đạt chuẩn WCAG AA (`>= 4.5:1`).
-- Toàn bộ màu sắc, bo góc lấy từ `mobile/lib/core/theme.dart` (không hard-code màu trực tiếp trong màn hình).
-- Hỗ trợ Dynamic Type (co giãn font chữ), VoiceOver (`Semantics` đầy đủ cho nút, thẻ, tiêu đề, thông báo lỗi) và hiển thị chuẩn từ **iPhone SE (`375x667`)** đến **iPhone Pro Max (`430x932`)**.
+## Hướng thẩm mỹ: "Mực biển"
+**Chủ đề:** nhật ký sức khỏe hằng ngày của người trẻ Việt Nam, mở app vài lần mỗi ngày để ghi nhanh và nhìn lại. Việc chính của giao diện là cho thấy hôm nay mình đã làm được bao nhiêu chỉ bằng một cái nhìn.
 
-## Màu chỉ số (cũng là màu của vòng Activity Rings)
-| Chỉ số | Màu | Hex |
+**Cảm giác:** bình tĩnh như mặt nước ban đêm, con số nổi bật như đèn trên bảng điều khiển. Nền xanh biển đêm thay cho đen tuyền, mỗi chỉ số là một sắc riêng lấy từ vật thật: nước (ngọc lam), giấc ngủ (tím phấn), bước chân (cam hổ phách), cân nặng (vàng nắng), bữa ăn (hồng cánh sen), thuốc (san hô).
+
+**Điểm nhấn duy nhất:** vòng hoạt động ở Tổng quan, có gradient và vầng sáng nhẹ. Mọi thứ xung quanh giữ yên tĩnh: thẻ phẳng, không viền, không bóng đổ lặp lại.
+
+**Đã bỏ khỏi bản cũ:** nền đen tuyền kèm màu nhấn neon (kiểu mặc định của app thể dục), nhãn chữ HOA tràn lan, thẻ nào cũng bo giống nhau.
+
+### Bảng màu (Dark Mode là mặc định)
+| Vai trò | Tên | Dark | Light |
+|---|---|---|---|
+| Nền | Mực biển | `#0A1A2A` | `#EEF4F3` |
+| Thẻ | Nước sâu | `#12293D` | `#FFFFFF` |
+| Thẻ nâng | Sóng | `#1B3A55` | `#DCE8E6` |
+| Chữ chính | Sương | `#F2F7F5` | `#0C2233` |
+| Chữ phụ | Mây | `#9FB6C4` | `#3F5A6B` |
+| Thương hiệu, nút nổi | Đỏ son | `#D93A2E` | `#C2412F` |
+
+| Chỉ số | Dark | Light |
 |---|---|---|
-| Bước chân, màu thương hiệu | hồng đỏ | `#FA114F` |
-| Giấc ngủ | xanh chanh | `#A3F73B` |
-| Nước uống | xanh lơ | `#1EEAEF` |
-| Cân nặng | tím | `#BF5AF2` |
-| Bữa ăn | cam | `#FF9F0A` |
-| BMI / Thuốc (thẻ) | xanh dương | `#0A84FF` |
+| Bước chân (cam hổ phách) | `#FF8A4C` | `#B2470F` |
+| Thuốc, vòng thứ nhất (san hô) | `#FF6F61` | `#C2412F` |
+| Giấc ngủ (tím phấn) | `#A08CFF` | `#5B45D6` |
+| Nước uống (ngọc lam) | `#38D6C9` | `#00796F` |
+| Cân nặng (vàng nắng) | `#E8C547` | `#8A6A00` |
+| Bữa ăn (hồng cánh sen) | `#F26D9B` | `#B8325F` |
+| Thuốc, thẻ (xanh trời) | `#5AA9FF` | `#1559B8` |
 
-Nền `#000000`, thẻ `#1C1C1E`, thẻ nâng cao `#2C2C2E`, đường phân cách `#38383A`, chữ chính `#FFFFFF`, chữ phụ `#D1D1D6`.
+Mọi màu chữ và màu nhấn đạt tương phản >= 4.5:1 trên nền và thẻ ở cả hai chế độ (đã kiểm bằng công thức WCAG). Chữ trắng trên nút thương hiệu đạt 4.57:1.
+
+### Kiểu chữ
+- **Tiêu đề và số liệu:** Bricolage Grotesque (OFL, có đủ dấu tiếng Việt), font biến thiên đóng gói tại `mobile/assets/fonts/`. Tiêu đề dùng độ đậm 700 đến 780 và hơi hẹp (`wdth` 90 đến 95); số liệu dùng chữ số đều bề rộng (`tabularFigures`) để không nhảy khi đếm lên.
+- **Chữ thân:** font hệ thống của iOS, để Dynamic Type và VoiceOver hoạt động chuẩn.
+- **Câu chữ:** chữ thường theo câu, không dùng chữ HOA cho nhãn và đơn vị. Nút ghi đúng việc sẽ xảy ra ("Thêm nước", "Lưu").
+
+### Chuyển động
+Chỉ dùng để báo điều gì vừa thay đổi: vòng đầy lên khi mở màn Tổng quan, số đếm lên khi giá trị đổi, rung nhẹ (haptic) khi ghi dữ liệu xong. Không dùng hiệu ứng trượt và mờ dần cho mỗi thẻ. Mọi thời lượng lấy từ `AppMotion`, và bằng 0 khi người dùng bật Giảm chuyển động.
+
+## Nguyên tắc
+- Giao diện chính là **iPhone**, dùng **Liquid Glass của iOS 26** cho lớp nổi.
+- **Quy chuẩn Liquid Glass:** chỉ dùng cho lớp điều hướng nổi và nhóm thẻ tương tác nổi bật (thanh tab dưới, nút thêm nhanh nổi `+`, nhóm thẻ `LiquidGlassCardGroup`, modal sheet nổi), **không** phủ kính cho toàn bộ danh sách cuộn dài để giữ hiệu năng (tránh tạo nhiều platform view `UiKitView`) và giữ phân cấp thị giác rõ ràng. Thẻ nội dung thông thường dùng bề mặt phẳng `AppColors.card`.
+- View kính native dùng `dark: true` ở Dark Mode để đồng bộ nền.
+- Toàn bộ màu sắc, bo góc, chuyển động và kiểu chữ lấy từ `mobile/lib/core/theme.dart` (không hard-code trong màn hình).
+- Hỗ trợ Dynamic Type (co giãn font chữ), VoiceOver (`Semantics` đầy đủ cho nút, thẻ, tiêu đề, thông báo lỗi) và hiển thị chuẩn từ **iPhone SE (`375x667`)** đến **iPhone Pro Max (`430x932`)**.
 
 ## Thành phần dùng chung (`mobile/lib/widgets/`)
 - `ActivityRings`: các vòng đồng tâm có hoạt ảnh chạy lên tiến độ; vòng đầu ở ngoài cùng.
@@ -61,8 +88,8 @@ flowchart LR
 
 > **Ký hiệu trong wireframe:**
 > - `[LG]` = Thành phần áp dụng hiệu ứng **Liquid Glass** (platform view / `.glassEffect()`)
-> - `[Card]` = Thẻ nội dung phẳng `AppColors.card` (`#1C1C1E`, `cornerRadius: 20`)
-> - `[Btn]` = Nút hành động chính `AppColors.brand` (`#FA114F`)
+> - `[Card]` = Thẻ nội dung phẳng `AppColors.card` (`#12293D`, `cornerRadius: 20`)
+> - `[Btn]` = Nút hành động chính `AppColors.brand` (`#D93A2E`)
 
 ### 1. Dashboard / Tổng quan (`HomeScreen`)
 Hiển thị nhanh tình trạng sức khỏe trong ngày ngay khi mở app, hỗ trợ Pull-to-Refresh.

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:healthtrack/app/router.dart';
 import 'package:healthtrack/features/home/home_screen.dart';
 import 'package:healthtrack/features/onboarding/onboarding_screen.dart';
-import 'package:healthtrack/features/profile/profile_state_widgets.dart';
+import 'package:healthtrack/widgets/core_widgets.dart';
 
 import 'helpers/fake_backend.dart';
 

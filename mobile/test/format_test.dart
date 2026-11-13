@@ -26,7 +26,7 @@ void main() {
   });
 
   test('formatHeaderDate', () {
-    expect(formatHeaderDate(DateTime(2026, 11, 9)), 'THỨ HAI, 9 THÁNG 11');
-    expect(formatHeaderDate(DateTime(2026, 11, 15)), 'CHỦ NHẬT, 15 THÁNG 11');
+    expect(formatHeaderDate(DateTime(2026, 11, 9)), 'Thứ hai, 9 tháng 11');
+    expect(formatHeaderDate(DateTime(2026, 11, 15)), 'Chủ nhật, 15 tháng 11');
   });
 }

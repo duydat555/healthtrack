@@ -43,14 +43,23 @@ class MetricCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(icon, color: color, size: 18),
-                  const SizedBox(width: 6),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Icon(icon, color: color, size: 16),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       title,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: color,
+                        color: c.inkSoft,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
@@ -64,11 +73,7 @@ class MetricCard extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: value,
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w700,
-                        color: c.ink,
-                      ),
+                      style: AppFonts.number(32, color: c.ink),
                     ),
                     TextSpan(
                       text: ' $unit',
@@ -120,6 +125,19 @@ class _SparkPainter extends CustomPainter {
       final mid = (prev.dx + cur.dx) / 2;
       path.cubicTo(mid, prev.dy, mid, cur.dy, cur.dx, cur.dy);
     }
+    final fill = Path.from(path)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(
+      fill,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [color.withValues(alpha: 0.28), color.withValues(alpha: 0)],
+        ).createShader(Offset.zero & size),
+    );
     canvas.drawPath(
       path,
       Paint()

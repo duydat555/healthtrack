@@ -4,27 +4,28 @@ import 'package:flutter/material.dart';
 /// hoặc qua `context.colors` để hỗ trợ cả Light Mode và Dark Mode.
 abstract final class AppColors {
   // Nền và chữ (Dark Mode mặc định theo phong cách Fitness)
-  static const background = Color(0xFF000000);
-  static const card = Color(0xFF1C1C1E);
-  static const cardHigh = Color(0xFF2C2C2E);
-  static const separator = Color(0xFF38383A);
-  static const ink = Color(0xFFFFFFFF);
+  // "Mực biển": nền xanh đêm thay cho đen tuyền, thẻ nổi lên bằng sắc xanh chứ không bằng viền.
+  static const background = Color(0xFF0A1A2A);
+  static const card = Color(0xFF12293D);
+  static const cardHigh = Color(0xFF1B3A55);
+  static const separator = Color(0xFF2A4A66);
+  static const ink = Color(0xFFF2F7F5);
 
   // Issue #100: Tăng độ tương phản chữ phụ/nhãn tab (xám sáng hơn đạt contrast >= 4.5:1)
-  static const inkSoft = Color(0xFFD1D1D6);
+  static const inkSoft = Color(0xFF9FB6C4);
 
   // Issue #101: Màu nhấn của từng chỉ số (cũng là màu của vòng Activity Rings)
-  static const steps = Color(0xFFFA114F); // bước chân
-  static const meds = Color(0xFFFA114F); // thuốc (cùng màu vòng thứ nhất)
-  static const sleep = Color(0xFFA3F73B); // giấc ngủ
-  static const water = Color(0xFF1EEAEF); // nước uống
-  static const weight = Color(0xFFBF5AF2); // cân nặng
-  static const meal = Color(0xFFFF9F0A); // bữa ăn
-  static const medicine = Color(0xFF0A84FF); // thuốc
+  static const steps = Color(0xFFFF8A4C); // bước chân: cam hổ phách
+  static const meds = Color(0xFFFF6F61); // thuốc (vòng thứ nhất): san hô
+  static const sleep = Color(0xFFA08CFF); // giấc ngủ: tím phấn
+  static const water = Color(0xFF38D6C9); // nước uống: ngọc lam
+  static const weight = Color(0xFFE8C547); // cân nặng: vàng nắng
+  static const meal = Color(0xFFF26D9B); // bữa ăn: hồng cánh sen
+  static const medicine = Color(0xFF5AA9FF); // thuốc: xanh trời
 
-  /// Màu thương hiệu: nút nổi, tab đang chọn.
-  static const brand = steps;
-  static const danger = Color(0xFFFF453A);
+  /// Màu thương hiệu: nút nổi, tab đang chọn. Chữ trắng trên màu này đạt 4.5:1.
+  static const brand = Color(0xFFD93A2E);
+  static const danger = Color(0xFFFF6B6B);
 }
 
 /// Bảng màu động cho Light / Dark Mode đạt chuẩn tương phản WCAG AA (>= 4.5:1).
@@ -72,6 +73,7 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
     if (isDark) return c;
     final map = <Color, Color>{
       AppColors.steps: steps,
+      AppColors.meds: meds,
       AppColors.sleep: sleep,
       AppColors.water: water,
       AppColors.weight: weight,
@@ -106,20 +108,20 @@ class AppColorPalette extends ThemeExtension<AppColorPalette> {
   /// Bảng màu Light Mode chuẩn WCAG AA (>= 4.5:1 trên nền trắng #FFFFFF & xám nhạt #F2F2F7).
   static const light = AppColorPalette(
     isDark: false,
-    background: Color(0xFFF2F2F7),
+    background: Color(0xFFEEF4F3),
     card: Color(0xFFFFFFFF),
-    cardHigh: Color(0xFFE5E5EA),
-    separator: Color(0xFFC6C6C8),
-    ink: Color(0xFF111113),
-    inkSoft: Color(0xFF48484A),
-    steps: Color(0xFFC80A3D),
-    meds: Color(0xFFC80A3D),
-    sleep: Color(0xFF3B7A00),
-    water: Color(0xFF007680),
-    weight: Color(0xFF7E2FA3),
-    meal: Color(0xFF9E4700),
-    medicine: Color(0xFF005BB5),
-    brand: Color(0xFFC80A3D),
+    cardHigh: Color(0xFFDCE8E6),
+    separator: Color(0xFFC3D3D0),
+    ink: Color(0xFF0C2233),
+    inkSoft: Color(0xFF3F5A6B),
+    steps: Color(0xFFB2470F),
+    meds: Color(0xFFC2412F),
+    sleep: Color(0xFF5B45D6),
+    water: Color(0xFF00796F),
+    weight: Color(0xFF8A6A00),
+    meal: Color(0xFFB8325F),
+    medicine: Color(0xFF1559B8),
+    brand: Color(0xFFC2412F),
     danger: Color(0xFFC62828),
   );
 
@@ -210,17 +212,77 @@ abstract final class AppSpacing {
   static const lg = 24.0;
 }
 
+/// Chuyển động có chủ đích: chỉ dùng để báo điều gì vừa thay đổi (vòng đầy lên, số đếm, xác nhận ghi).
+/// Màn hình tôn trọng cài đặt Giảm chuyển động qua [AppMotion.of].
+abstract final class AppMotion {
+  static const fast = Duration(milliseconds: 160);
+  static const medium = Duration(milliseconds: 320);
+  static const slow = Duration(milliseconds: 900);
+  static const curve = Curves.easeOutCubic;
+
+  /// Thời lượng thực tế: bằng 0 khi người dùng bật Giảm chuyển động.
+  static Duration of(BuildContext context, Duration d) =>
+      MediaQuery.disableAnimationsOf(context) ? Duration.zero : d;
+}
+
+/// Gradient và vầng sáng theo màu của từng chỉ số, dùng cho vòng, thanh và biểu đồ.
+extension AccentX on Color {
+  /// Từ màu gốc sang một sắc sáng hơn, đi theo chiều vòng cung.
+  LinearGradient get gradient => LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color.lerp(this, Colors.white, 0.28)!, this],
+  );
+
+  /// Vầng sáng mờ phía sau phần tử nổi bật (chỉ dùng ở Dark Mode).
+  List<BoxShadow> get glow => [
+    BoxShadow(color: withValues(alpha: 0.35), blurRadius: 24, spreadRadius: -4),
+  ];
+}
+
+/// Họ chữ hiển thị: Bricolage Grotesque (OFL, có tiếng Việt) cho tiêu đề và số liệu.
+/// Chữ thân dùng font hệ thống để Dynamic Type và VoiceOver hoạt động chuẩn.
+abstract final class AppFonts {
+  static const display = 'BricolageGrotesque';
+
+  /// Trục độ đậm và độ hẹp của font biến thiên.
+  static List<FontVariation> variation({
+    double weight = 700,
+    double width = 100,
+  }) => [
+    FontVariation('wght', weight),
+    FontVariation('wdth', width),
+    const FontVariation('opsz', 48),
+  ];
+
+  /// Số liệu lớn: số có độ rộng đều để không nhảy khi đếm lên.
+  static TextStyle number(double size, {Color color = AppColors.ink}) =>
+      TextStyle(
+        fontFamily: display,
+        fontSize: size,
+        height: 1.0,
+        color: color,
+        fontVariations: variation(weight: 760, width: 92),
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
+}
+
 /// Hệ thống kiểu chữ chuẩn hóa cho toàn bộ ứng dụng.
 abstract final class AppTextStyles {
-  static const pageTitle = TextStyle(
-    fontSize: 34,
-    fontWeight: FontWeight.w800,
+  static final pageTitle = TextStyle(
+    fontFamily: AppFonts.display,
+    fontSize: 36,
+    height: 1.05,
+    letterSpacing: -0.5,
+    fontVariations: AppFonts.variation(weight: 780, width: 90),
     color: AppColors.ink,
   );
 
-  static const sectionTitle = TextStyle(
+  static final sectionTitle = TextStyle(
+    fontFamily: AppFonts.display,
     fontSize: 22,
-    fontWeight: FontWeight.w700,
+    height: 1.15,
+    fontVariations: AppFonts.variation(weight: 700, width: 95),
     color: AppColors.ink,
   );
 
@@ -230,11 +292,7 @@ abstract final class AppTextStyles {
     color: AppColors.ink,
   );
 
-  static const metricValue = TextStyle(
-    fontSize: 30,
-    fontWeight: FontWeight.w700,
-    color: AppColors.ink,
-  );
+  static final metricValue = AppFonts.number(34);
 
   static const body = TextStyle(fontSize: 15, color: AppColors.ink);
 

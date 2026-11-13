@@ -7,11 +7,12 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/activity_rings.dart';
+import '../../widgets/count_up.dart';
 import '../../widgets/metric_card.dart';
 import '../../widgets/section_header.dart';
 import '../auth/auth_controller.dart';
 import '../health/health_providers.dart';
-import 'dashboard_states.dart';
+import '../../widgets/core_widgets.dart';
 
 /// Màn Tổng quan (Dashboard), bố cục theo app Fitness của Apple, dữ liệu lấy từ backend.
 class HomeScreen extends ConsumerWidget {
@@ -53,12 +54,12 @@ class HomeScreen extends ConsumerWidget {
               Text(
                 formatHeaderDate(DateTime.now()),
                 style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
                   color: context.colors.inkSoft,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Row(
                 children: [
                   Expanded(
@@ -66,9 +67,7 @@ class HomeScreen extends ConsumerWidget {
                       header: true,
                       child: Text(
                         'Tổng quan',
-                        style: TextStyle(
-                          fontSize: 34,
-                          fontWeight: FontWeight.w800,
+                        style: AppTextStyles.pageTitle.copyWith(
                           color: context.colors.ink,
                         ),
                       ),
@@ -82,10 +81,7 @@ class HomeScreen extends ConsumerWidget {
                         backgroundColor: context.colors.cardHigh,
                         child: Text(
                           user.initial,
-                          style: TextStyle(
-                            color: context.colors.ink,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: AppFonts.number(18, color: context.colors.ink),
                         ),
                       ),
                     ),
@@ -152,25 +148,34 @@ const _empty = TodaySummary(
   medsTotal: 0,
 );
 
-/// Lớp bọc LiquidGlass nền tối giúp chữ và biểu tượng luôn đạt tương phản cao.
+/// Thẻ phẳng theo quy chuẩn docs/05: Liquid Glass chỉ dành cho lớp nổi, không phủ lên nội dung cuộn.
 class _GlassCard extends StatelessWidget {
-  const _GlassCard({required this.child});
+  const _GlassCard({required this.child, this.accent});
 
   final Widget child;
 
+  /// Màu tạo vầng sáng rất nhẹ ở góc trên bên trái, để thẻ chính có chiều sâu mà không cần bóng.
+  final Color? accent;
+
   @override
   Widget build(BuildContext context) {
-    return LiquidGlass(
-      cornerRadius: AppRadius.card,
-      tint: context.colors.card,
-      padding: EdgeInsets.zero,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: context.colors.card.withValues(alpha: 0.72),
-          borderRadius: BorderRadius.circular(AppRadius.card),
-        ),
-        child: Padding(padding: const EdgeInsets.all(18), child: child),
+    final c = context.colors;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(AppRadius.card + 4),
+        gradient: accent == null
+            ? null
+            : RadialGradient(
+                center: const Alignment(-0.85, -0.9),
+                radius: 1.3,
+                colors: [
+                  accent!.withValues(alpha: c.isDark ? 0.16 : 0.1),
+                  c.card,
+                ],
+              ),
       ),
+      child: Padding(padding: const EdgeInsets.all(20), child: child),
     );
   }
 }
@@ -191,11 +196,22 @@ class _RingsCard extends StatelessWidget {
       label:
           'Tóm tắt hôm nay: Nước uống ${formatNumber(s.waterMl / 1000)} trên ${formatNumber(s.waterGoalMl / 1000)} lít, Giấc ngủ $sleepDesc, Thuốc ${s.medsTaken} trên ${s.medsTotal} liều.',
       child: _GlassCard(
+        accent: context.colors.water,
         child: Row(
           children: [
             ActivityRings(
-              size: 124,
-              strokeWidth: 16,
+              size: 128,
+              strokeWidth: 15,
+              center: CountUp(
+                value:
+                    (s.waterProgress.clamp(0.0, 1.0) +
+                        s.sleepProgress.clamp(0.0, 1.0) +
+                        s.medsProgress.clamp(0.0, 1.0)) /
+                    3 *
+                    100,
+                format: (v) => '${v.round()}%',
+                style: AppFonts.number(24, color: context.colors.ink),
+              ),
               rings: [
                 RingData(
                   color: context.colors.water,
@@ -208,7 +224,7 @@ class _RingsCard extends StatelessWidget {
                 RingData(color: context.colors.meds, progress: s.medsProgress),
               ],
             ),
-            const SizedBox(width: 22),
+            const SizedBox(width: 24),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +232,7 @@ class _RingsCard extends StatelessWidget {
                   _Legend(
                     'Nước uống',
                     formatNumber(s.waterMl / 1000),
-                    '/${formatNumber(s.waterGoalMl / 1000)} LÍT',
+                    '/${formatNumber(s.waterGoalMl / 1000)} lít',
                     context.colors.water,
                   ),
                   const SizedBox(height: 12),
@@ -225,14 +241,14 @@ class _RingsCard extends StatelessWidget {
                     s.sleepMinutes == null
                         ? '--'
                         : formatNumber(s.sleepMinutes! / 60),
-                    '/${formatNumber(s.sleepGoalMinutes / 60)} GIỜ',
+                    '/${formatNumber(s.sleepGoalMinutes / 60)} giờ',
                     context.colors.sleep,
                   ),
                   const SizedBox(height: 12),
                   _Legend(
                     'Thuốc',
                     '${s.medsTaken}',
-                    '/${s.medsTotal} LIỀU',
+                    '/${s.medsTotal} liều',
                     context.colors.meds,
                   ),
                 ],
@@ -255,34 +271,53 @@ class _Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final number = double.tryParse(value.replaceAll(',', '.'));
+    final style = AppFonts.number(26, color: c.ink);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: context.colors.ink,
-          ),
-        ),
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: value,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                ),
+        Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: c.inkSoft,
               ),
-              TextSpan(
-                text: goal,
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              if (number == null)
+                Text(value, style: style)
+              else
+                CountUp(
+                  value: number,
+                  style: style,
+                  format: (v) => formatNumber(v),
+                ),
+              const SizedBox(width: 3),
+              Text(
+                goal,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: color,
+                  color: c.inkSoft,
                 ),
               ),
             ],
@@ -441,11 +476,7 @@ class _WaterWeekChart extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: formatNumber(total / 7 / 1000),
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: context.colors.ink,
-                    ),
+                    style: AppFonts.number(30, color: context.colors.ink),
                   ),
                   TextSpan(
                     text: ' lít/ngày',
@@ -474,16 +505,22 @@ class _WaterWeekChart extends StatelessWidget {
                           children: [
                             TweenAnimationBuilder<double>(
                               tween: Tween(begin: 0, end: values[i] / max),
-                              duration: Duration(milliseconds: 500 + i * 80),
-                              curve: Curves.easeOutCubic,
+                              duration: AppMotion.of(
+                                context,
+                                Duration(milliseconds: 500 + i * 80),
+                              ),
+                              curve: AppMotion.curve,
                               builder: (context, t, _) => Container(
                                 height: 88 * t,
                                 width: 18,
                                 decoration: BoxDecoration(
+                                  gradient: i == values.length - 1
+                                      ? context.colors.water.gradient
+                                      : null,
                                   color: i == values.length - 1
-                                      ? context.colors.water
+                                      ? null
                                       : context.colors.water.withValues(
-                                          alpha: 0.45,
+                                          alpha: 0.38,
                                         ),
                                   borderRadius: BorderRadius.circular(6),
                                 ),

@@ -338,10 +338,18 @@ class LoadingState extends StatelessWidget {
 
 /// Trạng thái lỗi chuẩn kèm nút Thử lại.
 class ErrorState extends StatelessWidget {
-  const ErrorState({super.key, required this.message, required this.onRetry});
+  const ErrorState({
+    super.key,
+    required this.message,
+    required this.onRetry,
+    this.retryLabel = 'Thử lại',
+  });
 
   final String message;
   final VoidCallback onRetry;
+
+  /// Nhãn nút hành động. Mặc định "Thử lại"; trang không tồn tại dùng "Về trang chủ".
+  final String retryLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -366,7 +374,9 @@ class ErrorState extends StatelessWidget {
             const SizedBox(height: 10),
             Semantics(
               button: true,
-              label: 'Thử lại tải dữ liệu',
+              label: retryLabel == 'Thử lại'
+                  ? 'Thử lại tải dữ liệu'
+                  : retryLabel,
               child: TextButton.icon(
                 onPressed: onRetry,
                 icon: Icon(
@@ -375,7 +385,7 @@ class ErrorState extends StatelessWidget {
                   size: 18,
                 ),
                 label: Text(
-                  'Thử lại',
+                  retryLabel,
                   style: TextStyle(color: context.colors.brand, fontSize: 16),
                 ),
               ),

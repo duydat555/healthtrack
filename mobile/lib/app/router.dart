@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,8 +12,9 @@ import '../features/onboarding/onboarding_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/reminders/reminders_screen.dart';
 import '../features/trends/trend_charts_screen.dart';
+import '../core/theme.dart';
+import '../widgets/core_widgets.dart';
 import 'app_shell.dart';
-import 'route_state_widgets.dart';
 
 /// Tab mở đầu; đổi bằng `--dart-define=INITIAL_ROUTE=/metrics` khi chụp màn hình hoặc debug.
 const _initialRoute = String.fromEnvironment(
@@ -47,9 +48,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (_authRoutes.contains(path) || path == '/splash') return '/';
       return null;
     },
-    errorBuilder: (context, state) => ErrorState(
-      message: 'Không tìm thấy trang "${state.uri.path}".',
-      onRetry: () => context.go('/'),
+    errorBuilder: (context, state) => Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: ErrorState(
+              message: 'Không tìm thấy trang "${state.uri.path}".',
+              retryLabel: 'Về trang chủ',
+              onRetry: () => context.go('/'),
+            ),
+          ),
+        ),
+      ),
     ),
     routes: [
       GoRoute(path: '/splash', builder: (c, s) => const SplashScreen()),

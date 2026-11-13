@@ -6,7 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
-import '../../widgets/state_widgets.dart';
+import '../../widgets/core_widgets.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../health/models.dart';
@@ -86,9 +86,7 @@ class GoalsScreen extends ConsumerWidget {
               header: true,
               child: Text(
                 'Mục tiêu',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w800,
+                style: AppTextStyles.pageTitle.copyWith(
                   color: context.colors.ink,
                 ),
               ),

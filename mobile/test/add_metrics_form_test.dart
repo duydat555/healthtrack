@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:healthtrack/features/add/add_state_widgets.dart';
+import 'package:healthtrack/widgets/core_widgets.dart';
 
 import 'helpers/fake_backend.dart';
 

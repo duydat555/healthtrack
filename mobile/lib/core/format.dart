@@ -24,18 +24,18 @@ String formatDuration(int minutes) {
 }
 
 const _weekdays = [
-  'THỨ HAI',
-  'THỨ BA',
-  'THỨ TƯ',
-  'THỨ NĂM',
-  'THỨ SÁU',
-  'THỨ BẢY',
-  'CHỦ NHẬT',
+  'Thứ hai',
+  'Thứ ba',
+  'Thứ tư',
+  'Thứ năm',
+  'Thứ sáu',
+  'Thứ bảy',
+  'Chủ nhật',
 ];
 
-/// "THỨ HAI, 9 THÁNG 11"
+/// "Thứ hai, 9 tháng 11"
 String formatHeaderDate(DateTime d) =>
-    '${_weekdays[d.weekday - 1]}, ${d.day} THÁNG ${d.month}';
+    '${_weekdays[d.weekday - 1]}, ${d.day} tháng ${d.month}';
 
 const weekdayShort = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 

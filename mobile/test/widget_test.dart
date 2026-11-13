@@ -12,9 +12,9 @@ void main() {
     expect(find.byType(ActivityRings), findsOneWidget);
     // 500 + 300 ml nước hôm nay, mục tiêu mặc định 2 lít
     expect(find.textContaining('0,8', findRichText: true), findsWidgets);
-    expect(find.textContaining('/2 LÍT', findRichText: true), findsOneWidget);
+    expect(find.textContaining('/2 lít', findRichText: true), findsOneWidget);
     // giấc ngủ 480 phút = 8 giờ
-    expect(find.textContaining('/8 GIỜ', findRichText: true), findsOneWidget);
+    expect(find.textContaining('/8 giờ', findRichText: true), findsOneWidget);
     // chữ cái đầu của "Người dùng Demo"
     expect(find.text('N'), findsOneWidget);
   });
@@ -74,11 +74,11 @@ void main() {
         }),
       },
     );
-    expect(find.textContaining('/2,5 LÍT', findRichText: true), findsOneWidget);
+    expect(find.textContaining('/2,5 lít', findRichText: true), findsOneWidget);
     // sleep_minutes = 0 nghĩa là chưa ghi giấc ngủ nào hôm nay
     expect(find.textContaining('--', findRichText: true), findsWidgets);
     // 1 thuốc đã uống, 1 thuốc đang dùng
-    expect(find.textContaining('/1 LIỀU', findRichText: true), findsOneWidget);
+    expect(find.textContaining('/1 liều', findRichText: true), findsOneWidget);
   });
 
   testWidgets('API lỗi mạng thì hiện thông báo và nút thử lại', (tester) async {

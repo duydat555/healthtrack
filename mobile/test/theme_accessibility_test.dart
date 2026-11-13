@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:healthtrack/app/router.dart';
 import 'package:healthtrack/core/theme.dart';
 import 'package:healthtrack/features/home/home_screen.dart';
-import 'package:healthtrack/widgets/theme_state_widgets.dart';
+import 'package:healthtrack/widgets/core_widgets.dart';
 
 import 'helpers/fake_backend.dart';
 
@@ -113,7 +113,7 @@ void main() {
           home: Scaffold(
             body: Column(
               children: [
-                const LoadingState(),
+                const LoadingState(useSkeleton: false),
                 ErrorState(message: 'Lỗi mạng', onRetry: () => retried = true),
                 const EmptyState(message: 'Không có dữ liệu'),
               ],
