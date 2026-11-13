@@ -26,54 +26,93 @@ final class TabBarModel: ObservableObject {
 }
 
 /// Thanh tab dưới kiểu Liquid Glass + nút thêm nhanh nổi.
-/// iOS 26+: các phần tử nằm trong `GlassEffectContainer` nên kính hòa vào nhau.
+///
+/// iOS 26+: toàn bộ nằm trong một `GlassEffectContainer`. Thanh tab là một viên kính, tab đang
+/// chọn là một "thấu kính" kính thứ hai dùng `glassEffectID` nên khi đổi tab, hệ thống tự làm kính
+/// chảy và hòa từ vị trí cũ sang vị trí mới (không phải hoạt hình phóng to/làm mờ giả).
+/// Các cài đặt Giảm trong suốt và Giảm chuyển động do hệ thống tự áp dụng cho kính; phần chuyển
+/// động lò xo của ta tắt khi bật Giảm chuyển động.
 struct LiquidGlassTabBarView: View {
     @ObservedObject var model: TabBarModel
+    @Namespace private var glassNS
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var spring: Animation? {
+        reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.78)
+    }
 
     var body: some View {
         if #available(iOS 26.0, *) {
-            GlassEffectContainer(spacing: 12) {
+            GlassEffectContainer(spacing: 14) {
                 HStack(spacing: 12) {
-                    tabs.glassEffect(.regular, in: .capsule)
-                    if model.showsAdd { addButton.glassEffect(.regular.tint(model.tint).interactive(), in: .circle) }
+                    tabs(native: true)
+                        .glassEffect(.regular.interactive(), in: .capsule)
+                        .glassEffectID("bar", in: glassNS)
+                    if model.showsAdd {
+                        addButton
+                            .glassEffect(.regular.tint(model.tint).interactive(), in: .circle)
+                            .glassEffectID("add", in: glassNS)
+                    }
                 }
             }
             .padding(.horizontal, 4)
         } else {
             HStack(spacing: 12) {
-                tabs.background(.ultraThinMaterial, in: Capsule())
+                tabs(native: false).background(.ultraThinMaterial, in: Capsule())
                 if model.showsAdd { addButton.background(model.tint, in: Circle()) }
             }
             .padding(.horizontal, 4)
         }
     }
 
-    private var tabs: some View {
+    private func tabs(native: Bool) -> some View {
         HStack(spacing: 0) {
             ForEach(model.items) { item in
-                let isSelected = item.id == model.selected
-                Button {
-                    model.selected = item.id
-                    model.onSelect(item.id)
-                } label: {
-                    VStack(spacing: 2) {
-                        Image(systemName: item.symbol).font(.system(size: 20, weight: .semibold))
-                        Text(item.title).font(.system(size: 10, weight: .medium)).lineLimit(1)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .foregroundStyle(isSelected ? model.tint : Color.secondary)
-                    .background {
-                        if isSelected { Capsule().fill(model.tint.opacity(0.16)) }
-                    }
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(item.title)
-                .accessibilityAddTraits(isSelected ? .isSelected : [])
+                tabButton(item, native: native)
             }
         }
         .padding(4)
-        .animation(.smooth(duration: 0.25), value: model.selected)
+        .animation(spring, value: model.selected)
+    }
+
+    @ViewBuilder
+    private func tabButton(_ item: TabItem, native: Bool) -> some View {
+        let isSelected = item.id == model.selected
+        Button {
+            model.selected = item.id
+            model.onSelect(item.id)
+        } label: {
+            VStack(spacing: 2) {
+                // Icon mang màu thương hiệu; chữ dùng màu chính để đủ tương phản trên kính
+                Image(systemName: item.symbol)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(isSelected ? model.tint : Color.secondary)
+                Text(item.title)
+                    .font(.system(size: 10, weight: isSelected ? .semibold : .medium))
+                    .lineLimit(1)
+                    .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .background { lens(isSelected: isSelected, native: native) }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(item.title)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    /// Thấu kính của tab đang chọn: kính thật (iOS 26+) hoặc viên màu nhạt (iOS cũ hơn).
+    @ViewBuilder
+    private func lens(isSelected: Bool, native: Bool) -> some View {
+        if isSelected {
+            if #available(iOS 26.0, *), native {
+                Capsule().fill(Color.clear)
+                    .glassEffect(.regular.tint(model.tint.opacity(0.14)), in: .capsule)
+                    .glassEffectID("lens", in: glassNS)
+            } else {
+                Capsule().fill(model.tint.opacity(0.16))
+            }
+        }
     }
 
     private var addButton: some View {
