@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -428,7 +429,8 @@ class _WaterWeekChart extends StatelessWidget {
   }
 }
 
-/// Đồng bộ Apple Health một lần khi mở Tổng quan (nếu người dùng đã bật).
+/// Đồng bộ Apple Health khi mở Tổng quan, mỗi lần quay lại app và định kỳ 2 phút khi đang mở
+/// (nếu người dùng đã bật), để số bước chân cập nhật khi đi bộ.
 class _AutoSync extends ConsumerStatefulWidget {
   const _AutoSync();
 
@@ -436,13 +438,32 @@ class _AutoSync extends ConsumerStatefulWidget {
   ConsumerState<_AutoSync> createState() => _AutoSyncState();
 }
 
-class _AutoSyncState extends ConsumerState<_AutoSync> {
+class _AutoSyncState extends ConsumerState<_AutoSync>
+    with WidgetsBindingObserver {
+  Timer? _timer;
+
+  void _sync() {
+    if (mounted) ref.read(healthSyncProvider.notifier).syncIfEnabled();
+  }
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) ref.read(healthSyncProvider.notifier).syncIfEnabled();
-    });
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
+    _timer = Timer.periodic(const Duration(minutes: 2), (_) => _sync());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _sync();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
