@@ -44,15 +44,15 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
         addSubview(controller.view)
 
         if showsAdd {
-            var config = UIButton.Configuration.prominentGlass()
-            // Ảnh giữ nguyên màu (alwaysOriginal): nếu không, lớp kính hệ thống nhuộm glyph theo nền
-            // và "+" bị mờ, không còn tương phản với nền vàng.
+            // Kính thật (trong suốt, ánh sáng bẻ cong), chỉ nhuộm vàng nhẹ; glyph dùng màu chữ
+            // thương hiệu để vẫn đọc được trên kính ở cả nền sáng và tối.
+            var config = UIButton.Configuration.glass()
             config.image = UIImage(
                 systemName: "plus",
                 withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .bold)
-            )?.withTintColor(onTint, renderingMode: .alwaysOriginal)
-            config.baseForegroundColor = onTint
-            config.baseBackgroundColor = tint
+            )?.withTintColor(tabTint, renderingMode: .alwaysOriginal)
+            config.baseForegroundColor = tabTint
+            config.baseBackgroundColor = tint.withAlphaComponent(0.4)
             config.cornerStyle = .capsule
             addButton.configuration = config
             addButton.accessibilityLabel = "Thêm nhanh"

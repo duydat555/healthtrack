@@ -96,10 +96,15 @@ class SettingsRow extends StatelessWidget {
             ),
             if (value != null) ...[
               const SizedBox(width: AppSpacing.sm),
-              Flexible(
+              // Giá trị sát mép phải, tối đa nửa hàng; phần còn lại thuộc về tiêu đề
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width * 0.42,
+                ),
                 child: Text(
                   value!,
                   textAlign: TextAlign.end,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: context.text.body.copyWith(color: c.inkSoft),
                 ),
