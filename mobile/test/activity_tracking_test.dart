@@ -19,10 +19,10 @@ class FakeSensors implements ActivitySensors {
   final live = StreamController<int>.broadcast();
   int permissionRequests = 0;
 
-  DateTime get _today {
-    final n = DateTime.now();
-    return DateTime(n.year, n.month, n.day);
-  }
+  /// Giờ cố định của test: 10:00 ngày 15/11/2026, sau giờ dậy 06:30 và không phụ thuộc lúc chạy.
+  static DateTime get fixedNow => DateTime(2026, 11, 15, 10);
+
+  DateTime get _today => DateTime(2026, 11, 15);
 
   String get _todayKey =>
       '${_today.year}-${_today.month.toString().padLeft(2, '0')}-${_today.day.toString().padLeft(2, '0')}';
@@ -117,6 +117,7 @@ void main() {
       providerOverrides: [
         settingsStorageProvider.overrideWithValue(MemorySettingsStorage()),
         activitySensorsProvider.overrideWithValue(sensors),
+        clockProvider.overrideWithValue(() => FakeSensors.fixedNow),
       ],
       overrides: {
         'POST /sync/healthkit': (_) => const FakeResponse(200, {
@@ -193,8 +194,7 @@ void main() {
   testWidgets(
     'iPhone có Apple Health: dùng giấc ngủ và năng lượng của Apple thay cho mô hình',
     (tester) async {
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
+      final today = DateTime(2026, 11, 15);
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(const MethodChannel('healthtrack/health'), (
             call,

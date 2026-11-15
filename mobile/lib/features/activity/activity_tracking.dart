@@ -13,6 +13,9 @@ import 'activity_algorithms.dart';
 
 const _enabledKey = 'activity_tracking_enabled';
 
+/// Đồng hồ của app; test thay bằng giờ cố định để kết quả không phụ thuộc lúc chạy.
+final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
+
 final activitySensorsProvider = Provider<ActivitySensors>(
   (ref) => const ActivitySensors(),
 );
@@ -187,7 +190,7 @@ class ActivityTrackingNotifier extends Notifier<ActivityTrackingState> {
   Future<void> openRestAccessSettings() => _sensors.openRestAccessSettings();
 
   Future<void> syncNow({DateTime? now}) async {
-    final at = now ?? DateTime.now();
+    final at = now ?? ref.read(clockProvider)();
     state = state.copyWith(busy: true, clearError: true);
     try {
       final today = DateTime(at.year, at.month, at.day);
@@ -336,7 +339,7 @@ final activityTrackingProvider =
 final todayStepsProvider = Provider<int?>((ref) {
   final live = ref.watch(activityTrackingProvider.select((s) => s.todaySteps));
   final logs = ref.watch(bodyDataProvider).value?.steps ?? const [];
-  final now = DateTime.now();
+  final now = ref.watch(clockProvider)();
   final key = _dayKey(now);
   final server = logs.where((s) => s.day == key).firstOrNull?.steps;
   if (live == null) return server;
@@ -365,7 +368,7 @@ final todayEnergyProvider = Provider<EnergyEstimate>((ref) {
     distanceM: distance,
     buckets: tracking.buckets,
     appleActiveKcal: tracking.appleActiveKcal,
-    now: DateTime.now(),
+    now: ref.watch(clockProvider)(),
     profile: BodyProfile(
       weightKg: weight,
       heightCm: user?.heightCm,
