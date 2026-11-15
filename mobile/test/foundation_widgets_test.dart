@@ -7,6 +7,7 @@ import 'package:healthtrack/widgets/metric_card.dart';
 import 'package:healthtrack/widgets/section_header.dart';
 import 'package:healthtrack/widgets/settings_group.dart';
 import 'package:healthtrack/core/app_icons.dart';
+import 'package:liquid_glass/liquid_glass.dart';
 
 Widget _host(Widget child) => MaterialApp(
   theme: AppTheme.dark,
@@ -187,7 +188,7 @@ void main() {
     );
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     expect(
-      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+      tester.widget<GlassButton>(find.byType(GlassButton)).onPressed,
       isNull,
     );
   });

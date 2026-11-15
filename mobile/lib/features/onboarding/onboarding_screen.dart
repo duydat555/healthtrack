@@ -10,6 +10,7 @@ import '../auth/auth_controller.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../../core/app_icons.dart';
+import '../../widgets/core_widgets.dart';
 
 /// Đánh dấu người dùng đã hoàn tất hoặc bỏ qua onboarding trong phiên hiện tại.
 class OnboardingDoneNotifier extends Notifier<bool> {
@@ -165,14 +166,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: _step > 0
-            ? Semantics(
-                button: true,
-                label: 'Quay lại bước trước',
-                child: IconButton(
-                  tooltip: 'Quay lại',
-                  icon: Icon(AppIcons.back, color: context.colors.ink),
-                  onPressed: _busy ? null : () => _goTo(_step - 1),
-                ),
+            ? RoundIconButton(
+                tooltip: 'Quay lại',
+                semanticLabel: 'Quay lại bước trước',
+                symbol: 'chevron.left',
+                icon: AppIcons.back,
+                onTap: _busy ? null : () => _goTo(_step - 1),
               )
             : null,
         title: Semantics(

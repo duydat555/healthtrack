@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/fake_backend.dart';
 
+import 'package:liquid_glass/liquid_glass.dart';
+
 void main() {
   testWidgets(
     'thêm thuốc bằng form sheet: tên bắt buộc, lưu gửi đúng dữ liệu',
@@ -31,8 +33,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Form sheet: Lưu ("Thêm") tắt khi chưa nhập tên
-      TextButton add() =>
-          tester.widget<TextButton>(find.widgetWithText(TextButton, 'Thêm'));
+      GlassButton add() =>
+          tester.widget<GlassButton>(find.widgetWithText(GlassButton, 'Thêm'));
       expect(add().onPressed, isNull);
 
       await tester.enterText(find.byType(TextFormField).at(0), 'Vitamin C');
@@ -40,7 +42,7 @@ void main() {
       await tester.pump();
       expect(add().onPressed, isNotNull);
 
-      await tester.tap(find.widgetWithText(TextButton, 'Thêm'));
+      await tester.tap(find.widgetWithText(GlassButton, 'Thêm'));
       await tester.pumpAndSettle();
 
       final post = app.backend.requests.firstWhere(

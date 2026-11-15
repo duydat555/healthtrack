@@ -12,6 +12,9 @@ public class LiquidGlassPlugin: NSObject, FlutterPlugin {
     registrar.register(
       LiquidGlassCardGroupFactory(messenger: registrar.messenger()), withId: LiquidGlassCardGroupFactory.viewType)
 
+    registrar.register(
+      LiquidGlassButtonFactory(messenger: registrar.messenger()), withId: LiquidGlassButtonFactory.viewType)
+
     let channel = FlutterMethodChannel(name: "liquid_glass", binaryMessenger: registrar.messenger())
     registrar.addMethodCallDelegate(LiquidGlassPlugin(), channel: channel)
   }

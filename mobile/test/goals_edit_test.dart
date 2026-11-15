@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/fake_backend.dart';
 
+import 'package:liquid_glass/liquid_glass.dart';
+
 void main() {
   testWidgets(
     'sửa mục tiêu: kiểm tra khoảng hợp lệ, lưu lên máy chủ và đóng sheet',
@@ -32,8 +34,8 @@ void main() {
       // Sheet: tiêu đề, đơn vị, và Lưu mở sẵn vì giá trị mặc định (2) hợp lệ
       expect(find.text('Mục tiêu nước uống'), findsOneWidget);
       expect(find.text('lít/ngày'), findsOneWidget);
-      TextButton save() =>
-          tester.widget<TextButton>(find.widgetWithText(TextButton, 'Lưu'));
+      GlassButton save() =>
+          tester.widget<GlassButton>(find.widgetWithText(GlassButton, 'Lưu'));
       expect(save().onPressed, isNotNull);
 
       // Ngoài khoảng: báo lỗi và tắt Lưu

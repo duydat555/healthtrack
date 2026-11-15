@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/fake_backend.dart';
 
+import 'package:liquid_glass/liquid_glass.dart';
+
 Future<void> _openReminders(WidgetTester tester) async {
   await tester.tap(find.text('Hồ sơ'));
   await tester.pumpAndSettle();
@@ -92,7 +94,7 @@ void main() {
 
       final saveBtn = find.descendant(
         of: find.byType(BottomSheet),
-        matching: find.widgetWithText(FilledButton, 'Thêm nhắc nhở'),
+        matching: find.widgetWithText(GlassButton, 'Thêm nhắc nhở'),
       );
       await tester.ensureVisible(saveBtn);
       await tester.tap(saveBtn);

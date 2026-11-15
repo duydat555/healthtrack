@@ -5,6 +5,10 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
+
+import 'package:liquid_glass/liquid_glass.dart'
+    show GlassButton, GlassIconButton;
+
 import '../core/app_icons.dart';
 
 /// Nút phụ dạng viền dùng chung, hỗ trợ trạng thái đang tải và Semantics.
@@ -230,14 +234,12 @@ class AppBottomSheet extends StatelessWidget {
                     child: Text(title, style: context.text.sectionTitle),
                   ),
                 ),
-                Semantics(
-                  button: true,
-                  label: 'Đóng $title',
-                  child: IconButton(
-                    tooltip: 'Đóng',
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(AppIcons.close, color: context.colors.inkSoft),
-                  ),
+                RoundIconButton(
+                  tooltip: 'Đóng',
+                  semanticLabel: 'Đóng $title',
+                  symbol: 'xmark',
+                  icon: AppIcons.close,
+                  onTap: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
@@ -572,13 +574,16 @@ class EmptyState extends StatelessWidget {
               ),
               if (actionLabel != null && onAction != null) ...[
                 const SizedBox(height: AppSpacing.md),
-                Semantics(
-                  button: true,
-                  label: actionLabel,
-                  child: FilledButton(
-                    onPressed: onAction,
-                    child: Text(actionLabel!),
-                  ),
+                GlassButton.pill(
+                  label: actionLabel!,
+                  onPressed: onAction,
+                  prominent: true,
+                  width: 220,
+                  height: 46,
+                  foreground: context.colors.onBrand,
+                  tint: context.colors.brand,
+                  onTint: context.colors.onBrand,
+                  dark: context.colors.isDark,
                 ),
               ],
             ],
@@ -595,43 +600,33 @@ class RoundIconButton extends StatelessWidget {
     super.key,
     required this.tooltip,
     required this.icon,
+    required this.symbol,
     required this.onTap,
     this.semanticLabel,
   });
 
   final String tooltip;
   final String? semanticLabel;
+
+  /// Icon Phosphor dùng cho bản dự phòng (Android, iOS cũ).
   final IconData icon;
-  final VoidCallback onTap;
+
+  /// Tên SF Symbol dùng cho nút Liquid Glass thật trên iOS 26+.
+  final String symbol;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     return Tooltip(
       message: tooltip,
-      child: Semantics(
-        button: true,
-        label: semanticLabel ?? tooltip,
-        excludeSemantics: true,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: SizedBox.square(
-            dimension: 44,
-            child: Center(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: c.cardHigh,
-                  shape: BoxShape.circle,
-                ),
-                child: SizedBox.square(
-                  dimension: 36,
-                  child: Icon(icon, size: 19, color: c.ink),
-                ),
-              ),
-            ),
-          ),
-        ),
+      child: GlassIconButton(
+        symbol: symbol,
+        fallbackIcon: icon,
+        onPressed: onTap,
+        semanticLabel: semanticLabel ?? tooltip,
+        foreground: c.ink,
+        dark: c.isDark,
       ),
     );
   }

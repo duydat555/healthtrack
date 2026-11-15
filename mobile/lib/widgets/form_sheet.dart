@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart' show CupertinoDialogAction;
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
-import 'core_widgets.dart';
+
+import 'package:liquid_glass/liquid_glass.dart' show GlassButton;
 
 /// Trạng thái của một form sheet. Nội dung form báo lên qua [update]; sheet dùng nó để bật/tắt
 /// nút Lưu và để hỏi lại trước khi bỏ thay đổi.
@@ -155,22 +156,14 @@ class _FormSheetState extends State<_FormSheet> {
                 ),
                 child: Row(
                   children: [
-                    SizedBox(
-                      width: 88,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton(
-                          onPressed: _form.saving
-                              ? null
-                              : () => Navigator.of(context).maybePop(),
-                          child: Text(
-                            widget.cancelLabel,
-                            style: context.text.body.copyWith(
-                              color: c.brandText,
-                            ),
-                          ),
-                        ),
-                      ),
+                    GlassButton.pill(
+                      label: widget.cancelLabel,
+                      width: 76,
+                      foreground: c.ink,
+                      dark: c.isDark,
+                      onPressed: _form.saving
+                          ? null
+                          : () => Navigator.of(context).maybePop(),
                     ),
                     Expanded(
                       child: Semantics(
@@ -182,27 +175,16 @@ class _FormSheetState extends State<_FormSheet> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 88,
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: _form.valid && !_form.saving
-                              ? _save
-                              : null,
-                          child: _form.saving
-                              ? const AppActivityIndicator(radius: 9)
-                              : Text(
-                                  widget.saveLabel,
-                                  style: context.text.body.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: _form.valid
-                                        ? c.brandText
-                                        : c.disabled,
-                                  ),
-                                ),
-                        ),
-                      ),
+                    GlassButton.pill(
+                      label: widget.saveLabel,
+                      width: 76,
+                      prominent: true,
+                      foreground: c.onBrand,
+                      tint: c.brand,
+                      onTint: c.onBrand,
+                      dark: c.isDark,
+                      loading: _form.saving,
+                      onPressed: _form.valid && !_form.saving ? _save : null,
                     ),
                   ],
                 ),

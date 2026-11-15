@@ -6,6 +6,7 @@ import '../../core/theme.dart';
 import 'coach_controller.dart';
 import 'coach_models.dart';
 import '../../core/app_icons.dart';
+import '../../widgets/core_widgets.dart';
 
 const _suggestions = [
   'Tuần này mình uống nước đủ chưa?',
@@ -67,10 +68,11 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
     });
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
+        leading: RoundIconButton(
           tooltip: 'Quay lại',
-          icon: const Icon(AppIcons.back),
-          onPressed: () => context.pop(),
+          symbol: 'chevron.left',
+          icon: AppIcons.back,
+          onTap: () => context.pop(),
         ),
         title: Semantics(
           header: true,
@@ -81,10 +83,11 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
         ),
         actions: [
           if (state.messages.isNotEmpty)
-            IconButton(
+            RoundIconButton(
               tooltip: 'Cuộc trò chuyện mới',
-              icon: const Icon(AppIcons.restart),
-              onPressed: state.busy
+              symbol: 'arrow.counterclockwise',
+              icon: AppIcons.restart,
+              onTap: state.busy
                   ? null
                   : ref.read(coachControllerProvider.notifier).clear,
             ),

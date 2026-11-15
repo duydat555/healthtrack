@@ -81,6 +81,7 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                     ),
                     RoundIconButton(
+                      symbol: 'slider.horizontal.3',
                       tooltip: 'Thiết lập nhanh',
                       semanticLabel: 'Mở thiết lập ban đầu Onboarding',
                       icon: AppIcons.sliders,

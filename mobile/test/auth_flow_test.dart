@@ -6,6 +6,8 @@ import 'package:healthtrack/features/home/home_screen.dart';
 
 import 'helpers/fake_backend.dart';
 
+import 'package:liquid_glass/liquid_glass.dart';
+
 void main() {
   testWidgets('chưa đăng nhập thì bị chuyển tới màn đăng nhập', (tester) async {
     final app = await pumpApp(tester, loggedIn: false);
@@ -23,7 +25,7 @@ void main() {
       'demo@healthtrack.example',
     );
     await tester.enterText(find.byType(TextFormField).at(1), 'matkhau123');
-    await tester.tap(find.widgetWithText(FilledButton, 'Đăng nhập'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Đăng nhập'));
     await tester.pumpAndSettle();
 
     expect(find.byType(HomeScreen), findsOneWidget);
@@ -40,7 +42,7 @@ void main() {
         'demo@healthtrack.example',
       );
       await tester.enterText(find.byType(TextFormField).at(1), 'sai-mat-khau');
-      await tester.tap(find.widgetWithText(FilledButton, 'Đăng nhập'));
+      await tester.tap(find.widgetWithText(GlassButton, 'Đăng nhập'));
       await tester.pumpAndSettle();
 
       expect(find.text('Email hoặc mật khẩu không đúng'), findsOneWidget);
@@ -57,7 +59,7 @@ void main() {
       find.byType(TextFormField).at(0),
       'khong-phai-email',
     );
-    await tester.tap(find.widgetWithText(FilledButton, 'Đăng nhập'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Đăng nhập'));
     await tester.pumpAndSettle();
     expect(find.text('Email chưa đúng định dạng'), findsOneWidget);
     expect(find.text('Nhập mật khẩu'), findsOneWidget);
@@ -76,7 +78,7 @@ void main() {
       'demo@healthtrack.example',
     );
     await tester.enterText(find.byType(TextFormField).at(2), 'matkhau123');
-    await tester.tap(find.widgetWithText(FilledButton, 'Đăng ký'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Đăng ký'));
     await tester.pumpAndSettle();
 
     expect(app.backend.count('POST /auth/register'), 1);
@@ -101,7 +103,7 @@ void main() {
       'demo@healthtrack.example',
     );
     await tester.enterText(find.byType(TextFormField).at(2), 'matkhau123');
-    await tester.tap(find.widgetWithText(FilledButton, 'Đăng ký'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Đăng ký'));
     await tester.pumpAndSettle();
     expect(find.text('Email đã được đăng ký'), findsOneWidget);
   });
