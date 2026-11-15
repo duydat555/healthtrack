@@ -21,6 +21,7 @@ import '../auth/user.dart';
 import '../coach/coach_controller.dart';
 import '../health/healthkit_sync.dart';
 import '../../core/app_icons.dart';
+import '../../widgets/skeletons.dart';
 
 const _genderLabels = <String, String>{
   'male': 'Nam',
@@ -49,7 +50,10 @@ class ProfileScreen extends ConsumerWidget {
       body: SafeArea(
         bottom: false,
         child: auth.when(
-          loading: () => const LoadingState(),
+          loading: () => const SingleChildScrollView(
+            padding: EdgeInsets.all(AppSpacing.md),
+            child: ProfileSkeleton(),
+          ),
           error: (e, _) => ErrorState(
             message: apiErrorMessage(e),
             onRetry: () => ref.invalidate(authProvider),

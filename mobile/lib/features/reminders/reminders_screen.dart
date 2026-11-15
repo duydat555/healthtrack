@@ -9,6 +9,7 @@ import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../health/models.dart';
 import '../../core/app_icons.dart';
+import '../../widgets/core_widgets.dart';
 
 /// Mô tả hiển thị cho từng loại nhắc nhở.
 class _ReminderKindMeta {
@@ -508,9 +509,7 @@ class _LoadingView extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       label: 'Đang tải danh sách nhắc nhở',
-      child: Center(
-        child: CircularProgressIndicator(color: context.colors.brandText),
-      ),
+      child: Center(child: const AppActivityIndicator(radius: 14)),
     );
   }
 }

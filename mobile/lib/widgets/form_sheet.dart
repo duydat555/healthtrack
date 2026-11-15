@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart' show CupertinoDialogAction;
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
+import 'core_widgets.dart';
 
 /// Trạng thái của một form sheet. Nội dung form báo lên qua [update]; sheet dùng nó để bật/tắt
 /// nút Lưu và để hỏi lại trước khi bỏ thay đổi.
@@ -190,13 +191,7 @@ class _FormSheetState extends State<_FormSheet> {
                               ? _save
                               : null,
                           child: _form.saving
-                              ? SizedBox.square(
-                                  dimension: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: c.brandText,
-                                  ),
-                                )
+                              ? const AppActivityIndicator(radius: 9)
                               : Text(
                                   widget.saveLabel,
                                   style: context.text.body.copyWith(

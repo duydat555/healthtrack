@@ -10,6 +10,7 @@ import '../../widgets/section_header.dart';
 import '../health/health_providers.dart';
 import '../health/models.dart';
 import '../../core/app_icons.dart';
+import '../../widgets/core_widgets.dart';
 
 /// Metadata hiển thị và quy đổi đơn vị cho từng chỉ số xu hướng.
 class _MetricMeta {
@@ -712,7 +713,7 @@ class _TrendLoading extends StatelessWidget {
           color: context.colors.card,
           borderRadius: BorderRadius.circular(AppRadius.card),
         ),
-        child: CircularProgressIndicator(color: context.colors.brandText),
+        child: const AppActivityIndicator(radius: 14),
       ),
     );
   }

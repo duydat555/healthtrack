@@ -19,6 +19,7 @@ import '../health/healthkit_sync.dart';
 import '../widget/widget_sync.dart';
 import '../../widgets/core_widgets.dart';
 import '../../core/app_icons.dart';
+import '../../widgets/skeletons.dart';
 
 /// Màn Tổng quan (Dashboard), bố cục theo app Fitness của Apple, dữ liệu lấy từ backend.
 class HomeScreen extends ConsumerWidget {
@@ -34,8 +35,7 @@ class HomeScreen extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       body: SafeArea(
         bottom: false,
-        child: RefreshIndicator(
-          color: context.colors.brandText,
+        child: AppRefreshList(
           onRefresh: () async {
             refreshHealthData(ref);
             refreshStepMealData(ref);
@@ -48,107 +48,98 @@ class HomeScreen extends ConsumerWidget {
                   .then<Object?>((v) => v, onError: (_) => null),
             ]);
           },
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.sm,
-              AppSpacing.md,
-              AppLayout.tabBarInset(context),
-            ),
-            children: [
-              const _AutoSync(),
-              const WidgetSync(),
-              Text(
-                formatHeaderDate(DateTime.now()).toUpperCase(),
-                style: context.text.caption.copyWith(
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 0.4,
-                ),
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.sm,
+            AppSpacing.md,
+            AppLayout.tabBarInset(context),
+          ),
+          children: [
+            const _AutoSync(),
+            const WidgetSync(),
+            Text(
+              formatHeaderDate(DateTime.now()).toUpperCase(),
+              style: context.text.caption.copyWith(
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.4,
               ),
-              const SizedBox(height: AppSpacing.xxs),
-              Row(
-                children: [
-                  Expanded(
-                    child: Semantics(
-                      header: true,
-                      child: Text('Tổng quan', style: context.text.largeTitle),
-                    ),
+            ),
+            const SizedBox(height: AppSpacing.xxs),
+            Row(
+              children: [
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text('Tổng quan', style: context.text.largeTitle),
                   ),
-                  RoundIconButton(
-                    tooltip: 'Hỏi Coach',
-                    icon: AppIcons.chat,
-                    onTap: () => context.push('/coach'),
-                  ),
-                  if (user != null) ...[
-                    const SizedBox(width: AppSpacing.xs),
-                    Semantics(
-                      label: 'Hồ sơ của ${user.fullName}',
-                      child: CircleAvatar(
-                        radius: 20,
-                        backgroundColor: context.colors.brand,
-                        child: Text(
-                          user.initial,
-                          style: AppFonts.number(
-                            17,
-                            color: context.colors.onBrand,
-                          ),
+                ),
+                RoundIconButton(
+                  tooltip: 'Hỏi Coach',
+                  icon: AppIcons.chat,
+                  onTap: () => context.push('/coach'),
+                ),
+                if (user != null) ...[
+                  const SizedBox(width: AppSpacing.xs),
+                  Semantics(
+                    label: 'Hồ sơ của ${user.fullName}',
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: context.colors.brand,
+                      child: Text(
+                        user.initial,
+                        style: AppFonts.number(
+                          17,
+                          color: context.colors.onBrand,
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ],
+              ],
+            ),
+            const SectionHeader('Hôm nay'),
+            summary.when(
+              data: (s) => _RingsCard(summary: s),
+              loading: () => const RingsCardSkeleton(),
+              error: (e, _) => ErrorState(
+                message: apiErrorMessage(e),
+                onRetry: () => ref.invalidate(todaySummaryProvider),
               ),
-              const SectionHeader('Hôm nay'),
-              summary.when(
-                data: (s) => _RingsCard(summary: s),
-                loading: () => const LoadingState(
-                  height: 172,
-                  label: 'Đang tải tóm tắt hôm nay',
-                ),
-                error: (e, _) => ErrorState(
-                  message: apiErrorMessage(e),
-                  onRetry: () => ref.invalidate(todaySummaryProvider),
-                ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            const HealthScoreCard(),
+            const WeeklyInsightCard(),
+            const SizedBox(height: 8),
+            const SectionHeader('Chỉ số cơ thể'),
+            body.when(
+              data: (b) => b.isEmpty
+                  ? EmptyState(
+                      message: 'Chưa có dữ liệu sức khỏe nào. Bấm + để ghi nhận nước, giấc ngủ, bước chân, bữa ăn hoặc cân nặng.',
+                      actionLabel: 'Ghi dữ liệu ngay',
+                      onAction: () => context.push('/add'),
+                    )
+                  : _MetricGrid(data: b),
+              loading: () => const MetricGridSkeleton(),
+              error: (e, _) => ErrorState(
+                message: apiErrorMessage(e),
+                onRetry: () => ref.invalidate(bodyDataProvider),
               ),
-              const SizedBox(height: AppSpacing.sm),
-              const HealthScoreCard(),
-              const WeeklyInsightCard(),
-              const SizedBox(height: 8),
-              const SectionHeader('Chỉ số cơ thể'),
-              body.when(
-                data: (b) => b.isEmpty
-                    ? EmptyState(
-                        message: 'Chưa có dữ liệu sức khỏe nào. Bấm + để ghi nhận nước, giấc ngủ, bước chân, bữa ăn hoặc cân nặng.',
-                        actionLabel: 'Ghi dữ liệu ngay',
-                        onAction: () => context.push('/add'),
-                      )
-                    : _MetricGrid(data: b),
-                loading: () => const LoadingState(
-                  height: 220,
-                  label: 'Đang tải chỉ số cơ thể',
-                ),
-                error: (e, _) => ErrorState(
-                  message: apiErrorMessage(e),
-                  onRetry: () => ref.invalidate(bodyDataProvider),
-                ),
+            ),
+            const SizedBox(height: 8),
+            SectionHeader(
+              '7 ngày qua',
+              actionLabel: 'Xem tất cả',
+              onTap: () => context.push('/trends?metric=water'),
+            ),
+            body.when(
+              data: (b) => _WaterWeekChart(values: b.waterByDay),
+              loading: () => const LoadingState(
+                height: 220,
+                label: 'Đang tải biểu đồ nước 7 ngày qua',
               ),
-              const SizedBox(height: 8),
-              SectionHeader(
-                '7 ngày qua',
-                actionLabel: 'Xem tất cả',
-                onTap: () => context.push('/trends?metric=water'),
-              ),
-              body.when(
-                data: (b) => _WaterWeekChart(values: b.waterByDay),
-                loading: () => const LoadingState(
-                  height: 220,
-                  label: 'Đang tải biểu đồ nước 7 ngày qua',
-                ),
-                error: (_, _) => const SizedBox.shrink(),
-              ),
-            ],
-          ),
+              error: (_, _) => const SizedBox.shrink(),
+            ),
+          ],
         ),
       ),
     );

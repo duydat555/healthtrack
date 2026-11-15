@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
 import 'auth_controller.dart';
 import '../../core/app_icons.dart';
+import '../../widgets/core_widgets.dart';
 
 /// Khung chung của màn đăng nhập và đăng ký.
 class _AuthScaffold extends StatelessWidget {
@@ -255,8 +256,6 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: context.colors.background,
-    body: Center(
-      child: CircularProgressIndicator(color: context.colors.brandText),
-    ),
+    body: Center(child: const AppActivityIndicator(radius: 14)),
   );
 }

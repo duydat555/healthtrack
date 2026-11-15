@@ -12,6 +12,7 @@ import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../health/models.dart';
 import '../../core/app_icons.dart';
+import '../../widgets/skeletons.dart';
 
 /// Chỉ số có thể đặt mục tiêu trên app: tên, đơn vị hiển thị, hệ số đổi sang đơn vị của API.
 class _GoalType {
@@ -238,7 +239,7 @@ class GoalsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.ml),
             goals.when(
-              loading: () => const LoadingState(),
+              loading: () => const GoalListSkeleton(),
               error: (e, _) => ErrorState(
                 message: apiErrorMessage(e),
                 onRetry: () => ref.invalidate(goalsProvider),
