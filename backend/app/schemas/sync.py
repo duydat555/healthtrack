@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -27,6 +28,8 @@ class SyncWeight(BaseModel):
 
 
 class HealthKitSync(BaseModel):
+    # healthkit: Apple Health; device: cảm biến của máy (CoreMotion, cảm biến đếm bước Android)
+    source: Literal["healthkit", "device"] = "healthkit"
     steps: list[SyncSteps] = Field(default_factory=list, max_length=400)
     sleep: list[SyncSleep] = Field(default_factory=list, max_length=500)
     weights: list[SyncWeight] = Field(default_factory=list, max_length=500)

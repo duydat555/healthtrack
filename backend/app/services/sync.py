@@ -1,5 +1,5 @@
-"""Đồng bộ dữ liệu từ Apple Health. Gọi lại nhiều lần không tạo bản ghi trùng:
-bước chân khóa theo (user, ngày), giấc ngủ và cân nặng khóa theo ``external_id`` của mẫu HealthKit.
+"""Đồng bộ dữ liệu từ Apple Health hoặc cảm biến của máy (``source``). Gọi lại nhiều lần không
+tạo bản ghi trùng: bước chân khóa theo (user, ngày), giấc ngủ và cân nặng khóa theo ``external_id``.
 """
 
 from sqlalchemy import select
@@ -12,11 +12,10 @@ from app.models.weight_log import WeightLog
 from app.schemas.sync import HealthKitSync, HealthKitSyncResult, SyncCount
 from app.services.weight import calculate_bmi
 
-SOURCE = "healthkit"
-
 
 async def sync_healthkit(db: AsyncSession, user: User, data: HealthKitSync) -> HealthKitSyncResult:
     steps, sleep, weights = SyncCount(), SyncCount(), SyncCount()
+    source = data.source
 
     days = {s.day: s.steps for s in data.steps}  # trùng ngày trong cùng lô thì lấy bản cuối
     if days:
@@ -31,10 +30,10 @@ async def sync_healthkit(db: AsyncSession, user: User, data: HealthKitSync) -> H
         for day, value in days.items():
             row = rows.get(day)
             if row is None:
-                db.add(StepLog(user_id=user.id, day=day, steps=value, source=SOURCE))
+                db.add(StepLog(user_id=user.id, day=day, steps=value, source=source))
                 steps.created += 1
             else:
-                row.steps, row.source = value, SOURCE
+                row.steps, row.source = value, source
                 steps.updated += 1
 
     sleep_items = {s.external_id: s for s in data.sleep}
@@ -57,7 +56,7 @@ async def sync_healthkit(db: AsyncSession, user: User, data: HealthKitSync) -> H
                         user_id=user.id,
                         start_at=item.start_at,
                         end_at=item.end_at,
-                        source=SOURCE,
+                        source=source,
                         external_id=ext,
                     )
                 )
@@ -88,7 +87,7 @@ async def sync_healthkit(db: AsyncSession, user: User, data: HealthKitSync) -> H
                         weight_kg=item.weight_kg,
                         bmi=bmi,
                         logged_at=item.logged_at,
-                        source=SOURCE,
+                        source=source,
                         external_id=ext,
                     )
                 )
