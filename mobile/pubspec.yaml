@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   liquid_glass:
     path: packages/liquid_glass
+  activity_sensors:
+    path: packages/activity_sensors
   health_bridge:
     path: packages/health_bridge
 

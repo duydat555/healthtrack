@@ -15,6 +15,7 @@ import '../coach/weekly_insight_card.dart';
 import '../gamification/health_score_card.dart';
 import '../health/health_providers.dart';
 import '../health/metric_cards.dart';
+import '../activity/activity_tracking.dart';
 import '../health/healthkit_sync.dart';
 import '../widget/widget_sync.dart';
 import '../../widgets/core_widgets.dart';
@@ -293,17 +294,19 @@ class _Legend extends StatelessWidget {
   }
 }
 
-class _MetricGrid extends StatelessWidget {
+class _MetricGrid extends ConsumerWidget {
   const _MetricGrid({required this.data});
 
   final BodyData data;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cards = bodyMetricCards(
       context,
       data,
       onOpen: (metric) => context.push('/trends?metric=$metric'),
+      todaySteps: ref.watch(todayStepsProvider),
+      energy: ref.watch(todayEnergyProvider),
     );
     return LayoutBuilder(
       builder: (context, c) {
@@ -437,7 +440,9 @@ class _AutoSyncState extends ConsumerState<_AutoSync>
   Timer? _timer;
 
   void _sync() {
-    if (mounted) ref.read(healthSyncProvider.notifier).syncIfEnabled();
+    if (!mounted) return;
+    ref.read(healthSyncProvider.notifier).syncIfEnabled();
+    ref.read(activityTrackingProvider.notifier).syncIfEnabled();
   }
 
   @override

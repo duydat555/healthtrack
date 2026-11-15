@@ -9,6 +9,7 @@ import '../health/health_providers.dart';
 import '../health/metric_cards.dart';
 import '../../core/app_icons.dart';
 import '../../widgets/skeletons.dart';
+import '../activity/activity_tracking.dart';
 
 /// Màn Chỉ số: mỗi chỉ số một thẻ đục (số mới nhất, đơn vị, đường xu hướng). Chạm thẻ để mở biểu
 /// đồ xu hướng của chỉ số đó; nút ở góc trên mở biểu đồ chung.
@@ -73,6 +74,8 @@ class MetricsScreen extends ConsumerWidget {
                   context,
                   b,
                   onOpen: (metric) => context.push('/trends?metric=$metric'),
+                  todaySteps: ref.watch(todayStepsProvider),
+                  energy: ref.watch(todayEnergyProvider),
                 );
                 return Column(
                   children: [

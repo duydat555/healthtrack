@@ -22,6 +22,7 @@ import '../coach/coach_controller.dart';
 import '../health/healthkit_sync.dart';
 import '../../core/app_icons.dart';
 import '../../widgets/skeletons.dart';
+import '../activity/activity_tracking.dart';
 
 const _genderLabels = <String, String>{
   'male': 'Nam',
@@ -481,6 +482,15 @@ class _HabitsGroup extends ConsumerWidget {
             ? 'Đã đồng bộ lúc ${formatTime(sync.lastSync!)}'
             : 'Bước chân, giấc ngủ, cân nặng');
 
+    final activity = ref.watch(activityTrackingProvider);
+    final activitySubtitle =
+        activity.error ??
+        (activity.busy
+            ? 'Đang cập nhật...'
+            : activity.enabled && activity.todaySteps != null
+            ? 'Hôm nay ${formatNumber(activity.todaySteps!, digits: 0)} bước, tự ước lượng giấc ngủ và calo'
+            : 'Đếm bước, ước lượng giấc ngủ và calo bằng cảm biến của máy');
+
     return SettingsGroup(
       title: 'Thói quen và đồng bộ',
       children: [
@@ -492,6 +502,28 @@ class _HabitsGroup extends ConsumerWidget {
           iconColor: c.meds,
           onTap: () => context.push('/reminders'),
         ),
+        if (activity.available)
+          SettingsRow.toggle(
+            title: 'Theo dõi vận động',
+            subtitle: activitySubtitle,
+            icon: AppIcons.stepsFill,
+            iconColor: c.steps,
+            value: activity.enabled,
+            onChanged: activity.busy
+                ? null
+                : (v) =>
+                      ref.read(activityTrackingProvider.notifier).setEnabled(v),
+          ),
+        if (activity.enabled && !activity.restAccess)
+          SettingsRow(
+            title: 'Cho phép ước lượng giấc ngủ',
+            subtitle: 'Cấp quyền đọc giờ tắt màn hình trong Cài đặt',
+            icon: AppIcons.sleepFill,
+            iconColor: c.sleep,
+            onTap: () => ref
+                .read(activityTrackingProvider.notifier)
+                .openRestAccessSettings(),
+          ),
         if (sync.available)
           SettingsRow.toggle(
             title: 'Đồng bộ Apple Health',

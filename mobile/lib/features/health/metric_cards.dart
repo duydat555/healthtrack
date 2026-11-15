@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/metric_card.dart';
+import '../activity/activity_algorithms.dart';
 import 'health_providers.dart';
 import '../../core/app_icons.dart';
 
@@ -12,6 +13,8 @@ List<MetricCard> bodyMetricCards(
   BuildContext context,
   BodyData data, {
   void Function(String metric)? onOpen,
+  int? todaySteps,
+  EnergyEstimate? energy,
 }) {
   List<double> trend(Iterable<double> newestFirst) =>
       newestFirst.toList().reversed.take(7).toList();
@@ -66,11 +69,15 @@ List<MetricCard> bodyMetricCards(
       title: 'Bước chân',
       icon: AppIcons.stepsFill,
       color: context.colors.steps,
-      value: latestSteps == null
+      value: todaySteps != null
+          ? formatNumber(todaySteps, digits: 0)
+          : latestSteps == null
           ? '--'
           : formatNumber(latestSteps.steps, digits: 0),
       unit: 'bước',
-      caption: latestSteps == null
+      caption: todaySteps != null
+          ? 'Hôm nay'
+          : latestSteps == null
           ? 'Chưa có dữ liệu'
           : 'Ngày ${latestSteps.day}',
       trend: trend(steps.map((s) => s.steps.toDouble())),
@@ -85,6 +92,17 @@ List<MetricCard> bodyMetricCards(
       caption: 'Hôm nay',
       trend: [data.todayCalories.toDouble()],
     ),
+    if (energy != null)
+      MetricCard(
+        title: 'Năng lượng tiêu hao',
+        icon: AppIcons.fireFill,
+        color: context.colors.weight,
+        value: formatNumber(energy.totalKcal, digits: 0),
+        unit: 'kcal',
+        caption:
+            'Vận động ${formatNumber(energy.activeKcal, digits: 0)} kcal · ${formatNumber(energy.distanceKm)} km',
+        trend: const [],
+      ),
     MetricCard(
       onTap: open('weight'),
       title: 'Cân nặng',

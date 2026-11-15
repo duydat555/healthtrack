@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Đếm bước chân (Android 10+ phải xin lúc chạy) -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <!-- Đọc lịch sử tắt/mở màn hình để ước lượng giấc ngủ; người dùng tự cấp trong Cài đặt -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="false" />
+</manifest>
