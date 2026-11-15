@@ -20,6 +20,7 @@ import '../auth/auth_controller.dart';
 import '../auth/user.dart';
 import '../coach/coach_controller.dart';
 import '../health/healthkit_sync.dart';
+import '../../core/app_icons.dart';
 
 const _genderLabels = <String, String>{
   'male': 'Nam',
@@ -78,7 +79,7 @@ class ProfileScreen extends ConsumerWidget {
                     RoundIconButton(
                       tooltip: 'Thiết lập nhanh',
                       semanticLabel: 'Mở thiết lập ban đầu Onboarding',
-                      icon: Icons.tune_rounded,
+                      icon: AppIcons.sliders,
                       onTap: () => context.push('/onboarding'),
                     ),
                   ],
@@ -248,7 +249,7 @@ class _PersonalGroup extends ConsumerWidget {
               child: ListTile(
                 title: Text(e.value, style: ctx.text.body),
                 trailing: user.gender == e.key
-                    ? Icon(Icons.check, color: ctx.colors.brandText)
+                    ? Icon(AppIcons.check, color: ctx.colors.brandText)
                     : null,
                 onTap: () => Navigator.pop(ctx, e.key),
               ),
@@ -345,14 +346,14 @@ class _PersonalGroup extends ConsumerWidget {
         SettingsRow(
           title: 'Họ và tên',
           value: user.fullName,
-          icon: Icons.person_rounded,
+          icon: AppIcons.userFill,
           iconColor: c.medicine,
           onTap: () => _editName(context, ref),
         ),
         SettingsRow(
           title: 'Giới tính',
           value: _genderLabels[user.gender] ?? 'Chưa đặt',
-          icon: Icons.wc_rounded,
+          icon: AppIcons.gender,
           iconColor: c.sleep,
           onTap: () => _editGender(context, ref),
         ),
@@ -361,7 +362,7 @@ class _PersonalGroup extends ConsumerWidget {
           value: user.birthDate == null
               ? 'Chưa đặt'
               : _formatDate(user.birthDate!),
-          icon: Icons.cake_rounded,
+          icon: AppIcons.cakeFill,
           iconColor: c.meal,
           onTap: () => _editBirthDate(context, ref),
         ),
@@ -371,7 +372,7 @@ class _PersonalGroup extends ConsumerWidget {
           value: user.heightCm == null
               ? 'Chưa đặt'
               : '${formatNumber(user.heightCm!)} cm',
-          icon: Icons.height_rounded,
+          icon: AppIcons.heightFill,
           iconColor: c.steps,
           onTap: () => _editHeight(context, ref),
         ),
@@ -482,7 +483,7 @@ class _HabitsGroup extends ConsumerWidget {
           title: 'Nhắc nhở',
           subtitle: 'Uống nước, uống thuốc, đi ngủ',
           value: 'Cài đặt',
-          icon: Icons.notifications_rounded,
+          icon: AppIcons.bellFill,
           iconColor: c.meds,
           onTap: () => context.push('/reminders'),
         ),
@@ -490,7 +491,7 @@ class _HabitsGroup extends ConsumerWidget {
           SettingsRow.toggle(
             title: 'Đồng bộ Apple Health',
             subtitle: syncSubtitle,
-            icon: Icons.favorite_rounded,
+            icon: AppIcons.heartFill,
             iconColor: c.danger,
             value: sync.enabled,
             onChanged: sync.busy
@@ -503,7 +504,7 @@ class _HabitsGroup extends ConsumerWidget {
             subtitle: localUp || !privateOn
                 ? 'Coach chạy trên Mac của bạn, số liệu không rời mạng nhà'
                 : 'Máy Mac chưa chạy AI local, hãy chạy make llm',
-            icon: Icons.lock_rounded,
+            icon: AppIcons.lockFill,
             iconColor: c.water,
             value: privateOn,
             onChanged: (v) => ref.read(privateModeProvider.notifier).set(v),

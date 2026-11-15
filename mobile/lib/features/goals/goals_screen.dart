@@ -11,6 +11,7 @@ import '../../widgets/form_sheet.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../health/models.dart';
+import '../../core/app_icons.dart';
 
 /// Chỉ số có thể đặt mục tiêu trên app: tên, đơn vị hiển thị, hệ số đổi sang đơn vị của API.
 class _GoalType {
@@ -45,7 +46,7 @@ const _types = [
     'Nước uống',
     'lít/ngày',
     1000,
-    Icons.water_drop,
+    AppIcons.waterFill,
     AppColors.water,
     2,
     20,
@@ -55,7 +56,7 @@ const _types = [
     'Giấc ngủ',
     'giờ/ngày',
     60,
-    Icons.bedtime,
+    AppIcons.sleepFill,
     AppColors.sleep,
     8,
     24,
@@ -65,7 +66,7 @@ const _types = [
     'Cân nặng',
     'kg',
     1,
-    Icons.monitor_weight,
+    AppIcons.weightFill,
     AppColors.weight,
     65,
     500,
@@ -248,7 +249,7 @@ class GoalsScreen extends ConsumerWidget {
                     Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                       child: EmptyState(
-                        icon: Icons.flag_outlined,
+                        icon: AppIcons.flag,
                         message: 'Bạn chưa đặt mục tiêu nào. Đặt mục tiêu để các vòng ở Tổng quan biết bao nhiêu là đủ.',
                         actionLabel: 'Đặt mục tiêu',
                         onAction: () =>

@@ -4,6 +4,8 @@ import 'package:healthtrack/widgets/core_widgets.dart';
 
 import 'helpers/fake_backend.dart';
 
+import 'package:healthtrack/core/app_icons.dart';
+
 Future<({FakeBackend backend, dynamic container})> _openAdd(
   WidgetTester tester, {
   Map<String, FakeHandler> overrides = const {},
@@ -53,7 +55,7 @@ void main() {
       expect(find.text('330 ml'), findsWidgets);
 
       // Xóa bản ghi nước uống -> cập nhật về EmptyState
-      await tester.tap(find.byIcon(Icons.delete_outline).first);
+      await tester.tap(find.byIcon(AppIcons.trash).first);
       await tester.pumpAndSettle();
       expect(app.backend.count('DELETE /water/1'), 1);
       expect(find.byType(EmptyState), findsOneWidget);

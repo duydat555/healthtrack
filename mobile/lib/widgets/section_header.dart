@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
+import '../core/app_icons.dart';
 
 /// Tiêu đề mục: 20 semibold. Có [onTap] thì hiện mũi tên (hoặc [actionLabel] màu thương hiệu
 /// kèm mũi tên, ví dụ "Xem tất cả"). Vùng chạm cao tối thiểu 44.
@@ -42,9 +42,7 @@ class SectionHeader extends StatelessWidget {
                     ),
                   const SizedBox(width: AppSpacing.xxs),
                   Icon(
-                    actionLabel != null
-                        ? CupertinoIcons.chevron_forward
-                        : Icons.chevron_right,
+                    actionLabel != null ? AppIcons.chevron : AppIcons.chevron,
                     color: actionLabel != null ? c.brandText : c.inkSoft,
                     size: actionLabel != null ? 14 : 22,
                   ),

@@ -9,6 +9,7 @@ import '../../core/theme.dart';
 import '../../widgets/section_header.dart';
 import '../health/health_providers.dart';
 import '../health/models.dart';
+import '../../core/app_icons.dart';
 
 /// Metadata hiển thị và quy đổi đơn vị cho từng chỉ số xu hướng.
 class _MetricMeta {
@@ -40,7 +41,7 @@ const _metricMetas = [
     key: 'water',
     label: 'Nước uống',
     unit: 'lít',
-    icon: Icons.water_drop,
+    icon: AppIcons.waterFill,
     color: AppColors.water,
     isBarChart: true,
     divisor: 1000,
@@ -50,7 +51,7 @@ const _metricMetas = [
     key: 'steps',
     label: 'Bước chân',
     unit: 'bước',
-    icon: Icons.directions_walk,
+    icon: AppIcons.stepsFill,
     color: AppColors.steps,
     isBarChart: true,
     divisor: 1,
@@ -60,7 +61,7 @@ const _metricMetas = [
     key: 'sleep',
     label: 'Giấc ngủ',
     unit: 'giờ',
-    icon: Icons.bedtime,
+    icon: AppIcons.sleepFill,
     color: AppColors.sleep,
     isBarChart: false,
     divisor: 60,
@@ -70,7 +71,7 @@ const _metricMetas = [
     key: 'weight',
     label: 'Cân nặng',
     unit: 'kg',
-    icon: Icons.monitor_weight,
+    icon: AppIcons.weightFill,
     color: AppColors.weight,
     isBarChart: false,
     divisor: 1,
@@ -80,7 +81,7 @@ const _metricMetas = [
     key: 'calories',
     label: 'Calories',
     unit: 'kcal',
-    icon: Icons.local_fire_department,
+    icon: AppIcons.flameFill,
     color: AppColors.meal,
     isBarChart: true,
     divisor: 1,
@@ -736,11 +737,7 @@ class _TrendError extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(
-              Icons.wifi_off_rounded,
-              color: context.colors.inkSoft,
-              size: 40,
-            ),
+            Icon(AppIcons.wifiOff, color: context.colors.inkSoft, size: 40),
             const SizedBox(height: 12),
             Text(
               message,
@@ -753,7 +750,7 @@ class _TrendError extends StatelessWidget {
               label: 'Thử lại tải biểu đồ xu hướng',
               child: TextButton.icon(
                 onPressed: onRetry,
-                icon: Icon(Icons.refresh, color: context.colors.brandText),
+                icon: Icon(AppIcons.refresh, color: context.colors.brandText),
                 label: Text(
                   'Thử lại',
                   style: TextStyle(

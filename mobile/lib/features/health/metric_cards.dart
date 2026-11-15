@@ -4,6 +4,7 @@ import '../../core/format.dart';
 import '../../core/theme.dart';
 import '../../widgets/metric_card.dart';
 import 'health_providers.dart';
+import '../../core/app_icons.dart';
 
 /// Sáu thẻ số liệu cơ thể (nước, giấc ngủ, bước chân, calories, cân nặng, BMI) dùng chung cho
 /// Tổng quan và màn Chỉ số. [onOpen] nhận khóa biểu đồ xu hướng của thẻ được chạm.
@@ -39,7 +40,7 @@ List<MetricCard> bodyMetricCards(
     MetricCard(
       onTap: open('water'),
       title: 'Nước uống',
-      icon: Icons.water_drop,
+      icon: AppIcons.waterFill,
       color: context.colors.water,
       value: formatNumber(todayWater / 1000),
       unit: 'lít',
@@ -49,7 +50,7 @@ List<MetricCard> bodyMetricCards(
     MetricCard(
       onTap: open('sleep'),
       title: 'Giấc ngủ',
-      icon: Icons.bedtime,
+      icon: AppIcons.sleepFill,
       color: context.colors.sleep,
       value: latestSleep == null
           ? '--'
@@ -63,7 +64,7 @@ List<MetricCard> bodyMetricCards(
     MetricCard(
       onTap: open('steps'),
       title: 'Bước chân',
-      icon: Icons.directions_walk,
+      icon: AppIcons.stepsFill,
       color: context.colors.steps,
       value: latestSteps == null
           ? '--'
@@ -77,7 +78,7 @@ List<MetricCard> bodyMetricCards(
     MetricCard(
       onTap: open('calories'),
       title: 'Calories',
-      icon: Icons.local_fire_department,
+      icon: AppIcons.flameFill,
       color: context.colors.meal,
       value: formatNumber(data.todayCalories, digits: 0),
       unit: 'kcal',
@@ -87,7 +88,7 @@ List<MetricCard> bodyMetricCards(
     MetricCard(
       onTap: open('weight'),
       title: 'Cân nặng',
-      icon: Icons.monitor_weight,
+      icon: AppIcons.weightFill,
       color: context.colors.weight,
       value: latestW == null ? '--' : formatNumber(latestW.weightKg),
       unit: 'kg',
@@ -97,7 +98,7 @@ List<MetricCard> bodyMetricCards(
     MetricCard(
       onTap: open('weight'),
       title: 'BMI',
-      icon: Icons.accessibility_new,
+      icon: AppIcons.bodyFill,
       color: context.colors.medicine,
       value: bmi == null ? '--' : formatNumber(bmi),
       unit: '',

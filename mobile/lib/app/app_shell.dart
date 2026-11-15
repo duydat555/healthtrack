@@ -3,19 +3,20 @@ import 'package:go_router/go_router.dart';
 import 'package:liquid_glass/liquid_glass.dart';
 
 import '../core/theme.dart';
+import '../core/app_icons.dart';
 
 const _tabs = [
-  GlassTabItem(title: 'Tổng quan', symbol: 'house.fill', icon: Icons.home),
+  GlassTabItem(title: 'Tổng quan', symbol: 'house.fill', icon: AppIcons.home),
   GlassTabItem(
     title: 'Chỉ số',
     symbol: 'heart.text.square.fill',
-    icon: Icons.monitor_heart,
+    icon: AppIcons.pulseFill,
   ),
-  GlassTabItem(title: 'Mục tiêu', symbol: 'target', icon: Icons.flag),
+  GlassTabItem(title: 'Mục tiêu', symbol: 'target', icon: AppIcons.flagFill),
   GlassTabItem(
     title: 'Hồ sơ',
     symbol: 'person.crop.circle.fill',
-    icon: Icons.person,
+    icon: AppIcons.userFill,
   ),
 ];
 

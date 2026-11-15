@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme.dart';
 import 'coach_controller.dart';
 import 'coach_models.dart';
+import '../../core/app_icons.dart';
 
 const _suggestions = [
   'Tuần này mình uống nước đủ chưa?',
@@ -68,7 +69,7 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
       appBar: AppBar(
         leading: IconButton(
           tooltip: 'Quay lại',
-          icon: const Icon(Icons.arrow_back_ios_new),
+          icon: const Icon(AppIcons.back),
           onPressed: () => context.pop(),
         ),
         title: Semantics(
@@ -82,7 +83,7 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
           if (state.messages.isNotEmpty)
             IconButton(
               tooltip: 'Cuộc trò chuyện mới',
-              icon: const Icon(Icons.restart_alt),
+              icon: const Icon(AppIcons.restart),
               onPressed: state.busy
                   ? null
                   : ref.read(coachControllerProvider.notifier).clear,
@@ -210,8 +211,8 @@ class _Bubble extends StatelessWidget {
                     children: [
                       Icon(
                         message.source == 'local'
-                            ? Icons.lock_outline
-                            : Icons.cloud_outlined,
+                            ? AppIcons.lock
+                            : AppIcons.cloud,
                         size: 13,
                         color: c.inkSoft,
                       ),
@@ -231,7 +232,7 @@ class _Bubble extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.check_circle, size: 16, color: c.water),
+                      Icon(AppIcons.checkCircleFill, size: 16, color: c.water),
                       const SizedBox(width: 4),
                       Text(
                         'Đã ghi ${_metricNames[m] ?? m}',
@@ -294,7 +295,7 @@ class _InputBar extends StatelessWidget {
             tooltip: 'Gửi',
             style: IconButton.styleFrom(backgroundColor: c.brand),
             onPressed: busy ? null : () => onSend(),
-            icon: Icon(Icons.arrow_upward, color: c.onBrand),
+            icon: Icon(AppIcons.arrowUp, color: c.onBrand),
           ),
         ],
       ),
