@@ -45,6 +45,7 @@ class MetricsScreen extends ConsumerWidget {
                   ),
                 ),
                 RoundIconButton(
+                  symbol: 'chart.xyaxis.line',
                   tooltip: 'Xem biểu đồ xu hướng',
                   icon: AppIcons.chart,
                   onTap: () => context.push('/trends'),

@@ -74,6 +74,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
                 RoundIconButton(
+                  symbol: 'bubble.left',
                   tooltip: 'Hỏi Coach',
                   icon: AppIcons.chat,
                   onTap: () => context.push('/coach'),

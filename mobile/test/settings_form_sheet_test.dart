@@ -4,6 +4,7 @@ import 'package:healthtrack/core/theme.dart';
 import 'package:healthtrack/widgets/app_form.dart';
 import 'package:healthtrack/widgets/form_sheet.dart';
 import 'package:healthtrack/widgets/settings_group.dart';
+import 'package:liquid_glass/liquid_glass.dart';
 
 Widget _host(Widget child, {ThemeData? theme}) => MaterialApp(
   theme: theme ?? AppTheme.light,
@@ -149,8 +150,8 @@ void main() {
       expect(find.text('Mục tiêu nước'), findsOneWidget);
       expect(find.text('lít'), findsOneWidget);
 
-      TextButton saveButton() =>
-          tester.widget<TextButton>(find.widgetWithText(TextButton, 'Lưu'));
+      GlassButton saveButton() =>
+          tester.widget<GlassButton>(find.widgetWithText(GlassButton, 'Lưu'));
       expect(saveButton().onPressed, isNull);
 
       await tester.enterText(find.byType(TextFormField), '2.5');

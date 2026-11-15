@@ -7,6 +7,8 @@ import 'package:healthtrack/widgets/core_widgets.dart';
 
 import 'helpers/fake_backend.dart';
 
+import 'package:liquid_glass/liquid_glass.dart';
+
 void main() {
   testWidgets(
     'người dùng chưa có chiều cao đi qua 3 bước Onboarding lưu chiều cao, cân nặng và tính BMI',
@@ -21,7 +23,7 @@ void main() {
       expect(find.text('Chào mừng đến với HealthTrack'), findsOneWidget);
 
       // Bước 1 -> Bước 2
-      await tester.tap(find.widgetWithText(FilledButton, 'Tiếp tục'));
+      await tester.tap(find.widgetWithText(GlassButton, 'Tiếp tục'));
       await tester.pumpAndSettle();
       expect(find.text('Thông tin cá nhân'), findsOneWidget);
 
@@ -30,7 +32,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Bước 2 -> Bước 3
-      await tester.tap(find.widgetWithText(FilledButton, 'Tiếp tục'));
+      await tester.tap(find.widgetWithText(GlassButton, 'Tiếp tục'));
       await tester.pumpAndSettle();
       expect(find.text('Chỉ số ban đầu'), findsOneWidget);
 
@@ -39,7 +41,7 @@ void main() {
       await tester.pump();
       expect(find.textContaining('BMI ban đầu: 20,2'), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Hoàn tất'));
+      await tester.tap(find.widgetWithText(GlassButton, 'Hoàn tất'));
       await tester.pumpAndSettle();
 
       final patch = app.backend.requests.firstWhere(
@@ -104,7 +106,7 @@ void main() {
       await tester.tap(find.text('Họ và tên'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextFormField), 'Trần Bình');
-      await tester.tap(find.widgetWithText(TextButton, 'Lưu'));
+      await tester.tap(find.widgetWithText(GlassButton, 'Lưu'));
       await tester.pumpAndSettle();
       expect(find.text('Trần Bình'), findsWidgets);
 
@@ -119,7 +121,7 @@ void main() {
       await tester.tap(find.text('Chiều cao'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextFormField), '175');
-      await tester.tap(find.widgetWithText(TextButton, 'Lưu'));
+      await tester.tap(find.widgetWithText(GlassButton, 'Lưu'));
       await tester.pumpAndSettle();
       expect(find.text('175 cm'), findsOneWidget);
 

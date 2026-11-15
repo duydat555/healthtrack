@@ -31,10 +31,11 @@ class AchievementsScreen extends ConsumerWidget {
     final async = ref.watch(achievementsProvider);
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
+        leading: RoundIconButton(
           tooltip: 'Quay lại',
-          icon: const Icon(AppIcons.back),
-          onPressed: () => context.pop(),
+          symbol: 'chevron.left',
+          icon: AppIcons.back,
+          onTap: () => context.pop(),
         ),
         title: Semantics(
           header: true,

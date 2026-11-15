@@ -5,6 +5,7 @@ import 'package:healthtrack/widgets/core_widgets.dart';
 import 'helpers/fake_backend.dart';
 
 import 'package:healthtrack/core/app_icons.dart';
+import 'package:liquid_glass/liquid_glass.dart';
 
 Future<({FakeBackend backend, dynamic container})> _openAdd(
   WidgetTester tester, {
@@ -42,7 +43,7 @@ void main() {
 
       // Validation từ chối chữ không phải số
       await tester.enterText(find.byType(TextFormField), 'abc');
-      await tester.tap(find.widgetWithText(FilledButton, 'Thêm nước'));
+      await tester.tap(find.widgetWithText(GlassButton, 'Thêm nước'));
       await tester.pumpAndSettle();
       expect(find.text('Lượng nước phải từ 1 đến 5.000 ml.'), findsOneWidget);
       expect(app.backend.count('POST /water'), 0);
@@ -95,7 +96,7 @@ void main() {
       expect(find.text('BMI dự kiến'), findsOneWidget);
       expect(find.text('BMI 23,5 · Bình thường'), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Ghi cân nặng'));
+      await tester.tap(find.widgetWithText(GlassButton, 'Ghi cân nặng'));
       await tester.pumpAndSettle();
 
       expect(app.backend.count('POST /weights'), 1);
@@ -139,7 +140,7 @@ void main() {
 
       await tester.tap(find.byTooltip('4 sao'));
       await tester.pump();
-      await tester.tap(find.widgetWithText(FilledButton, 'Ghi giấc ngủ'));
+      await tester.tap(find.widgetWithText(GlassButton, 'Ghi giấc ngủ'));
       await tester.pumpAndSettle();
 
       expect(app.backend.count('POST /sleep'), 1);

@@ -106,14 +106,12 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
           ),
         ),
         actions: [
-          Semantics(
-            button: true,
-            label: 'Thêm nhắc nhở mới',
-            child: IconButton(
-              tooltip: 'Thêm nhắc nhở',
-              icon: Icon(AppIcons.add, color: context.colors.ink),
-              onPressed: () => _openForm(),
-            ),
+          RoundIconButton(
+            tooltip: 'Thêm nhắc nhở',
+            semanticLabel: 'Thêm nhắc nhở mới',
+            symbol: 'plus',
+            icon: AppIcons.add,
+            onTap: () => _openForm(),
           ),
         ],
       ),

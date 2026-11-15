@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/fake_backend.dart';
 
+import 'package:liquid_glass/liquid_glass.dart';
+
 Future<({FakeBackend backend, dynamic container})> _openAdd(
   WidgetTester tester,
   String kind,
@@ -30,13 +32,13 @@ void main() {
     final app = await _openAdd(tester, 'Bước chân', {
       'GET /steps': (_) => const FakeResponse(200, <Object>[]),
     });
-    await tester.tap(find.widgetWithText(FilledButton, 'Lưu bước chân'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Lưu bước chân'));
     await tester.pumpAndSettle();
     expect(find.text('Nhập số bước.'), findsOneWidget);
     expect(app.backend.count('POST /steps'), 0);
 
     await tester.enterText(find.byType(TextFormField), '-1');
-    await tester.tap(find.widgetWithText(FilledButton, 'Lưu bước chân'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Lưu bước chân'));
     await tester.pumpAndSettle();
     expect(find.text('Số bước phải là số nguyên không âm.'), findsOneWidget);
     expect(app.backend.count('POST /steps'), 0);
@@ -61,7 +63,7 @@ void main() {
     });
 
     await tester.enterText(find.byType(TextFormField), '8500');
-    await tester.tap(find.widgetWithText(FilledButton, 'Lưu bước chân'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Lưu bước chân'));
     await tester.pumpAndSettle();
 
     final request = app.backend.requests.firstWhere(
@@ -79,7 +81,7 @@ void main() {
       'GET /meals/total': (_) =>
           const FakeResponse(200, {'date': '2026-11-10', 'total_calories': 0}),
     });
-    await tester.tap(find.widgetWithText(FilledButton, 'Lưu bữa ăn'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Lưu bữa ăn'));
     await tester.pumpAndSettle();
     expect(find.text('Nhập tên món ăn.'), findsOneWidget);
     expect(find.text('Nhập calories.'), findsOneWidget);
@@ -109,7 +111,7 @@ void main() {
 
     await tester.enterText(find.byType(TextFormField).at(0), 'Cơm gà');
     await tester.enterText(find.byType(TextFormField).at(1), '650');
-    await tester.tap(find.widgetWithText(FilledButton, 'Lưu bữa ăn'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Lưu bữa ăn'));
     await tester.pumpAndSettle();
 
     final request = app.backend.requests.firstWhere(

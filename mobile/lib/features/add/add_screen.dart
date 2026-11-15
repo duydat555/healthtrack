@@ -265,14 +265,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       backgroundColor: context.colors.background,
       appBar: AppBar(
         title: Semantics(header: true, child: const Text('Thêm nhanh')),
-        leading: Semantics(
-          button: true,
-          label: 'Đóng màn hình thêm nhanh',
-          child: IconButton(
-            tooltip: 'Đóng',
-            icon: const Icon(AppIcons.close),
-            onPressed: () => context.pop(),
-          ),
+        leading: RoundIconButton(
+          tooltip: 'Đóng',
+          semanticLabel: 'Đóng màn hình thêm nhanh',
+          symbol: 'xmark',
+          icon: AppIcons.close,
+          onTap: () => context.pop(),
         ),
       ),
       body: SafeArea(

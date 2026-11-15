@@ -4,6 +4,8 @@ import 'package:healthtrack/app/router.dart';
 
 import 'helpers/fake_backend.dart';
 
+import 'package:liquid_glass/liquid_glass.dart';
+
 Future<({FakeBackend backend, dynamic container})> _openAdd(
   WidgetTester tester,
 ) async {
@@ -20,7 +22,7 @@ void main() {
     final app = await _openAdd(tester);
     await tester.tap(find.text('330 ml'));
     await tester.pump();
-    await tester.tap(find.widgetWithText(FilledButton, 'Thêm nước'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Thêm nước'));
     await tester.pumpAndSettle();
 
     final post = app.backend.requests.firstWhere(
@@ -35,7 +37,7 @@ void main() {
   testWidgets('nhập số ml tùy ý ưu tiên hơn nút chọn sẵn', (tester) async {
     final app = await _openAdd(tester);
     await tester.enterText(find.byType(TextFormField), '400');
-    await tester.tap(find.widgetWithText(FilledButton, 'Thêm nước'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Thêm nước'));
     await tester.pumpAndSettle();
     final post = app.backend.requests.firstWhere(
       (r) => r.method == 'POST' && r.path == '/water',
@@ -48,7 +50,7 @@ void main() {
   ) async {
     final app = await _openAdd(tester);
     await tester.enterText(find.byType(TextFormField), '9000');
-    await tester.tap(find.widgetWithText(FilledButton, 'Thêm nước'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Thêm nước'));
     await tester.pumpAndSettle();
     expect(find.textContaining('từ 1 đến 5.000 ml'), findsOneWidget);
     expect(app.backend.count('POST /water'), 0);
@@ -59,7 +61,7 @@ void main() {
     await tester.tap(find.text('Cân nặng').last);
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField), '67,5');
-    await tester.tap(find.widgetWithText(FilledButton, 'Ghi cân nặng'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Ghi cân nặng'));
     await tester.pumpAndSettle();
     final post = app.backend.requests.firstWhere(
       (r) => r.method == 'POST' && r.path == '/weights',
@@ -72,7 +74,7 @@ void main() {
     await tester.tap(find.text('Cân nặng').last);
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField), 'abc');
-    await tester.tap(find.widgetWithText(FilledButton, 'Ghi cân nặng'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Ghi cân nặng'));
     await tester.pumpAndSettle();
     expect(find.textContaining('từ 1 đến 500 kg'), findsOneWidget);
     expect(app.backend.count('POST /weights'), 0);
@@ -88,7 +90,7 @@ void main() {
     );
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Thêm nước'));
+    await tester.tap(find.widgetWithText(GlassButton, 'Thêm nước'));
     await tester.pumpAndSettle();
     expect(find.text('Lượng nước không hợp lệ'), findsOneWidget);
     expect(app.container.read(routerProvider).state.uri.path, '/add');

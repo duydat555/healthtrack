@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../core/theme.dart';
-import 'core_widgets.dart';
+
+import 'package:liquid_glass/liquid_glass.dart' show GlassButton;
 
 /// Ô nhập: nền thẻ (hoặc [fillColor]), bo góc 12, không viền; hậu tố đơn vị qua [suffixText].
 class AppTextField extends StatelessWidget {
@@ -90,7 +91,8 @@ class AppTextField extends StatelessWidget {
   }
 }
 
-/// Nút chính nền vàng thương hiệu (chữ `onBrand`), cao 50, có trạng thái đang xử lý.
+/// Nút hành động chính: Liquid Glass nhuộm vàng thương hiệu trên iOS 26+, nền vàng đặc nơi khác
+/// (chữ `onBrand`), cao 50, có trạng thái đang xử lý.
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
@@ -105,36 +107,17 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Semantics(
-      button: true,
-      enabled: !loading && onPressed != null,
-      label: loading ? '$label, đang xử lý' : label,
-      child: SizedBox(
-        width: double.infinity,
-        height: 50,
-        child: FilledButton(
-          onPressed: loading ? null : onPressed,
-          style: FilledButton.styleFrom(
-            backgroundColor: context.colors.brand,
-            foregroundColor: context.colors.onBrand,
-            disabledBackgroundColor: context.colors.brand.withValues(
-              alpha: 0.4,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.control),
-            ),
-          ),
-          child: loading
-              ? AppActivityIndicator(radius: 11, color: context.colors.onBrand)
-              : Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.onBrand,
-                  ),
-                ),
-        ),
+      container: true,
+      label: loading ? '$label, đang xử lý' : null,
+      child: GlassButton.prominent(
+        label: label,
+        onPressed: onPressed,
+        loading: loading,
+        tint: c.brand,
+        onTint: c.onBrand,
+        dark: c.isDark,
       ),
     );
   }
