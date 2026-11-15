@@ -6,8 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
 import 'auth_controller.dart';
-import '../../core/app_icons.dart';
-import '../../widgets/core_widgets.dart';
+import '../../widgets/app_logo.dart';
 
 /// Khung chung của màn đăng nhập và đăng ký.
 class _AuthScaffold extends StatelessWidget {
@@ -36,7 +35,10 @@ class _AuthScaffold extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(AppIcons.heartFill, color: c.brand, size: 44),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: AppLogo(size: 64, dark: c.isDark),
+                    ),
                     const SizedBox(height: 16),
                     Semantics(
                       header: true,
@@ -249,13 +251,48 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   }
 }
 
-/// Màn chờ khi đang khôi phục phiên đăng nhập lúc mở app.
-class SplashScreen extends StatelessWidget {
+/// Màn chờ khi đang khôi phục phiên đăng nhập lúc mở app. Cùng nền và cùng vị trí logo với màn
+/// khởi động native nên chuyển từ native sang Flutter không bị nhảy; logo thở nhẹ khi phải chờ lâu.
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1600),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.stop();
+    } else if (!_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: context.colors.background,
-    body: Center(child: const AppActivityIndicator(radius: 14)),
+    body: Center(
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 1, end: 1.04).animate(
+          CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+        ),
+        child: AppLogo(size: 120, dark: context.colors.isDark),
+      ),
+    ),
   );
 }
