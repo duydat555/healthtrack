@@ -11,6 +11,36 @@ Widget _host(Widget child, {ThemeData? theme}) => MaterialApp(
 );
 
 void main() {
+  testWidgets('SettingsRow: giá trị nằm sát mép phải của hàng', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        SettingsGroup(
+          children: [
+            SettingsRow(
+              title: 'Họ và tên',
+              value: 'Đạt',
+              icon: Icons.person,
+              onTap: () {},
+            ),
+            SettingsRow(
+              title: 'Nhắc nhở',
+              subtitle: 'Uống nước, uống thuốc, đi ngủ',
+              value: 'Cài đặt',
+              icon: Icons.notifications,
+              onTap: () {},
+            ),
+          ],
+        ),
+      ),
+    );
+    final rowRight = tester.getTopRight(find.byType(SettingsGroup)).dx;
+    for (final v in ['Đạt', 'Cài đặt']) {
+      final gap = rowRight - tester.getTopRight(find.text(v)).dx;
+      // Chỉ còn chevron (15) + khoảng đệm; lệch giữa hàng sẽ vượt xa ngưỡng này
+      expect(gap, lessThan(50), reason: 'Giá trị "$v" bị lệch khỏi mép phải');
+    }
+  });
+
   testWidgets('SettingsRow: giá trị, mũi tên, công tắc và hàng nguy hiểm', (
     tester,
   ) async {
