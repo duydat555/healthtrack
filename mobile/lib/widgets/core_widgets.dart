@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
+import '../core/app_icons.dart';
 
 /// Nút phụ dạng viền dùng chung, hỗ trợ trạng thái đang tải và Semantics.
 class SecondaryButton extends StatelessWidget {
@@ -231,7 +232,7 @@ class AppBottomSheet extends StatelessWidget {
                   child: IconButton(
                     tooltip: 'Đóng',
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close, color: context.colors.inkSoft),
+                    icon: Icon(AppIcons.close, color: context.colors.inkSoft),
                   ),
                 ),
               ],
@@ -396,11 +397,7 @@ class ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.wifi_off_rounded,
-              color: context.colors.inkSoft,
-              size: 36,
-            ),
+            Icon(AppIcons.wifiOff, color: context.colors.inkSoft, size: 36),
             const SizedBox(height: 10),
             Text(
               message,
@@ -416,7 +413,7 @@ class ErrorState extends StatelessWidget {
               child: TextButton.icon(
                 onPressed: onRetry,
                 icon: Icon(
-                  Icons.refresh,
+                  AppIcons.refresh,
                   color: context.colors.brandText,
                   size: 18,
                 ),
@@ -442,7 +439,7 @@ class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
     required this.message,
-    this.icon = Icons.inbox_outlined,
+    this.icon = AppIcons.inbox,
     this.actionLabel,
     this.onAction,
   });

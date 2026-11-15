@@ -11,6 +11,7 @@ import '../../widgets/core_widgets.dart';
 import '../../widgets/count_up.dart';
 import '../health/health_providers.dart';
 import 'models.dart';
+import '../../core/app_icons.dart';
 
 /// Thẻ Health Score trên Tổng quan: điểm hôm nay, chuỗi ngày, thử thách tuần và lối vào Huy hiệu.
 class HealthScoreCard extends ConsumerStatefulWidget {
@@ -110,14 +111,14 @@ class _Body extends StatelessWidget {
                           style: context.text.cardTitle,
                         ),
                       ),
-                      Icon(Icons.chevron_right, color: c.inkSoft, size: 20),
+                      Icon(AppIcons.chevron, color: c.inkSoft, size: 20),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.xxs),
                   Row(
                     children: [
                       Icon(
-                        Icons.local_fire_department,
+                        AppIcons.flameFill,
                         size: 16,
                         color: s.streak > 0 ? c.steps : c.inkSoft,
                       ),

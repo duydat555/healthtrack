@@ -9,6 +9,7 @@ import '../../widgets/app_form.dart';
 import '../auth/auth_controller.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
+import '../../core/app_icons.dart';
 
 /// Đánh dấu người dùng đã hoàn tất hoặc bỏ qua onboarding trong phiên hiện tại.
 class OnboardingDoneNotifier extends Notifier<bool> {
@@ -169,7 +170,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 label: 'Quay lại bước trước',
                 child: IconButton(
                   tooltip: 'Quay lại',
-                  icon: Icon(Icons.arrow_back, color: context.colors.ink),
+                  icon: Icon(AppIcons.back, color: context.colors.ink),
                   onPressed: _busy ? null : () => _goTo(_step - 1),
                 ),
               )
@@ -226,7 +227,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Spacer(),
-          Icon(Icons.favorite, color: context.colors.brand, size: 64),
+          Icon(AppIcons.heartFill, color: context.colors.brand, size: 64),
           const SizedBox(height: 24),
           Semantics(
             header: true,
@@ -247,13 +248,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           const SizedBox(height: 28),
           _FeatureHighlight(
-            icon: Icons.water_drop,
+            icon: AppIcons.waterFill,
             color: context.colors.water,
             text: 'Ghi nhanh chỉ số và nhắc nhở đúng giờ',
           ),
           const SizedBox(height: 12),
           _FeatureHighlight(
-            icon: Icons.accessibility_new,
+            icon: AppIcons.bodyFill,
             color: context.colors.medicine,
             text: 'Tự động tính BMI dựa trên chiều cao của bạn',
           ),
@@ -439,10 +440,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.accessibility_new,
-                        color: context.colors.medicine,
-                      ),
+                      Icon(AppIcons.bodyFill, color: context.colors.medicine),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(

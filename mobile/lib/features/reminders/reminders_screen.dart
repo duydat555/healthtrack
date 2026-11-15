@@ -8,6 +8,7 @@ import '../../widgets/app_form.dart';
 import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../health/models.dart';
+import '../../core/app_icons.dart';
 
 /// Mô tả hiển thị cho từng loại nhắc nhở.
 class _ReminderKindMeta {
@@ -20,15 +21,15 @@ class _ReminderKindMeta {
 }
 
 const _kindMetas = [
-  _ReminderKindMeta('water', 'Uống nước', Icons.water_drop, AppColors.water),
+  _ReminderKindMeta('water', 'Uống nước', AppIcons.waterFill, AppColors.water),
   _ReminderKindMeta(
     'medication',
     'Uống thuốc',
-    Icons.medication,
+    AppIcons.medicineFill,
     AppColors.medicine,
   ),
-  _ReminderKindMeta('sleep', 'Đi ngủ', Icons.bedtime, AppColors.sleep),
-  _ReminderKindMeta('meal', 'Bữa ăn', Icons.restaurant, AppColors.meal),
+  _ReminderKindMeta('sleep', 'Đi ngủ', AppIcons.sleepFill, AppColors.sleep),
+  _ReminderKindMeta('meal', 'Bữa ăn', AppIcons.mealFill, AppColors.meal),
 ];
 
 _ReminderKindMeta _metaFor(String kind) => _kindMetas.firstWhere(
@@ -36,7 +37,7 @@ _ReminderKindMeta _metaFor(String kind) => _kindMetas.firstWhere(
   orElse: () => _ReminderKindMeta(
     'water',
     'Nhắc nhở',
-    Icons.notifications_active,
+    AppIcons.bellFill,
     AppColors.water,
   ),
 );
@@ -109,7 +110,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
             label: 'Thêm nhắc nhở mới',
             child: IconButton(
               tooltip: 'Thêm nhắc nhở',
-              icon: Icon(Icons.add, color: context.colors.ink),
+              icon: Icon(AppIcons.add, color: context.colors.ink),
               onPressed: () => _openForm(),
             ),
           ),
@@ -370,7 +371,7 @@ class _ReminderFormSheetState extends ConsumerState<_ReminderFormSheet> {
                   child: IconButton(
                     tooltip: 'Đóng',
                     onPressed: _busy ? null : () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close, color: context.colors.inkSoft),
+                    icon: Icon(AppIcons.close, color: context.colors.inkSoft),
                   ),
                 ),
               ],
@@ -531,11 +532,7 @@ class _ErrorView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.wifi_off_rounded,
-                color: context.colors.inkSoft,
-                size: 44,
-              ),
+              Icon(AppIcons.wifiOff, color: context.colors.inkSoft, size: 44),
               const SizedBox(height: 12),
               Text(
                 message,
@@ -548,7 +545,7 @@ class _ErrorView extends StatelessWidget {
                 label: 'Thử lại tải danh sách nhắc nhở',
                 child: TextButton.icon(
                   onPressed: onRetry,
-                  icon: Icon(Icons.refresh, color: context.colors.brandText),
+                  icon: Icon(AppIcons.refresh, color: context.colors.brandText),
                   label: Text(
                     'Thử lại',
                     style: TextStyle(
@@ -581,11 +578,7 @@ class _EmptyView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.notifications_none_rounded,
-                color: context.colors.inkSoft,
-                size: 52,
-              ),
+              Icon(AppIcons.bell, color: context.colors.inkSoft, size: 52),
               const SizedBox(height: 14),
               Text(
                 'Chưa có nhắc nhở nào',
@@ -615,7 +608,7 @@ class _EmptyView extends StatelessWidget {
                       vertical: 12,
                     ),
                   ),
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(AppIcons.add),
                   label: const Text(
                     'Thêm nhắc nhở',
                     style: TextStyle(fontWeight: FontWeight.w700),

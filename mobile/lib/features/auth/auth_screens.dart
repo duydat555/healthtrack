@@ -6,6 +6,7 @@ import '../../core/api_client.dart';
 import '../../core/theme.dart';
 import '../../widgets/app_form.dart';
 import 'auth_controller.dart';
+import '../../core/app_icons.dart';
 
 /// Khung chung của màn đăng nhập và đăng ký.
 class _AuthScaffold extends StatelessWidget {
@@ -34,7 +35,7 @@ class _AuthScaffold extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(Icons.favorite, color: c.brand, size: 44),
+                    Icon(AppIcons.heartFill, color: c.brand, size: 44),
                     const SizedBox(height: 16),
                     Semantics(
                       header: true,

@@ -6,6 +6,7 @@ import 'package:healthtrack/widgets/app_form.dart';
 import 'package:healthtrack/widgets/metric_card.dart';
 import 'package:healthtrack/widgets/section_header.dart';
 import 'package:healthtrack/widgets/settings_group.dart';
+import 'package:healthtrack/core/app_icons.dart';
 
 Widget _host(Widget child) => MaterialApp(
   theme: AppTheme.dark,
@@ -85,7 +86,7 @@ void main() {
     );
 
     expect(find.text('Cân nặng'), findsOneWidget);
-    expect(find.byIcon(Icons.chevron_right), findsOneWidget);
+    expect(find.byIcon(AppIcons.chevron), findsOneWidget);
     await tester.tap(find.text('Cân nặng'));
     expect(tapped, isTrue);
   });

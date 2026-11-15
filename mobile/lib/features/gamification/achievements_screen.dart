@@ -7,20 +7,21 @@ import '../../core/theme.dart';
 import '../../widgets/core_widgets.dart';
 import '../health/health_providers.dart';
 import 'models.dart';
+import '../../core/app_icons.dart';
 
 /// Lưới huy hiệu. Huy hiệu chưa đạt hiện mờ kèm điều kiện để đạt.
 class AchievementsScreen extends ConsumerWidget {
   const AchievementsScreen({super.key});
 
   static const _icons = <String, IconData>{
-    'first_log': Icons.flag_rounded,
-    'streak_3': Icons.local_fire_department,
-    'streak_7': Icons.whatshot,
-    'streak_30': Icons.workspace_premium,
-    'water_goal': Icons.water_drop,
-    'sleep_goal': Icons.bedtime,
-    'steps_10k': Icons.directions_walk,
-    'perfect_day': Icons.auto_awesome,
+    'first_log': AppIcons.flagFill,
+    'streak_3': AppIcons.flameFill,
+    'streak_7': AppIcons.fireFill,
+    'streak_30': AppIcons.medalFill,
+    'water_goal': AppIcons.waterFill,
+    'sleep_goal': AppIcons.sleepFill,
+    'steps_10k': AppIcons.stepsFill,
+    'perfect_day': AppIcons.sparkleFill,
   };
 
   @override
@@ -31,7 +32,7 @@ class AchievementsScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           tooltip: 'Quay lại',
-          icon: const Icon(Icons.arrow_back_ios_new),
+          icon: const Icon(AppIcons.back),
           onPressed: () => context.pop(),
         ),
         title: Semantics(
@@ -134,7 +135,7 @@ class _Badge extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.sm),
                   child: Icon(
-                    AchievementsScreen._icons[item.code] ?? Icons.star,
+                    AchievementsScreen._icons[item.code] ?? AppIcons.starFill,
                     color: earned
                         ? (c.isDark ? Colors.black : Colors.white)
                         : c.inkSoft,
@@ -151,7 +152,7 @@ class _Badge extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    earned ? Icons.check_circle : Icons.lock_outline,
+                    earned ? AppIcons.checkCircleFill : AppIcons.lock,
                     size: 14,
                     color: earned ? c.success : c.textTertiary,
                   ),

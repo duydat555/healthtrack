@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
+import '../core/app_icons.dart';
 
 /// Một hàng trong [SettingsGroup], kiểu Cài đặt của iOS: cao tối thiểu 44, icon trong ô màu,
 /// giá trị ở bên phải, mũi tên khi bấm được. [SettingsRow.toggle] là hàng có công tắc.
@@ -118,11 +118,7 @@ class SettingsRow extends StatelessWidget {
               Switch.adaptive(value: switchValue!, onChanged: onSwitch),
             if (onTap != null && !_isToggle) ...[
               const SizedBox(width: AppSpacing.xs),
-              Icon(
-                CupertinoIcons.chevron_forward,
-                size: 15,
-                color: c.textTertiary,
-              ),
+              Icon(AppIcons.chevron, size: 15, color: c.textTertiary),
             ],
           ],
         ),

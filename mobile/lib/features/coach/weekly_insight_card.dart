@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme.dart';
 import '../../widgets/core_widgets.dart';
 import 'coach_controller.dart';
+import '../../core/app_icons.dart';
 
 /// Thẻ "Nhận xét tuần" trên Tổng quan. Ẩn nếu Coach chưa được bật hoặc đang lỗi, vì đây chỉ là phần thêm.
 class WeeklyInsightCard extends ConsumerWidget {
@@ -31,11 +32,7 @@ class WeeklyInsightCard extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.chat_bubble_outline,
-                          size: 18,
-                          color: c.water,
-                        ),
+                        Icon(AppIcons.chat, size: 18, color: c.water),
                         const SizedBox(width: AppSpacing.xs),
                         Expanded(
                           child: Text(
@@ -43,7 +40,7 @@ class WeeklyInsightCard extends ConsumerWidget {
                             style: context.text.cardTitle,
                           ),
                         ),
-                        Icon(Icons.chevron_right, color: c.inkSoft, size: 20),
+                        Icon(AppIcons.chevron, color: c.inkSoft, size: 20),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.xs),

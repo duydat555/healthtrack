@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../widgets/core_widgets.dart';
 import '../health/health_providers.dart';
 import '../health/metric_cards.dart';
+import '../../core/app_icons.dart';
 
 /// Màn Chỉ số: mỗi chỉ số một thẻ đục (số mới nhất, đơn vị, đường xu hướng). Chạm thẻ để mở biểu
 /// đồ xu hướng của chỉ số đó; nút ở góc trên mở biểu đồ chung.
@@ -47,7 +48,7 @@ class MetricsScreen extends ConsumerWidget {
                   ),
                   RoundIconButton(
                     tooltip: 'Xem biểu đồ xu hướng',
-                    icon: Icons.show_chart_rounded,
+                    icon: AppIcons.chart,
                     onTap: () => context.push('/trends'),
                   ),
                 ],
@@ -64,7 +65,7 @@ class MetricsScreen extends ConsumerWidget {
                   final hasWater = b.waterByDay.any((v) => v > 0);
                   if (b.weights.isEmpty && b.sleeps.isEmpty && !hasWater) {
                     return EmptyState(
-                      icon: Icons.insights_outlined,
+                      icon: AppIcons.insights,
                       message: 'Chưa có dữ liệu chỉ số.\nGhi nhận nước uống, giấc ngủ hoặc cân nặng để xem thống kê.',
                       actionLabel: 'Ghi dữ liệu ngay',
                       onAction: () => context.push('/add'),

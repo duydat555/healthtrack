@@ -18,6 +18,7 @@ import '../health/metric_cards.dart';
 import '../health/healthkit_sync.dart';
 import '../widget/widget_sync.dart';
 import '../../widgets/core_widgets.dart';
+import '../../core/app_icons.dart';
 
 /// Màn Tổng quan (Dashboard), bố cục theo app Fitness của Apple, dữ liệu lấy từ backend.
 class HomeScreen extends ConsumerWidget {
@@ -76,7 +77,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   RoundIconButton(
                     tooltip: 'Hỏi Coach',
-                    icon: Icons.chat_bubble_outline,
+                    icon: AppIcons.chat,
                     onTap: () => context.push('/coach'),
                   ),
                   if (user != null) ...[
@@ -341,7 +342,7 @@ class _WaterWeekChart extends StatelessWidget {
 
     if (values.isEmpty || total == 0) {
       return const EmptyState(
-        icon: Icons.water_drop_outlined,
+        icon: AppIcons.water,
         message: 'Chưa có dữ liệu nước uống trong 7 ngày qua.',
       );
     }

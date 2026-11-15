@@ -13,6 +13,7 @@ import '../health/health_providers.dart';
 import '../health/health_repository.dart';
 import '../health/models.dart';
 import '../../widgets/core_widgets.dart';
+import '../../core/app_icons.dart';
 
 enum _Kind { water, weight, sleep, medicine, steps, meal }
 
@@ -269,7 +270,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           label: 'Đóng màn hình thêm nhanh',
           child: IconButton(
             tooltip: 'Đóng',
-            icon: const Icon(Icons.close),
+            icon: const Icon(AppIcons.close),
             onPressed: () => context.pop(),
           ),
         ),
@@ -283,16 +284,12 @@ class _AddScreenState extends ConsumerState<AddScreen> {
               clipBehavior: Clip.none,
               child: Row(
                 children: [
-                  _kindChip(_Kind.water, 'Nước', Icons.water_drop_rounded),
-                  _kindChip(_Kind.weight, 'Cân nặng', Icons.monitor_weight),
-                  _kindChip(_Kind.sleep, 'Ngủ', Icons.bedtime_rounded),
-                  _kindChip(_Kind.medicine, 'Thuốc', Icons.medication_rounded),
-                  _kindChip(
-                    _Kind.steps,
-                    'Bước chân',
-                    Icons.directions_walk_rounded,
-                  ),
-                  _kindChip(_Kind.meal, 'Bữa ăn', Icons.restaurant_rounded),
+                  _kindChip(_Kind.water, 'Nước', AppIcons.waterFill),
+                  _kindChip(_Kind.weight, 'Cân nặng', AppIcons.weightFill),
+                  _kindChip(_Kind.sleep, 'Ngủ', AppIcons.sleepFill),
+                  _kindChip(_Kind.medicine, 'Thuốc', AppIcons.medicineFill),
+                  _kindChip(_Kind.steps, 'Bước chân', AppIcons.stepsFill),
+                  _kindChip(_Kind.meal, 'Bữa ăn', AppIcons.mealFill),
                 ],
               ),
             ),
@@ -422,7 +419,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           ),
           data: (items) => items.isEmpty
               ? const EmptyState(
-                  icon: Icons.water_drop_outlined,
+                  icon: AppIcons.water,
                   message: 'Hôm nay chưa ghi nhận lần uống nước nào.',
                 )
               : Column(
@@ -431,7 +428,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: Icon(
-                          Icons.water_drop,
+                          AppIcons.waterFill,
                           color: context.colors.water,
                         ),
                         title: Text(
@@ -448,7 +445,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                           child: IconButton(
                             tooltip: 'Xóa',
                             icon: Icon(
-                              Icons.delete_outline,
+                              AppIcons.trash,
                               color: context.colors.inkSoft,
                             ),
                             onPressed: () => _deleteEntry(
@@ -544,7 +541,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           ),
           data: (items) => items.isEmpty
               ? const EmptyState(
-                  icon: Icons.monitor_weight_outlined,
+                  icon: AppIcons.weight,
                   message: 'Chưa có dữ liệu cân nặng.',
                 )
               : Column(
@@ -553,7 +550,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: Icon(
-                          Icons.monitor_weight,
+                          AppIcons.weightFill,
                           color: context.colors.weight,
                         ),
                         title: Text(
@@ -572,7 +569,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                           child: IconButton(
                             tooltip: 'Xóa',
                             icon: Icon(
-                              Icons.delete_outline,
+                              AppIcons.trash,
                               color: context.colors.inkSoft,
                             ),
                             onPressed: () => _deleteEntry(
@@ -643,7 +640,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                   onPressed: () =>
                       setState(() => _quality = _quality == q ? null : q),
                   icon: Icon(
-                    (_quality ?? 0) >= q ? Icons.star : Icons.star_border,
+                    (_quality ?? 0) >= q ? AppIcons.starFill : AppIcons.star,
                     color: context.colors.meal,
                     size: 32,
                   ),
@@ -671,7 +668,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           ),
           data: (items) => items.isEmpty
               ? const EmptyState(
-                  icon: Icons.bedtime_outlined,
+                  icon: AppIcons.sleep,
                   message: 'Chưa có dữ liệu giấc ngủ.',
                 )
               : Column(
@@ -680,7 +677,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: Icon(
-                          Icons.bedtime,
+                          AppIcons.sleepFill,
                           color: context.colors.sleep,
                         ),
                         title: Text(
@@ -698,7 +695,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
                           child: IconButton(
                             tooltip: 'Xóa',
                             icon: Icon(
-                              Icons.delete_outline,
+                              AppIcons.trash,
                               color: context.colors.inkSoft,
                             ),
                             onPressed: () => _deleteEntry(
@@ -722,7 +719,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       children: [
         OutlinedButton.icon(
           onPressed: _pickStepDay,
-          icon: const Icon(Icons.calendar_today),
+          icon: const Icon(AppIcons.calendar),
           label: Text('Ngày ghi: ${_formatDay(_stepDay)}'),
         ),
         const SizedBox(height: 12),
@@ -765,7 +762,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           ),
           data: (items) => items.isEmpty
               ? const EmptyState(
-                  icon: Icons.directions_walk,
+                  icon: AppIcons.stepsFill,
                   message: 'Chưa có dữ liệu bước chân.',
                 )
               : Column(
@@ -879,7 +876,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
           ),
           data: (items) => items.isEmpty
               ? const EmptyState(
-                  icon: Icons.restaurant_outlined,
+                  icon: AppIcons.meal,
                   message: 'Chưa có bữa ăn nào.',
                 )
               : Column(
@@ -938,7 +935,7 @@ class _BmiBanner extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.accessibility_new, color: context.colors.medicine),
+            Icon(AppIcons.bodyFill, color: context.colors.medicine),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -1017,7 +1014,7 @@ class _Medicines extends ConsumerWidget {
           children: [
             if (active.isEmpty)
               const EmptyState(
-                icon: Icons.medication_outlined,
+                icon: AppIcons.medicine,
                 message:
                     'Chưa có thuốc nào. Thêm thuốc để ghi nhận mỗi lần uống.',
               ),
@@ -1064,7 +1061,7 @@ class _Medicines extends ConsumerWidget {
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: () => _addMedication(context, ref),
-              icon: const Icon(Icons.add),
+              icon: const Icon(AppIcons.add),
               label: const Text('Thêm thuốc'),
             ),
           ],
