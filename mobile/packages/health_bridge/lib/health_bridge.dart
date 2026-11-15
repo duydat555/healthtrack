@@ -62,6 +62,17 @@ class HealthBridge {
     ];
   }
 
+  /// Các phiên ngủ Apple ghi nhận trong [from, to] (Apple Watch, iPhone theo lịch ngủ...), dạng
+  /// `{external_id, start_at, end_at}`.
+  Future<List<Map<String, Object?>>> sleep(DateTime from, DateTime to) =>
+      _fetch('sleep', from, to);
+
+  /// Năng lượng vận động (kcal) Apple tính trong [from, to]; null nếu không có dữ liệu.
+  Future<double?> activeEnergyKcal(DateTime from, DateTime to) async {
+    final rows = await _fetch('energy', from, to);
+    return rows.isEmpty ? null : (rows.first['kcal'] as num?)?.toDouble();
+  }
+
   /// Đọc bước chân, giấc ngủ và cân nặng trong khoảng [from, to].
   Future<HealthKitBatch> read(DateTime from, DateTime to) async =>
       HealthKitBatch(

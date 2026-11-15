@@ -1,8 +1,10 @@
 package vn.edu.vku.healthtrack.activity_sensors
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AppOpsManager
+import android.app.PendingIntent
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
@@ -18,6 +20,11 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Process
 import android.provider.Settings
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.google.android.gms.location.ActivityRecognition
+import com.google.android.gms.location.SleepSegmentRequest
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -25,19 +32,17 @@ import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import org.json.JSONArray
+import java.util.concurrent.TimeUnit
 
 /**
  * Cảm biến của máy Android, không cần Google Fit hay Health Connect.
  *
- * - Bước chân: cảm biến TYPE_STEP_COUNTER chỉ cho tổng số bước từ lúc bật máy, không có lịch sử.
- *   Mỗi lần đọc, phần chênh so với lần đọc trước được cộng vào ngày hiện tại và lưu trong
- *   SharedPreferences. Bước đi lúc app không chạy được tính vào ngày mở app kế tiếp.
- * - Quãng nghỉ: các lần tắt màn hình (UsageStatsManager), cần người dùng cấp "Quyền truy cập dữ
- *   liệu sử dụng" trong Cài đặt. Dùng để ước lượng giấc ngủ.
+ * - Bước chân: cảm biến TYPE_STEP_COUNTER, ghi theo ngày ở [StepStore]; tác vụ nền
+ *   [StepSampleWorker] đọc khoảng 15 phút một lần để bước rơi đúng ngày cả khi app đóng.
+ * - Giấc ngủ: Google Sleep API ([SleepSegmentReceiver]) nếu máy có Play Services.
+ * - Dự phòng cho giấc ngủ: các lần mở màn hình (UsageStatsManager, cần người dùng cấp "Quyền truy
+ *   cập dữ liệu sử dụng"), làm đầu vào cho mô hình ước lượng phía Dart.
  */
 class ActivitySensorsPlugin :
     FlutterPlugin,
@@ -55,7 +60,6 @@ class ActivitySensorsPlugin :
     private var sink: EventChannel.EventSink? = null
     private var liveListener: SensorEventListener? = null
     private val main = Handler(Looper.getMainLooper())
-    private val dayFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
     private val sensorManager: SensorManager
         get() = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -109,14 +113,24 @@ class ActivitySensorsPlugin :
                     dailySteps(from, to, result)
                 }
             }
-            "restIntervals" -> {
+            "wakeEvents" -> {
                 val from = call.argument<Number>("from")?.toLong()
                 val to = call.argument<Number>("to")?.toLong()
                 if (from == null || to == null) {
                     result.error("bad_args", "Thiếu from hoặc to", null)
                 } else {
-                    result.success(restIntervals(from, to))
+                    result.success(wakeEvents(from, to))
                 }
+            }
+            "stepBuckets" -> result.success(emptyList<Any>())
+            "sleepSegments" -> {
+                val from = call.argument<Number>("from")?.toLong() ?: 0L
+                val to = call.argument<Number>("to")?.toLong() ?: Long.MAX_VALUE
+                result.success(sleepSegments(from, to))
+            }
+            "startBackground" -> {
+                startBackground()
+                result.success(null)
             }
             "restAccess" -> result.success(hasUsageAccess())
             "openRestAccessSettings" -> {
@@ -168,20 +182,6 @@ class ActivitySensorsPlugin :
 
     // Bước chân
 
-    /** Cộng phần chênh của bộ đếm vào ngày hôm nay; trả tổng bước hôm nay. */
-    private fun record(counter: Long): Int {
-        val today = dayFormat.format(Date())
-        val last = prefs.getLong("last", -1L)
-        var delta = if (last < 0) 0L else counter - last
-        // Bộ đếm về 0 sau khi khởi động lại máy
-        if (delta < 0) delta = counter
-        val total = prefs.getInt("d:$today", 0) + delta.toInt()
-        prefs.edit().putLong("last", counter).putInt("d:$today", total).apply()
-        return total
-    }
-
-    private fun stepsFor(day: String): Int = prefs.getInt("d:$day", 0)
-
     private fun dailySteps(from: Long, to: Long, result: MethodChannel.Result) {
         val sensor = stepSensor
         if (sensor == null || !hasStepPermission()) return result.success(emptyList<Any>())
@@ -189,11 +189,11 @@ class ActivitySensorsPlugin :
         fun answer() {
             if (answered) return
             answered = true
-            result.success(daysBetween(from, to))
+            result.success(StepStore.daysBetween(context, from, to))
         }
         val listener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                record(event.values[0].toLong())
+                StepStore.record(context, event.values[0].toLong())
                 sensorManager.unregisterListener(this)
                 answer()
             }
@@ -208,31 +208,13 @@ class ActivitySensorsPlugin :
         }, 2000)
     }
 
-    private fun daysBetween(from: Long, to: Long): List<Map<String, Any>> {
-        val out = mutableListOf<Map<String, Any>>()
-        val cal = Calendar.getInstance().apply {
-            timeInMillis = from
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-        while (cal.timeInMillis < to) {
-            val key = dayFormat.format(cal.time)
-            val steps = stepsFor(key)
-            if (steps > 0) out.add(mapOf("day" to key, "steps" to steps))
-            cal.add(Calendar.DAY_OF_MONTH, 1)
-        }
-        return out
-    }
-
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
         sink = events
         val sensor = stepSensor ?: return
         if (!hasStepPermission()) return
         val listener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                val total = record(event.values[0].toLong())
+                val total = StepStore.record(context, event.values[0].toLong())
                 sink?.success(total)
             }
 
@@ -269,30 +251,69 @@ class ActivitySensorsPlugin :
         return mode == AppOpsManager.MODE_ALLOWED
     }
 
-    private fun restIntervals(from: Long, to: Long): List<Map<String, Long>> {
+    /** Các lúc màn hình được mở (người dùng đang thức). */
+    private fun wakeEvents(from: Long, to: Long): List<Long> {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P || !hasUsageAccess()) return emptyList()
         val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val events = usm.queryEvents(from, to)
         val event = UsageEvents.Event()
-        val out = mutableListOf<Map<String, Long>>()
-        var offStart: Long? = null
+        val out = mutableListOf<Long>()
         while (events.hasNextEvent()) {
             events.getNextEvent(event)
-            when (event.eventType) {
-                UsageEvents.Event.SCREEN_NON_INTERACTIVE ->
-                    if (offStart == null) offStart = event.timeStamp
-                UsageEvents.Event.SCREEN_INTERACTIVE -> {
-                    val start = offStart
-                    if (start != null) out.add(mapOf("start" to start, "end" to event.timeStamp))
-                    offStart = null
-                }
+            if (event.eventType == UsageEvents.Event.SCREEN_INTERACTIVE) out.add(event.timeStamp)
+        }
+        return out
+    }
+
+    private fun sleepSegments(from: Long, to: Long): List<Map<String, Long>> {
+        val stored = JSONArray(prefs.getString(SleepSegmentReceiver.KEY, "[]"))
+        val out = mutableListOf<Map<String, Long>>()
+        for (i in 0 until stored.length()) {
+            val o = stored.getJSONObject(i)
+            val start = o.getLong("start")
+            val end = o.getLong("end")
+            if (end > from && start < to) out.add(mapOf("start" to start, "end" to end))
+        }
+        return out
+    }
+
+    // Quyền hoạt động thể chất đã được kiểm bằng hasStepPermission() ngay trước khi gọi
+    @SuppressLint("MissingPermission")
+    /** Bật tác vụ đọc bước định kỳ và đăng ký nhận giấc ngủ từ Sleep API (gọi lại nhiều lần không sao). */
+    private fun startBackground() {
+        if (stepSensor != null && hasStepPermission()) {
+            val work = PeriodicWorkRequestBuilder<StepSampleWorker>(15, TimeUnit.MINUTES).build()
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                "healthtrack_step_sample",
+                ExistingPeriodicWorkPolicy.KEEP,
+                work,
+            )
+        }
+        // Sleep API cần Android 10+ và quyền hoạt động thể chất; máy không có Play Services thì bỏ qua
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && hasStepPermission()) {
+            val flags = PendingIntent.FLAG_UPDATE_CURRENT or
+                (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0)
+            val pending = PendingIntent.getBroadcast(
+                context,
+                SLEEP_REQUEST_CODE,
+                Intent(context, SleepSegmentReceiver::class.java),
+                flags,
+            )
+            try {
+                ActivityRecognition.getClient(context).requestSleepSegmentUpdates(
+                    pending,
+                    SleepSegmentRequest(SleepSegmentRequest.SEGMENT_EVENTS_ONLY),
+                )
+            } catch (e: SecurityException) {
+                // Chưa có quyền: lần bật sau sẽ đăng ký lại
+            } catch (e: RuntimeException) {
+                // Không có Play Services: dùng mô hình ước lượng phía Dart
             }
         }
-        offStart?.let { out.add(mapOf("start" to it, "end" to to)) }
-        return out
     }
 
     private companion object {
         const val REQUEST_CODE = 7301
+        const val SLEEP_REQUEST_CODE = 7302
     }
 }

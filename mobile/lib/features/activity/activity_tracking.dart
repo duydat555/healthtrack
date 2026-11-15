@@ -8,6 +8,7 @@ import '../../core/api_client.dart';
 import '../../core/settings_storage.dart';
 import '../auth/auth_controller.dart';
 import '../health/health_providers.dart';
+import '../health/healthkit_sync.dart' show healthBridgeProvider;
 import 'activity_algorithms.dart';
 
 const _enabledKey = 'activity_tracking_enabled';
@@ -28,6 +29,9 @@ class ActivityTrackingState {
     this.todaySteps,
     this.todayDistanceM,
     this.lastSleep,
+    this.sleepSource,
+    this.buckets = const [],
+    this.appleActiveKcal,
     this.lastSync,
     this.error,
   });
@@ -44,6 +48,15 @@ class ActivityTrackingState {
   final int? todaySteps;
   final double? todayDistanceM;
   final SleepEstimate? lastSleep;
+
+  /// Nguồn của giấc ngủ đêm qua: `apple`, `google` hoặc `model`.
+  final String? sleepSource;
+
+  /// Bước theo từng 15 phút hôm nay (iOS, do Apple đo), để tính calo theo tốc độ đi/chạy.
+  final List<StepBucket> buckets;
+
+  /// Năng lượng vận động hôm nay do Apple Health tính, nếu đọc được.
+  final double? appleActiveKcal;
   final DateTime? lastSync;
   final String? error;
 
@@ -56,6 +69,9 @@ class ActivityTrackingState {
     int? todaySteps,
     double? todayDistanceM,
     SleepEstimate? lastSleep,
+    String? sleepSource,
+    List<StepBucket>? buckets,
+    double? appleActiveKcal,
     DateTime? lastSync,
     String? error,
     bool clearError = false,
@@ -68,6 +84,9 @@ class ActivityTrackingState {
     todaySteps: todaySteps ?? this.todaySteps,
     todayDistanceM: todayDistanceM ?? this.todayDistanceM,
     lastSleep: lastSleep ?? this.lastSleep,
+    sleepSource: sleepSource ?? this.sleepSource,
+    buckets: buckets ?? this.buckets,
+    appleActiveKcal: appleActiveKcal ?? this.appleActiveKcal,
     lastSync: lastSync ?? this.lastSync,
     error: clearError ? null : (error ?? this.error),
   );
@@ -78,8 +97,11 @@ String _dayKey(DateTime d) =>
     '${d.month.toString().padLeft(2, '0')}-'
     '${d.day.toString().padLeft(2, '0')}';
 
-/// Đếm bước, ước lượng giấc ngủ từ cảm biến và đẩy lên máy chủ (nguồn `device`), không cần
-/// Apple Health. Bước chân hôm nay cập nhật trực tiếp khi đang đi.
+/// Đếm bước, lấy giấc ngủ và năng lượng rồi đẩy lên máy chủ (nguồn `device`), chạy được cả khi
+/// không có Apple Health. Thứ tự ưu tiên, nguồn của hệ điều hành trước, mô hình tự viết sau:
+/// - Bước: iPhone dùng CMPedometer của Apple; Android dùng cảm biến đếm bước + tác vụ nền.
+/// - Giấc ngủ: Apple Health (nếu đọc được) → Google Sleep API (Android) → mô hình SensibleSleep.
+/// - Năng lượng vận động: Apple Health → phương trình ACSM theo quãng đường và tốc độ.
 class ActivityTrackingNotifier extends Notifier<ActivityTrackingState> {
   StreamSubscription<int>? _live;
 
@@ -104,7 +126,10 @@ class ActivityTrackingNotifier extends Notifier<ActivityTrackingState> {
       permission: permission,
       restAccess: restAccess,
     );
-    if (enabled && permission == ActivityPermission.granted) _startLive();
+    if (enabled && permission == ActivityPermission.granted) {
+      _startLive();
+      await _sensors.startBackground();
+    }
   }
 
   void _startLive() {
@@ -140,6 +165,13 @@ class ActivityTrackingNotifier extends Notifier<ActivityTrackingState> {
     await storage.write(_enabledKey, '1');
     state = state.copyWith(enabled: true, permission: permission);
     _startLive();
+    await _sensors.startBackground();
+    // Xin quyền đọc giấc ngủ và năng lượng của Apple Health; bản cài lại (sideload) không có
+    // quyền HealthKit thì bỏ qua và dùng mô hình ước lượng
+    try {
+      final bridge = ref.read(healthBridgeProvider);
+      if (await bridge.isAvailable()) await bridge.requestAuthorization();
+    } catch (_) {}
     await syncNow();
   }
 
@@ -163,23 +195,58 @@ class ActivityTrackingNotifier extends Notifier<ActivityTrackingState> {
         today.subtract(const Duration(days: 6)),
         at,
       );
+      final buckets = [
+        for (final w in await _sensors.stepBuckets(today, at))
+          StepBucket(
+            start: w.start,
+            steps: w.steps,
+            distanceM: w.distanceM,
+            paceSecPerM: w.paceSecPerM,
+          ),
+      ];
+      final sleepFrom = today.subtract(const Duration(days: 3, hours: 8));
+      final apple = await _appleData(sleepFrom, today, at);
+      final google = await _sensors.sleepSegments(sleepFrom, at);
       final restAccess = await _sensors.restAccess();
-      final rest = restAccess
-          ? await _sensors.restIntervals(
-              today.subtract(const Duration(days: 3, hours: 6)),
-              at,
-            )
-          : const <RestInterval>[];
 
-      // Giấc ngủ của 3 đêm gần nhất; mỗi đêm một khóa cố định nên gửi lại thì cập nhật, không nhân đôi
-      final sleeps = <String, SleepEstimate>{};
-      for (var i = 0; i < 3; i++) {
-        final wake = today.subtract(Duration(days: i));
-        final est = estimateSleep(rest, wakeDay: wake);
-        // Đêm nay chưa kết thúc (máy vẫn đang nằm yên) thì chưa gửi
-        if (est != null &&
-            est.end.isBefore(at.subtract(const Duration(minutes: 5)))) {
-          sleeps[_dayKey(wake)] = est;
+      // Giấc ngủ của 3 đêm gần nhất, mỗi đêm một nguồn theo thứ tự ưu tiên
+      final sleeps =
+          <String, ({SleepEstimate est, String id, String source})>{};
+      void put(SleepEstimate est, String id, String source) {
+        final key = _dayKey(est.end);
+        final cur = sleeps[key];
+        if (cur == null || est.duration > cur.est.duration) {
+          sleeps[key] = (est: est, id: id, source: source);
+        }
+      }
+
+      for (final a in apple.sleep) {
+        put(a.est, a.id, 'apple');
+      }
+      for (final g in google) {
+        final key = _dayKey(g.end);
+        if (sleeps.containsKey(key)) continue;
+        put(SleepEstimate(g.start, g.end), 'device-sleep-$key', 'google');
+      }
+      final missing = [
+        for (var i = 0; i < 3; i++)
+          if (!sleeps.containsKey(_dayKey(today.subtract(Duration(days: i)))))
+            today.subtract(Duration(days: i)),
+      ];
+      if (missing.isNotEmpty && restAccess) {
+        final events = await _sensors.wakeEvents(sleepFrom, at);
+        final history = ref.read(bodyDataProvider).value?.sleeps ?? const [];
+        final prior = SleepPrior.fromHistory([
+          for (final s in history) (s.startAt.toLocal(), s.endAt.toLocal()),
+        ]);
+        for (final wake in missing) {
+          final est = estimateSleep(
+            events,
+            wakeDay: wake,
+            prior: prior,
+            now: at,
+          );
+          if (est != null) put(est, 'device-sleep-${_dayKey(wake)}', 'model');
         }
       }
 
@@ -195,11 +262,11 @@ class ActivityTrackingNotifier extends Notifier<ActivityTrackingState> {
                   for (final d in days) {'day': d.day, 'steps': d.steps},
                 ],
                 'sleep': [
-                  for (final e in sleeps.entries)
+                  for (final s in sleeps.values)
                     {
-                      'external_id': 'device-sleep-${e.key}',
-                      'start_at': e.value.start.toUtc().toIso8601String(),
-                      'end_at': e.value.end.toUtc().toIso8601String(),
+                      'external_id': s.id,
+                      'start_at': s.est.start.toUtc().toIso8601String(),
+                      'end_at': s.est.end.toUtc().toIso8601String(),
                     },
                 ],
               },
@@ -211,16 +278,51 @@ class ActivityTrackingNotifier extends Notifier<ActivityTrackingState> {
           ..invalidate(stepLogsProvider)
           ..invalidate(sleepLogsProvider);
       }
+      final last = sleeps[_dayKey(today)];
       state = state.copyWith(
         busy: false,
         restAccess: restAccess,
         todaySteps: todayRow?.steps,
         todayDistanceM: todayRow?.distanceM,
-        lastSleep: sleeps[_dayKey(today)],
+        lastSleep: last?.est,
+        sleepSource: last?.source,
+        buckets: buckets,
+        appleActiveKcal: apple.activeKcal,
         lastSync: DateTime.now(),
       );
     } catch (e) {
       state = state.copyWith(busy: false, error: apiErrorMessage(e));
+    }
+  }
+
+  /// Giấc ngủ và năng lượng vận động từ Apple Health; rỗng nếu máy không có hoặc app không được
+  /// đọc (bản cài lại bằng AltStore/Sideloadly không có quyền HealthKit).
+  Future<({List<({SleepEstimate est, String id})> sleep, double? activeKcal})>
+  _appleData(DateTime from, DateTime today, DateTime now) async {
+    const empty = (
+      sleep: <({SleepEstimate est, String id})>[],
+      activeKcal: null,
+    );
+    try {
+      final bridge = ref.read(healthBridgeProvider);
+      if (!await bridge.isAvailable()) return empty;
+      final rows = await bridge.sleep(from, now);
+      final kcal = await bridge.activeEnergyKcal(today, now);
+      return (
+        sleep: [
+          for (final r in rows)
+            (
+              est: SleepEstimate(
+                DateTime.parse(r['start_at']! as String).toLocal(),
+                DateTime.parse(r['end_at']! as String).toLocal(),
+              ),
+              id: r['external_id']! as String,
+            ),
+        ],
+        activeKcal: kcal != null && kcal > 0 ? kcal : null,
+      );
+    } catch (_) {
+      return empty;
     }
   }
 }
@@ -261,6 +363,8 @@ final todayEnergyProvider = Provider<EnergyEstimate>((ref) {
   return estimateEnergy(
     steps: steps,
     distanceM: distance,
+    buckets: tracking.buckets,
+    appleActiveKcal: tracking.appleActiveKcal,
     now: DateTime.now(),
     profile: BodyProfile(
       weightKg: weight,

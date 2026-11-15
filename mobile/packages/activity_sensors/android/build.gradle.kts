@@ -51,3 +51,10 @@ kotlin {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
+
+dependencies {
+    // Sleep API (giấc ngủ do Google ước lượng trên máy)
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    // Đọc bộ đếm bước định kỳ khi app đóng
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+}

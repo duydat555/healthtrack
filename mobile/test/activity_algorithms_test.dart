@@ -1,54 +1,80 @@
-import 'package:activity_sensors/activity_sensors.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:healthtrack/features/activity/activity_algorithms.dart';
 
 DateTime t(int day, int h, [int m = 0]) => DateTime(2026, 11, day, h, m);
-RestInterval r(DateTime s, DateTime e) => RestInterval(s, e);
+
+/// Sự kiện "đang thức": 2 sự kiện mỗi 15 phút trong các khoảng [from, to).
+List<DateTime> busy(List<(DateTime, DateTime)> ranges) => [
+  for (final (from, to) in ranges)
+    for (
+      var x = from;
+      x.isBefore(to);
+      x = x.add(const Duration(minutes: 15))
+    ) ...[x.add(const Duration(minutes: 2)), x.add(const Duration(minutes: 9))],
+];
 
 void main() {
-  group('estimateSleep', () {
+  group('estimateSleep (SensibleSleep)', () {
+    test('đêm bình thường: ngủ 23:00, dậy 07:00, một lần cầm máy lúc 3 giờ không làm gãy giấc', () {
+      final events = [
+        ...busy([(t(14, 16), t(14, 23)), (t(15, 7), t(15, 12))]),
+        t(15, 3, 5),
+      ];
+      final est = estimateSleep(
+        events,
+        wakeDay: DateTime(2026, 11, 15),
+        now: t(15, 12),
+      );
+      expect(est!.start, t(14, 23));
+      expect(est.end, t(15, 7));
+    });
+
+    test('ngủ muộn 01:30 dậy 09:30: dữ liệu thắng tiên nghiệm 23:00/07:00', () {
+      final est = estimateSleep(
+        busy([(t(14, 16), t(15, 1, 30)), (t(15, 9, 30), t(15, 14))]),
+        wakeDay: DateTime(2026, 11, 15),
+        now: t(15, 14),
+      );
+      expect(est!.start, t(15, 1, 30));
+      expect(est.end, t(15, 9, 30));
+    });
+
     test(
-      'gộp các quãng nghỉ cách nhau ngắn thành một giấc, trừ 10 phút chưa ngủ',
+      'đêm chưa kết thúc (chưa thấy hoạt động sau giờ dậy) thì chưa đoán',
       () {
-        final est = estimateSleep([
-          r(t(14, 23, 5), t(15, 2, 0)),
-          r(t(15, 2, 12), t(15, 6, 40)), // dậy 12 phút giữa đêm
-        ], wakeDay: DateTime(2026, 11, 15));
-        expect(est, SleepEstimate(t(14, 23, 15), t(15, 6, 40)));
+        expect(
+          estimateSleep(
+            busy([(t(14, 16), t(14, 23))]),
+            wakeDay: DateTime(2026, 11, 15),
+            now: t(15, 5),
+          ),
+          isNull,
+        );
       },
     );
 
-    test('bỏ quãng nghỉ ngắn ban ngày và chọn khối chạm khung 0–6 giờ', () {
-      final est = estimateSleep([
-        r(t(14, 19, 0), t(14, 22, 30)), // xem phim 3,5 giờ buổi tối
-        r(t(15, 0, 30), t(15, 4, 0)), // ngủ muộn, chỉ 3,5 giờ
-        r(t(15, 9, 0), t(15, 9, 40)),
-      ], wakeDay: DateTime(2026, 11, 15));
-      expect(est!.start, t(15, 0, 40));
-      expect(est.end, t(15, 4, 0));
-    });
-
-    test('không có khối nào đủ 3 giờ thì không đoán', () {
+    test('quá ít dữ liệu thì không đoán', () {
       expect(
-        estimateSleep([
-          r(t(14, 23, 0), t(15, 1, 0)),
-          r(t(15, 2, 0), t(15, 3, 30)),
-        ], wakeDay: DateTime(2026, 11, 15)),
+        estimateSleep(
+          [t(14, 18), t(15, 8)],
+          wakeDay: DateTime(2026, 11, 15),
+          now: t(15, 12),
+        ),
         isNull,
       );
     });
 
-    test(
-      'chỉ xét cửa sổ 18:00 hôm trước tới 14:00, máy để quên bị cắt còn 14 giờ',
-      () {
-        final est = estimateSleep([
-          r(t(13, 10, 0), t(15, 20, 0)), // nằm yên hai ngày
-        ], wakeDay: DateTime(2026, 11, 15));
-        // Cửa sổ 14/11 18:00 → 15/11 14:00 (20 giờ), cắt còn 14 giờ tính từ đầu
-        expect(est!.start, t(14, 18, 10));
-        expect(est.end, t(15, 8, 0));
-      },
-    );
+    test('tiên nghiệm cá nhân lấy trung vị lịch sử', () {
+      final prior = SleepPrior.fromHistory([
+        (t(10, 0), t(10, 8)),
+        (t(11, 0, 30), t(11, 8, 30)),
+        (t(11, 23, 30), t(12, 7, 30)),
+      ]);
+      expect(prior.sleepBin, 32); // 00:00 = 8 giờ sau 16:00
+      expect(prior.wakeBin, 64); // 08:00
+      expect(prior.sdBins, 6);
+      expect(SleepPrior.fromHistory(const []).sleepBin, 28);
+    });
   });
 
   group('năng lượng', () {
@@ -78,39 +104,61 @@ void main() {
       );
     });
 
-    test('10.000 bước lúc 12 giờ trưa: nửa BMR cộng phần đi bộ', () {
+    test('ACSM: đi bộ 0,5 kcal/kg/km, chạy 1,0 kcal/kg/km', () {
+      expect(netKcalPerKm(70, running: false), closeTo(35, 1e-9));
+      expect(netKcalPerKm(70, running: true), closeTo(70, 1e-9));
+    });
+
+    test(
+      'khoảng chạy (tốc độ Apple đo ≥ 2,2 m/s) tính gấp đôi khoảng đi bộ',
+      () {
+        final now = DateTime(2026, 11, 15, 12);
+        final e = estimateEnergy(
+          steps: 3000,
+          profile: male,
+          now: now,
+          buckets: [
+            StepBucket(
+              start: t(15, 7),
+              steps: 1500,
+              distanceM: 1000,
+              paceSecPerM: 0.8,
+            ), // 1,25 m/s
+            StepBucket(
+              start: t(15, 8),
+              steps: 1500,
+              distanceM: 2000,
+              paceSecPerM: 0.4,
+            ), // 2,5 m/s
+          ],
+        );
+        expect(e.distanceKm, closeTo(3, 1e-9));
+        expect(e.activeKcal, closeTo(35 + 140, 1e-9));
+      },
+    );
+
+    test('số liệu của Apple Health được dùng thay cho ước lượng', () {
+      final e = estimateEnergy(
+        steps: 10000,
+        profile: male,
+        now: DateTime(2026, 11, 15, 12),
+        appleActiveKcal: 412,
+      );
+      expect(e.activeKcal, 412);
+    });
+
+    test('không có khoảng chi tiết (Android): đi bộ theo chiều dài bước', () {
       final e = estimateEnergy(
         steps: 10000,
         profile: male,
         now: DateTime(2026, 11, 15, 12),
       );
-      expect(e.distanceKm, closeTo(7.26, 0.01));
-      expect(e.activeKcal, closeTo(0.5 * 70 * 7.2625, 0.1));
+      expect(e.distanceKm, closeTo(7.2625, 0.001));
+      expect(e.activeKcal, closeTo(0.5 * 70 * 7.2625, 0.01));
       expect(
         e.restingKcal,
         closeTo(basalMetabolicRate(male, DateTime(2026, 11, 15)) / 2, 0.5),
       );
-    });
-
-    test('ưu tiên quãng đường đo được từ cảm biến', () {
-      final e = estimateEnergy(
-        steps: 10000,
-        profile: male,
-        now: DateTime(2026, 11, 15, 12),
-        distanceM: 8000,
-      );
-      expect(e.distanceKm, 8);
-      expect(e.activeKcal, closeTo(280, 0.01));
-    });
-
-    test('thiếu hồ sơ thì dùng giá trị trung bình, không lỗi', () {
-      final e = estimateEnergy(
-        steps: 0,
-        profile: const BodyProfile(),
-        now: DateTime(2026, 11, 15, 6),
-      );
-      expect(e.activeKcal, 0);
-      expect(e.restingKcal, greaterThan(300));
     });
   });
 }

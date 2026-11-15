@@ -7,4 +7,10 @@
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
     <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="false" />
+
+    <application>
+        <receiver
+            android:name=".SleepSegmentReceiver"
+            android:exported="false" />
+    </application>
 </manifest>

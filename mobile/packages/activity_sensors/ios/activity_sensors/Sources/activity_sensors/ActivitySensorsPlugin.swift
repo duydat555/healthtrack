@@ -6,7 +6,9 @@ import UIKit
 /// ký lại bằng AltStore/Sideloadly). Chỉ cần `NSMotionUsageDescription` trong Info.plist.
 ///
 /// - `dailySteps`: tổng bước và quãng đường theo từng ngày (iPhone giữ khoảng 7 ngày gần nhất).
-/// - `restIntervals`: các quãng máy nằm yên (stationary) từ lịch sử hoạt động, dùng để ước lượng giấc ngủ.
+/// - `stepBuckets`: bước, quãng đường và nhịp di chuyển theo từng khoảng (Apple đo), để tính calo.
+/// - `wakeEvents`: các lúc máy bắt đầu chuyển động (lịch sử CMMotionActivity), là dữ liệu đầu vào
+///   cho mô hình ước lượng giấc ngủ khi không đọc được giấc ngủ của Apple Health.
 /// - Kênh sự kiện `healthtrack/activity/steps`: số bước từ đầu ngày, cập nhật trực tiếp khi đang đi.
 public class ActivitySensorsPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
     private let pedometer = CMPedometer()
@@ -33,9 +35,18 @@ public class ActivitySensorsPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
         case "dailySteps":
             guard let (from, to) = range(call) else { return badArgs(result) }
             dailySteps(from, to, result)
-        case "restIntervals":
+        case "stepBuckets":
             guard let (from, to) = range(call) else { return badArgs(result) }
-            restIntervals(from, to, result)
+            let minutes = (call.arguments as? [String: Any])?["minutes"] as? Int ?? 15
+            stepBuckets(from, to, minutes, result)
+        case "wakeEvents":
+            guard let (from, to) = range(call) else { return badArgs(result) }
+            wakeEvents(from, to, result)
+        case "sleepSegments":
+            // iOS không có API giấc ngủ ngoài HealthKit; app đọc HealthKit qua health_bridge
+            result([])
+        case "startBackground":
+            result(nil)
         case "restAccess":
             // iOS dùng lịch sử chuyển động, quyền đi cùng quyền đếm bước
             result(true)
@@ -108,31 +119,53 @@ public class ActivitySensorsPlugin: NSObject, FlutterPlugin, FlutterStreamHandle
         }
     }
 
-    /// Quãng nằm yên = các bản ghi hoạt động liên tiếp có `stationary`, không phải đang đi xe,
-    /// độ tin cậy từ trung bình trở lên. Mỗi bản ghi kéo dài tới lúc bản ghi kế tiếp bắt đầu.
-    private func restIntervals(_ from: Date, _ to: Date, _ result: @escaping FlutterResult) {
+    /// Bước theo từng khoảng `minutes` phút, chỉ trả khoảng có bước. `paceSecPerM` là nhịp trung bình
+    /// lúc đang di chuyển do Apple tính, dùng để phân biệt đi bộ với chạy.
+    private func stepBuckets(_ from: Date, _ to: Date, _ minutes: Int, _ result: @escaping FlutterResult) {
+        let step = TimeInterval(max(minutes, 1) * 60)
+        var windows: [(Date, Date)] = []
+        var t = from
+        while t < to {
+            windows.append((t, min(t.addingTimeInterval(step), to)))
+            t = t.addingTimeInterval(step)
+        }
+        var out: [[String: Any]] = []
+        let lock = NSLock()
+        let group = DispatchGroup()
+        for (start, end) in windows {
+            group.enter()
+            pedometer.queryPedometerData(from: start, to: end) { data, _ in
+                if let data, data.numberOfSteps.intValue > 0 {
+                    var row: [String: Any] = [
+                        "start": Int(start.timeIntervalSince1970 * 1000),
+                        "steps": data.numberOfSteps.intValue,
+                    ]
+                    if let d = data.distance { row["distanceM"] = d.doubleValue }
+                    if let p = data.averageActivePace, p.doubleValue > 0 { row["paceSecPerM"] = p.doubleValue }
+                    lock.lock(); out.append(row); lock.unlock()
+                }
+                group.leave()
+            }
+        }
+        group.notify(queue: .main) {
+            result(out.sorted { ($0["start"] as! Int) < ($1["start"] as! Int) })
+        }
+    }
+
+    /// Lúc máy bắt đầu một đoạn chuyển động (đi, chạy, đạp xe, đi xe, hoặc không đứng yên),
+    /// độ tin cậy từ trung bình trở lên. Đây là dấu hiệu người dùng đang thức.
+    private func wakeEvents(_ from: Date, _ to: Date, _ result: @escaping FlutterResult) {
         guard CMMotionActivityManager.isActivityAvailable() else { return result([]) }
         activity.queryActivityStarting(from: from, to: to, to: .main) { items, error in
             if let error {
                 return result(FlutterError(code: "query_failed", message: error.localizedDescription, details: nil))
             }
-            let list = items ?? []
-            var out: [[String: Any]] = []
-            var openStart: Date?
-            for (i, a) in list.enumerated() {
-                let end = i + 1 < list.count ? list[i + 1].startDate : to
-                let resting = a.stationary && !a.automotive && a.confidence != .low
-                if resting {
-                    if openStart == nil { openStart = a.startDate }
-                } else if let s = openStart {
-                    out.append(["start": Int(s.timeIntervalSince1970 * 1000),
-                                "end": Int(a.startDate.timeIntervalSince1970 * 1000)])
-                    openStart = nil
-                }
-                if i + 1 == list.count, let s = openStart {
-                    out.append(["start": Int(s.timeIntervalSince1970 * 1000),
-                                "end": Int(end.timeIntervalSince1970 * 1000)])
-                }
+            var out: [Int] = []
+            var wasMoving = false
+            for a in items ?? [] where a.confidence != .low {
+                let moving = a.walking || a.running || a.cycling || a.automotive || !a.stationary
+                if moving && !wasMoving { out.append(Int(a.startDate.timeIntervalSince1970 * 1000)) }
+                wasMoving = moving
             }
             result(out)
         }

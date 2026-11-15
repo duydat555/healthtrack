@@ -18,10 +18,16 @@ void main() {
             {'day': '2026-11-14', 'steps': 8200, 'distanceM': 6100.5},
             {'day': '2026-11-15', 'steps': 1200},
           ];
-        case 'restIntervals':
+        case 'wakeEvents':
+          return [3000, 1000];
+        case 'sleepSegments':
           return [
             {'start': 2000, 'end': 3000},
             {'start': 0, 'end': 1000},
+          ];
+        case 'stepBuckets':
+          return [
+            {'start': 0, 'steps': 900, 'distanceM': 700.0, 'paceSecPerM': 0.4},
           ];
         case 'requestPermission':
           return 'granted';
@@ -37,8 +43,12 @@ void main() {
     expect(days.first.distanceM, 6100.5);
     expect(days.last.distanceM, isNull);
 
-    final rest = await sensors.restIntervals(DateTime(2026), DateTime(2027));
-    expect(rest.first.start.millisecondsSinceEpoch, 0);
+    final wake = await sensors.wakeEvents(DateTime(2026), DateTime(2027));
+    expect(wake.map((e) => e.millisecondsSinceEpoch), [1000, 3000]);
+    final sleep = await sensors.sleepSegments(DateTime(2026), DateTime(2027));
+    expect(sleep.first.start.millisecondsSinceEpoch, 0);
+    final buckets = await sensors.stepBuckets(DateTime(2026), DateTime(2027));
+    expect(buckets.single.paceSecPerM, 0.4);
     expect(await sensors.requestPermission(), ActivityPermission.granted);
   });
 
