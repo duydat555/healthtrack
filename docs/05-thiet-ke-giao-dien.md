@@ -73,7 +73,7 @@ Chỉ dùng để báo điều gì vừa thay đổi: vòng đầy lên khi mở
 
 ## Nguyên tắc
 - Giao diện chính là **iPhone**, dùng **Liquid Glass của iOS 26** cho lớp nổi.
-- **Quy chuẩn Liquid Glass:** chỉ dùng cho lớp điều hướng nổi (thanh tab dưới và nút thêm nhanh nổi `+`). **Không** phủ kính lên thẻ nội dung: thẻ là bề mặt đục `AppCard` (màu `card` của bảng màu) để giữ hiệu năng (không tạo thêm platform view `UiKitView`), giữ phân cấp rõ ràng và chữ đủ tương phản.
+- **Quy chuẩn Liquid Glass:** dùng cho lớp điều hướng nổi (thanh tab dưới và nút thêm nhanh nổi `+`) và các **nút**: nút icon tròn ở đầu trang (Coach, cài đặt, quay lại, đóng), nút hành động chính (Đăng nhập, Lưu, Thêm...) và Hủy/Lưu trong form sheet. Hàng trong danh sách giữ nguyên dạng hàng. **Không** phủ kính lên thẻ nội dung: thẻ là bề mặt đục `AppCard` (màu `card` của bảng màu) để giữ hiệu năng (không tạo thêm platform view `UiKitView`), giữ phân cấp rõ ràng và chữ đủ tương phản.
 - View kính native dùng `dark: true` ở Dark Mode để đồng bộ nền.
 - Toàn bộ màu sắc, bo góc, chuyển động và kiểu chữ lấy từ `mobile/lib/core/theme.dart` (không hard-code trong màn hình).
 - Hỗ trợ Dynamic Type (co giãn font chữ), VoiceOver (`Semantics` đầy đủ cho nút, thẻ, tiêu đề, thông báo lỗi) và hiển thị chuẩn từ **iPhone SE (`375x667`)** đến **iPhone Pro Max (`430x932`)**.
@@ -90,12 +90,35 @@ Thẻ nội dung là bề mặt đục. Mọi màn dùng các thành phần dư�
 | `SettingsGroup` + `SettingsRow` | Nhóm hàng kiểu Cài đặt iOS: hàng cao tối thiểu 44, icon trong ô màu, giá trị bên phải, mũi tên; `SettingsRow.toggle` dùng `Switch.adaptive`; hàng `destructive` chữ đỏ |
 | `showFormSheet` + `FormSheetController` | Form dạng sheet: Hủy / tiêu đề / Lưu, Lưu tắt khi chưa hợp lệ, tránh bàn phím, hỏi "Bỏ thay đổi?" khi đã sửa. Mở ở navigator gốc để phủ cả thanh tab. Kéo xuống để đóng bị tắt vì Flutter không cho chặn thao tác này |
 | `adaptiveDialogAction` | Nút của `AlertDialog.adaptive`: `CupertinoDialogAction` trên iOS, `TextButton` nơi khác |
-| `AppTextField`, `PrimaryButton`, `SecondaryButton`, `ErrorText` | Bộ form: ô nhập bo 12 có hậu tố đơn vị, `helperText`, `errorText`; nút chính nền vàng chữ `onBrand`, cao 50 |
-| `RoundIconButton` | Nút tròn nhỏ ở đầu trang, vùng chạm 44 |
-| `EmptyState`, `ErrorState`, `LoadingState`, `AppSkeleton` | Trạng thái rỗng (icon tròn và nút vàng), lỗi (Thử lại), đang tải; skeleton đứng yên khi bật Giảm chuyển động |
+| `AppTextField`, `PrimaryButton`, `SecondaryButton`, `ErrorText` | Bộ form: ô nhập bo 12 có hậu tố đơn vị, `helperText`, `errorText`; nút chính (`PrimaryButton` = `GlassButton.prominent`): kính nhuộm vàng chữ `onBrand`, cao 50 |
+| `RoundIconButton` | Nút icon tròn Liquid Glass ở đầu trang, vùng chạm 44 (cần tên SF Symbol `symbol` cho iOS và icon `AppIcons` cho bản dự phòng) |
+| `AppActivityIndicator`, `AppRefreshList` | Kim quay kiểu iOS (`CupertinoActivityIndicator`) và danh sách kéo để làm mới kiểu Cupertino; nơi khác dùng vòng Material và `RefreshIndicator` |
+| `SkeletonGroup`, `SkeletonBlock` và `skeletons.dart` | Khung đặt chỗ kiểu "redacted" của SwiftUI theo hình nội dung thật (thẻ chỉ số, thẻ Hôm nay, nhóm cài đặt, Hồ sơ, Mục tiêu, Huy hiệu); cả nhóm thở nhẹ, đứng yên khi Giảm chuyển động |
+| `EmptyState`, `ErrorState`, `LoadingState`, `AppSkeleton` | Trạng thái rỗng (icon tròn và nút kính vàng), lỗi (Thử lại), đang tải |
+| `AppLogo` | Logo chữ H + nhịp tim vẽ bằng `CustomPaint`, dùng ở Đăng nhập và `SplashScreen` |
 | `AppBottomSheet` / `showAppBottomSheet` | Sheet có tiêu đề và nút đóng, cho nội dung chỉ để chọn |
 
 **Quy tắc chọn kiểu tương tác:** xem/chọn một việc ngắn dùng action sheet hoặc bottom sheet; nhập dữ liệu dùng `showFormSheet`; xác nhận việc nguy hiểm dùng `AlertDialog.adaptive`; ngày sinh dùng bánh xe ngày Cupertino trên iOS.
+
+## Icon, nút kính, loading, app icon và splash
+
+### Icon trong app
+`mobile/lib/core/app_icons.dart` (`AppIcons`) đặt tên theo ý nghĩa và dùng bộ **Phosphor**: kiểu thường cho nút và hàng, kiểu đặc (fill) cho icon danh mục trong thẻ và ô màu. Không dùng gói `phosphor_flutter` vì bản 2.1.0 không biên dịch với Flutter 3.47 (`IconData` là lớp final); font Phosphor (MIT) nằm trong `mobile/assets/fonts/`. Thanh tab native giữ SF Symbols của hệ thống. Màn hình không dùng `Icons.*` hay `CupertinoIcons.*` trực tiếp.
+
+### Nút Liquid Glass (package `liquid_glass`)
+- iOS 26+: `UIButton` với `.glass()` / `.prominentGlass()` qua platform view (`NativeGlassButton.swift`), Dart bọc bằng `GlassIconButton`, `GlassButton.prominent` và `GlassButton.pill`.
+- Nơi khác (Android, iOS cũ, test): bản dự phòng vẽ bằng Flutter (vòng tròn mờ, nền vàng đặc).
+- Chữ trên nút kính được vẽ thành ảnh giữ màu gốc vì lớp kính làm mờ chữ tiêu đề; nhãn đọc màn hình đến từ `Semantics` phía Dart.
+- Trạng thái đang tải giữ màu nhuộm và hiện kim quay; Dart chặn lượt bấm khi đang tải.
+
+### Loading
+Kim quay kiểu iOS thay vòng Material; skeleton theo hình nội dung thật, cả nhóm thở nhẹ (opacity 1 xuống 0.55, 1.4 giây), không có dải sáng quét ngang; kéo để làm mới ở Tổng quan và Chỉ số dùng `CupertinoSliverRefreshControl`.
+
+### App icon và splash
+- Icon: chữ H có thanh ngang là một nhịp tim, đen trên nền vàng. Nguồn là `scripts/render-app-icon.swift` (CoreGraphics), chạy `swift scripts/render-app-icon.swift` từ thư mục gốc để sinh lại mọi tệp. iOS có đủ ba kiểu (sáng, tối, tinted); Android có adaptive icon, icon đơn sắc (Android 13+) và icon cũ.
+- `AppLogo` (`mobile/lib/widgets/app_logo.dart`) dùng cùng hình học; sửa một nơi phải sửa cả hai.
+- Splash: iOS `LaunchScreen.storyboard` (nền `LaunchBackground` sáng/tối, ảnh `LaunchLogo`), Android `launch_background` và splash hệ thống Android 12+. `SplashScreen` của Flutter có cùng nền và vị trí logo nên chuyển tiếp liền mạch.
+- Simulator giữ bộ nhớ đệm màn khởi động cũ: khi đổi splash mà không thấy thay đổi, tắt máy ảo và xóa `~/Library/Developer/CoreSimulator/Devices/<id>/data/Library/SplashBoard`.
 
 ## Thanh tab Liquid Glass (`LiquidGlassTabBar`)
 
@@ -423,6 +446,7 @@ Ghi nhanh 6 nhóm chỉ số (Nước, Cân nặng + BMI, Ngủ, Thuốc, Bướ
 |---|---|---|---|
 | Thanh điều hướng dưới | `LiquidGlassTabBar` | **Có** (`GlassEffectContainer`) | Nổi cố định trên 4 tab chính |
 | Nút thêm nhanh nổi `+` | `LiquidGlassTabBar` (`onAdd`) | **Có** (`interactive: true`) | Phản hồi chạm đàn hồi iOS 26 |
+| Nút icon tròn, nút chính, Hủy/Lưu | `GlassIconButton`, `GlassButton` | **Có** (UIButton `.glass()`/`.prominentGlass()`) | Nút điều hướng và nút hành động chính; hàng trong danh sách không dùng |
 | Nhóm thẻ màn Chỉ số | `LiquidGlassCardGroup` | **Không** (đã chuyển sang `MetricCard` đục) | Widget còn trong package `liquid_glass` nhưng app không dùng |
 | Form sheet, action sheet | `showFormSheet`, `CupertinoActionSheet` | **Không** | Bề mặt đục; action sheet do hệ thống vẽ |
 | Thẻ nội dung | `AppCard`, `MetricCard`, `SettingsGroup` | **Không** (màu `card`) | Tối ưu GPU/FPS theo Apple HIG |
@@ -437,6 +461,12 @@ iPhone 13, iOS 27.2 Simulator, chụp bằng `xcrun simctl io booted screenshot`
 | Chỉ số, tối | Mục tiêu, tối | Hồ sơ, tối |
 |---|---|---|
 | ![Chỉ số](images/ui-chi-so-toi.jpg) | ![Mục tiêu](images/ui-muc-tieu-toi.jpg) | ![Hồ sơ](images/ui-ho-so-toi.jpg) |
+
+Nút Liquid Glass (Hủy/Lưu, nút chính, đang tải, nút tròn), skeleton kiểu iOS, icon ứng dụng trên màn hình chính và splash chế độ tối:
+
+| Nút kính | Skeleton | App icon | Splash |
+|---|---|---|---|
+| ![Nút kính](images/ui-nut-kinh.jpg) | ![Skeleton](images/ui-skeleton.jpg) | ![App icon](images/ui-app-icon.jpg) | ![Splash](images/ui-splash-toi.jpg) |
 
 Sheet sửa mục tiêu (báo lỗi ngoài khoảng, Lưu tắt), action sheet giới tính kiểu iOS ở chế độ sáng, Mục tiêu ở cỡ chữ lớn (`accessibility-large`) và Coach:
 
