@@ -11,6 +11,7 @@ final class NativeGlassButtonPlatformView: NSObject, FlutterPlatformView {
     private let channel: FlutterMethodChannel
     private let prominent: Bool
     private let symbol: String?
+    private let pointSize: CGFloat
     private let foreground: UIColor
     private let tint: UIColor
     private let onTint: UIColor
@@ -20,6 +21,7 @@ final class NativeGlassButtonPlatformView: NSObject, FlutterPlatformView {
         self.channel = channel
         prominent = params["prominent"] as? Bool ?? false
         symbol = params["symbol"] as? String
+        pointSize = CGFloat(params["pointSize"] as? Double ?? 17)
         title = params["title"] as? String
         foreground = (params["foreground"] as? Int).map { UIColor(argb: $0) } ?? .label
         tint = (params["tint"] as? Int).map { UIColor(argb: $0) } ?? .systemYellow
@@ -52,7 +54,7 @@ final class NativeGlassButtonPlatformView: NSObject, FlutterPlatformView {
         if let symbol {
             config.image = UIImage(
                 systemName: symbol,
-                withConfiguration: UIImage.SymbolConfiguration(pointSize: 17, weight: .semibold))
+                withConfiguration: UIImage.SymbolConfiguration(pointSize: pointSize, weight: .semibold))
         }
         if let title, !loading {
             // Lớp kính tự làm mờ chữ tiêu đề của UIButton.Configuration (kể cả khi đặt màu tường

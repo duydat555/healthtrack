@@ -73,3 +73,27 @@ async def test_rejects_invalid_payload(client: AsyncClient) -> None:
     negative = {"steps": [{"day": "2026-11-10", "steps": -1}]}
     assert (await client.post(URL, headers=h, json=negative)).status_code == 422
     assert (await client.post(URL, headers=h, json={})).status_code == 200
+
+
+async def test_accepts_device_source_and_rejects_unknown(client: AsyncClient) -> None:
+    h = await auth_headers(client)
+    body = {
+        "source": "device",
+        "steps": [{"day": "2026-11-15", "steps": 4321}],
+        "sleep": [
+            {
+                "external_id": "device-sleep-2026-11-15",
+                "start_at": "2026-11-14T16:10:00Z",
+                "end_at": "2026-11-14T23:40:00Z",
+            }
+        ],
+    }
+    res = await client.post(URL, headers=h, json=body)
+    assert res.status_code == 200
+    assert res.json()["steps"] == {"created": 1, "updated": 0}
+    # Gửi lại cùng đêm với giờ dậy mới thì cập nhật, không thêm bản ghi
+    body["sleep"][0]["end_at"] = "2026-11-15T00:05:00Z"
+    again = (await client.post(URL, headers=h, json=body)).json()
+    assert again["sleep"] == {"created": 0, "updated": 1}
+    bad = await client.post(URL, headers=h, json={**body, "source": "fitbit"})
+    assert bad.status_code == 422

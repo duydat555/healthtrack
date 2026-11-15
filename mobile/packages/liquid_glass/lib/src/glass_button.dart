@@ -47,6 +47,7 @@ class GlassIconButton extends StatelessWidget {
   Widget build(BuildContext context) => _GlassButtonBase(
     params: {
       'symbol': symbol,
+      'pointSize': size * 0.4,
       'prominent': prominent,
       'foreground': foreground.toARGB32(),
       if (tint != null) 'tint': tint!.toARGB32(),
@@ -234,7 +235,10 @@ class _GlassButtonBaseState extends State<_GlassButtonBase> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget visual = widget.forceFallback
+    // Trong sheet hay hộp thoại (PopupRoute), platform view làm hỏng việc ghép lớp của Flutter:
+    // phần vẽ trước nút biến mất trên Simulator và thành khối đen trên máy thật. Ở đó vẽ bằng Flutter.
+    final inPopup = ModalRoute.of(context) is PopupRoute;
+    final Widget visual = widget.forceFallback || inPopup
         ? _fallback()
         : FutureBuilder<bool>(
             future: supportsLiquidGlass(),

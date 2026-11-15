@@ -167,6 +167,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         backgroundColor: Colors.transparent,
         leading: _step > 0
             ? RoundIconButton(
+                size: 34,
                 tooltip: 'Quay lại',
                 semanticLabel: 'Quay lại bước trước',
                 symbol: 'chevron.left',

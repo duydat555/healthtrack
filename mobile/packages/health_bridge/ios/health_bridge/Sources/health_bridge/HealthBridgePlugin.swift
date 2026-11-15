@@ -3,7 +3,7 @@ import HealthKit
 import UIKit
 
 /// Cầu nối HealthKit cho Dart qua kênh `healthtrack/health`.
-/// Chỉ đọc: bước chân (tổng theo ngày), giấc ngủ (gộp thành phiên) và cân nặng.
+/// Chỉ đọc: bước chân (tổng theo ngày), giấc ngủ (gộp thành phiên), cân nặng và năng lượng vận động.
 public class HealthBridgePlugin: NSObject, FlutterPlugin {
   private let store = HKHealthStore()
   private let iso: ISO8601DateFormatter = {
@@ -22,6 +22,7 @@ public class HealthBridgePlugin: NSObject, FlutterPlugin {
     if let t = HKObjectType.quantityType(forIdentifier: .stepCount) { types.insert(t) }
     if let t = HKObjectType.quantityType(forIdentifier: .bodyMass) { types.insert(t) }
     if let t = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) { types.insert(t) }
+    if let t = HKObjectType.quantityType(forIdentifier: .activeEnergyBurned) { types.insert(t) }
     return types
   }
 
@@ -50,6 +51,7 @@ public class HealthBridgePlugin: NSObject, FlutterPlugin {
       case "steps": fetchSteps(from, to, result)
       case "sleep": fetchSleep(from, to, result)
       case "weight": fetchWeight(from, to, result)
+      case "energy": fetchEnergy(from, to, result)
       default: result(FlutterError(code: "bad_type", message: "Loại không hỗ trợ: \(type)", details: nil))
       }
     default:
@@ -124,6 +126,26 @@ public class HealthBridgePlugin: NSObject, FlutterPlugin {
       result(sessions.map {
         ["external_id": $0.id, "start_at": iso.string(from: $0.start), "end_at": iso.string(from: $0.end)]
       })
+    }
+    store.execute(query)
+  }
+
+  // MARK: Năng lượng vận động
+
+  /// Tổng năng lượng vận động (Active Energy) Apple tính trong khoảng; [] nếu không có mẫu nào.
+  private func fetchEnergy(_ from: Date, _ to: Date, _ result: @escaping FlutterResult) {
+    guard let type = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) else { return result([]) }
+    let query = HKStatisticsQuery(
+      quantityType: type,
+      quantitySamplePredicate: HKQuery.predicateForSamples(withStart: from, end: to, options: .strictStartDate),
+      options: .cumulativeSum
+    ) { _, stats, error in
+      if let error = error as? HKError, error.code == .errorNoData { return result([]) }
+      if let error = error {
+        return result(FlutterError(code: "query_failed", message: error.localizedDescription, details: nil))
+      }
+      guard let sum = stats?.sumQuantity() else { return result([]) }
+      result([["kcal": sum.doubleValue(for: .kilocalorie())]])
     }
     store.execute(query)
   }

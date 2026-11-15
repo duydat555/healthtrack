@@ -69,7 +69,11 @@ class AppTextField extends StatelessWidget {
         labelStyle: TextStyle(color: context.colors.inkSoft),
         floatingLabelStyle: TextStyle(color: context.colors.brandText),
         filled: true,
-        fillColor: fillColor ?? context.colors.card,
+        fillColor:
+            fillColor ??
+            (ElevatedSurface.of(context)
+                ? context.colors.cardHigh
+                : context.colors.card),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.control),
           borderSide: BorderSide.none,
@@ -154,4 +158,16 @@ String? validateEmail(String? v) {
   if (value.isEmpty) return 'Nhập email';
   if (!_emailPattern.hasMatch(value)) return 'Email chưa đúng định dạng';
   return null;
+}
+
+/// Đánh dấu vùng nằm trên bề mặt nổi (sheet ở chế độ tối có nền `card`): ô nhập bên trong dùng
+/// `cardHigh` để vẫn tách khỏi nền.
+class ElevatedSurface extends InheritedWidget {
+  const ElevatedSurface({super.key, required super.child});
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<ElevatedSurface>() != null;
+
+  @override
+  bool updateShouldNotify(ElevatedSurface oldWidget) => false;
 }

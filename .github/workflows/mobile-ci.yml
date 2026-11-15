@@ -23,7 +23,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed lib test integration_test packages/liquid_glass/lib packages/liquid_glass/test packages/health_bridge/lib packages/health_bridge/test
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test packages/liquid_glass/lib packages/liquid_glass/test packages/health_bridge/lib packages/health_bridge/test packages/activity_sensors/lib packages/activity_sensors/test
       - run: flutter analyze
       - run: flutter test
       - name: Test plugin liquid_glass
@@ -32,6 +32,29 @@ jobs:
       - name: Test plugin health_bridge
         working-directory: mobile/packages/health_bridge
         run: flutter pub get && flutter test
+      - name: Test plugin activity_sensors
+        working-directory: mobile/packages/activity_sensors
+        run: flutter pub get && flutter test
+
+  build-android:
+    # Biên dịch mã Kotlin của các plugin (activity_sensors) trên mọi PR; release dùng cùng lệnh
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.9"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build apk --release
 
   build-ios:
     # Build iOS (gồm mã Swift Liquid Glass) chỉ chạy khi merge vào main để tiết kiệm phút macOS

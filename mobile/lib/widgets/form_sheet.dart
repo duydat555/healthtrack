@@ -5,6 +5,8 @@ import '../core/theme.dart';
 
 import 'package:liquid_glass/liquid_glass.dart' show GlassButton;
 
+import 'app_form.dart';
+
 /// Trạng thái của một form sheet. Nội dung form báo lên qua [update]; sheet dùng nó để bật/tắt
 /// nút Lưu và để hỏi lại trước khi bỏ thay đổi.
 class FormSheetController extends ChangeNotifier {
@@ -59,21 +61,30 @@ Future<bool?> showFormSheet({
     useRootNavigator: true,
     useSafeArea: true,
     enableDrag: false,
-    backgroundColor: context.colors.background,
+    // Tối: nền nổi như sheet của iOS; sáng: nền nhóm xám nhạt với ô nhập trắng
+    backgroundColor: context.colors.isDark
+        ? context.colors.card
+        : context.colors.background,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
         top: Radius.circular(AppRadius.sheet),
       ),
     ),
-    builder: (_) => _FormSheet(
-      title: title,
-      saveLabel: saveLabel,
-      cancelLabel: cancelLabel,
-      builder: builder,
-      onSave: onSave,
+    builder: (sheetContext) => _wrapSurface(
+      sheetContext,
+      _FormSheet(
+        title: title,
+        saveLabel: saveLabel,
+        cancelLabel: cancelLabel,
+        builder: builder,
+        onSave: onSave,
+      ),
     ),
   );
 }
+
+Widget _wrapSurface(BuildContext context, Widget child) =>
+    context.colors.isDark ? ElevatedSurface(child: child) : child;
 
 class _FormSheet extends StatefulWidget {
   const _FormSheet({
