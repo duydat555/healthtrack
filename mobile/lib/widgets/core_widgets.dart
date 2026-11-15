@@ -603,10 +603,14 @@ class RoundIconButton extends StatelessWidget {
     required this.symbol,
     required this.onTap,
     this.semanticLabel,
+    this.size = 40,
   });
 
   final String tooltip;
   final String? semanticLabel;
+
+  /// Đường kính phần kính nhìn thấy; vùng chạm luôn tối thiểu 44.
+  final double size;
 
   /// Icon Phosphor dùng cho bản dự phòng (Android, iOS cũ).
   final IconData icon;
@@ -620,13 +624,19 @@ class RoundIconButton extends StatelessWidget {
     final c = context.colors;
     return Tooltip(
       message: tooltip,
-      child: GlassIconButton(
-        symbol: symbol,
-        fallbackIcon: icon,
-        onPressed: onTap,
-        semanticLabel: semanticLabel ?? tooltip,
-        foreground: c.ink,
-        dark: c.isDark,
+      child: SizedBox.square(
+        dimension: size < 44 ? 44 : size,
+        child: Center(
+          child: GlassIconButton(
+            symbol: symbol,
+            fallbackIcon: icon,
+            onPressed: onTap,
+            semanticLabel: semanticLabel ?? tooltip,
+            foreground: c.ink,
+            dark: c.isDark,
+            size: size,
+          ),
+        ),
       ),
     );
   }

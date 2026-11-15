@@ -266,6 +266,7 @@ class _AddScreenState extends ConsumerState<AddScreen> {
       appBar: AppBar(
         title: Semantics(header: true, child: const Text('Thêm nhanh')),
         leading: RoundIconButton(
+          size: 34,
           tooltip: 'Đóng',
           semanticLabel: 'Đóng màn hình thêm nhanh',
           symbol: 'xmark',

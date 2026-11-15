@@ -32,6 +32,7 @@ class AchievementsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         leading: RoundIconButton(
+          size: 34,
           tooltip: 'Quay lại',
           symbol: 'chevron.left',
           icon: AppIcons.back,
