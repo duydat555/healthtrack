@@ -8,6 +8,7 @@ import '../../widgets/core_widgets.dart';
 import '../health/health_providers.dart';
 import 'models.dart';
 import '../../core/app_icons.dart';
+import '../../widgets/skeletons.dart';
 
 /// Lưới huy hiệu. Huy hiệu chưa đạt hiện mờ kèm điều kiện để đạt.
 class AchievementsScreen extends ConsumerWidget {
@@ -48,7 +49,7 @@ class AchievementsScreen extends ConsumerWidget {
           data: (items) => _Grid(items: items),
           loading: () => const Padding(
             padding: EdgeInsets.all(16),
-            child: LoadingState(height: 240, label: 'Đang tải huy hiệu'),
+            child: BadgeGridSkeleton(),
           ),
           error: (e, _) => Padding(
             padding: const EdgeInsets.all(16),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../core/theme.dart';
+import 'core_widgets.dart';
 
 /// Ô nhập: nền thẻ (hoặc [fillColor]), bo góc 12, không viền; hậu tố đơn vị qua [suffixText].
 class AppTextField extends StatelessWidget {
@@ -124,13 +125,7 @@ class PrimaryButton extends StatelessWidget {
             ),
           ),
           child: loading
-              ? SizedBox.square(
-                  dimension: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    color: context.colors.onBrand,
-                  ),
-                )
+              ? AppActivityIndicator(radius: 11, color: context.colors.onBrand)
               : Text(
                   label,
                   style: TextStyle(

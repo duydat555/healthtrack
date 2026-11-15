@@ -1,3 +1,7 @@
+import 'package:flutter/cupertino.dart'
+    show CupertinoActivityIndicator, CupertinoSliverRefreshControl;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
@@ -267,7 +271,7 @@ Future<T?> showAppBottomSheet<T>({
 }
 
 /// Hiệu ứng khung xương Shimmer dùng cho trạng thái đang tải.
-class AppSkeleton extends StatefulWidget {
+class AppSkeleton extends StatelessWidget {
   const AppSkeleton({
     super.key,
     this.width = double.infinity,
@@ -280,24 +284,73 @@ class AppSkeleton extends StatefulWidget {
   final double borderRadius;
 
   @override
-  State<AppSkeleton> createState() => _AppSkeletonState();
+  Widget build(BuildContext context) => SkeletonGroup(
+    label: 'Đang tải nội dung',
+    child: SkeletonBlock(
+      width: width,
+      height: height,
+      borderRadius: borderRadius,
+    ),
+  );
 }
 
-class _AppSkeletonState extends State<AppSkeleton>
+/// Khối đặt chỗ cho nội dung đang tải: nền `cardHigh`, không tự chuyển động. Đặt trong
+/// [SkeletonGroup] để cả nhóm cùng "thở" một nhịp.
+class SkeletonBlock extends StatelessWidget {
+  const SkeletonBlock({
+    super.key,
+    this.width = double.infinity,
+    this.height = 14,
+    this.borderRadius = 6,
+    this.circle = false,
+  });
+
+  final double width;
+  final double height;
+  final double borderRadius;
+  final bool circle;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: context.colors.cardHigh,
+      shape: circle ? BoxShape.circle : BoxShape.rectangle,
+      borderRadius: circle ? null : BorderRadius.circular(borderRadius),
+    ),
+    child: SizedBox(width: width, height: height),
+  );
+}
+
+/// Nhóm khối đặt chỗ kiểu "redacted" của SwiftUI: cả nhóm mờ dần rồi đậm lại nhẹ nhàng, không có
+/// dải sáng quét ngang. Đứng yên khi bật Giảm chuyển động.
+class SkeletonGroup extends StatefulWidget {
+  const SkeletonGroup({super.key, required this.child, this.label});
+
+  final Widget child;
+  final String? label;
+
+  @override
+  State<SkeletonGroup> createState() => _SkeletonGroupState();
+}
+
+class _SkeletonGroupState extends State<SkeletonGroup>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1200),
+    duration: const Duration(milliseconds: 1400),
   );
+  late final Animation<double> _opacity = Tween<double>(
+    begin: 1,
+    end: 0.55,
+  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Giảm chuyển động: dừng ánh chạy, chỉ còn khối tĩnh
     if (MediaQuery.disableAnimationsOf(context)) {
       _controller.stop();
     } else if (!_controller.isAnimating) {
-      _controller.repeat();
+      _controller.repeat(reverse: true);
     }
   }
 
@@ -308,31 +361,72 @@ class _AppSkeletonState extends State<AppSkeleton>
   }
 
   @override
+  Widget build(BuildContext context) => Semantics(
+    liveRegion: true,
+    label: widget.label ?? 'Đang tải dữ liệu',
+    excludeSemantics: true,
+    child: FadeTransition(opacity: _opacity, child: widget.child),
+  );
+}
+
+/// Vòng chờ theo nền tảng: kim quay của iOS trên iPhone, vòng tròn Material nơi khác.
+class AppActivityIndicator extends StatelessWidget {
+  const AppActivityIndicator({super.key, this.radius = 10, this.color});
+
+  /// Bán kính kim quay iOS; vòng Material có đường kính gấp đôi.
+  final double radius;
+  final Color? color;
+
+  @override
   Widget build(BuildContext context) {
-    return Semantics(
-      liveRegion: true,
-      label: 'Đang tải nội dung',
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) {
-          final stop = _controller.value;
-          return Container(
-            width: widget.width,
-            height: widget.height,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              gradient: LinearGradient(
-                begin: Alignment(-1.0 + stop * 2, -0.2),
-                end: Alignment(stop * 2, 0.2),
-                colors: [
-                  context.colors.card,
-                  context.colors.cardHigh,
-                  context.colors.card,
-                ],
-              ),
-            ),
-          );
-        },
+    final tint = color ?? context.colors.brandText;
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return CupertinoActivityIndicator(radius: radius, color: tint);
+    }
+    return SizedBox.square(
+      dimension: radius * 2,
+      child: CircularProgressIndicator(strokeWidth: 2.5, color: tint),
+    );
+  }
+}
+
+/// Danh sách cuộn có kéo để làm mới: iOS dùng kim quay kéo theo tay ([CupertinoSliverRefreshControl]),
+/// nơi khác dùng [RefreshIndicator].
+class AppRefreshList extends StatelessWidget {
+  const AppRefreshList({
+    super.key,
+    required this.onRefresh,
+    required this.children,
+    this.padding = EdgeInsets.zero,
+  });
+
+  final Future<void> Function() onRefresh;
+  final List<Widget> children;
+  final EdgeInsets padding;
+
+  @override
+  Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
+        slivers: [
+          CupertinoSliverRefreshControl(onRefresh: onRefresh),
+          SliverPadding(
+            padding: padding,
+            sliver: SliverList(delegate: SliverChildListDelegate(children)),
+          ),
+        ],
+      );
+    }
+    return RefreshIndicator(
+      color: context.colors.brandText,
+      onRefresh: onRefresh,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: padding,
+        children: children,
       ),
     );
   }
@@ -357,16 +451,12 @@ class LoadingState extends StatelessWidget {
       liveRegion: true,
       label: label ?? 'Đang tải dữ liệu',
       child: useSkeleton
-          ? AppSkeleton(height: height, borderRadius: AppRadius.card)
+          ? _GenericSkeleton(height: height, label: label)
           : AppCard(
               padding: EdgeInsets.zero,
               child: SizedBox(
                 height: height,
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: context.colors.brandText,
-                  ),
-                ),
+                child: Center(child: const AppActivityIndicator(radius: 14)),
               ),
             ),
     );
@@ -539,6 +629,48 @@ class RoundIconButton extends StatelessWidget {
                   child: Icon(icon, size: 19, color: c.ink),
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Khung đặt chỗ chung cho khối nội dung chưa rõ hình: thẻ có vài dòng ngắn dài xen kẽ, cao đúng
+/// [height]. Màn nào biết hình nội dung thì dùng khung riêng trong `skeletons.dart`.
+class _GenericSkeleton extends StatelessWidget {
+  const _GenericSkeleton({required this.height, this.label});
+
+  final double height;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final lines = ((height - AppSpacing.md * 2) / 28).floor().clamp(1, 8);
+    return SkeletonGroup(
+      label: label ?? 'Đang tải dữ liệu',
+      child: SizedBox(
+        height: height,
+        width: double.infinity,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: context.colors.card,
+            borderRadius: BorderRadius.circular(AppRadius.card),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var i = 0; i < lines; i++) ...[
+                  if (i > 0) const SizedBox(height: AppSpacing.sm),
+                  SkeletonBlock(
+                    width: i == 0 ? 120 : (i.isOdd ? 220 : 170),
+                    height: i == 0 ? 16 : 12,
+                  ),
+                ],
+              ],
             ),
           ),
         ),
