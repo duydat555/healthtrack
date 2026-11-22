@@ -187,5 +187,15 @@ void main() {
       ),
       contains('kết nối'),
     );
+    // Địa chỉ thật: nói là lỗi mạng; localhost: nói rõ app đang trỏ vào máy chủ local
+    String conn(String baseUrl) => apiErrorMessage(
+      DioException(
+        requestOptions: RequestOptions(baseUrl: baseUrl),
+        type: DioExceptionType.connectionError,
+      ),
+    );
+    expect(conn('https://api.example.com/api/v1'), contains('Kiểm tra mạng'));
+    expect(conn('http://localhost:8000/api/v1'), contains('máy chủ local'));
+    expect(conn('http://localhost:8000/api/v1'), contains('API_URL'));
   });
 }
