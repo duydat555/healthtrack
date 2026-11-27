@@ -18,7 +18,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Mọi e
 | Mục tiêu | `GET/POST /goals`, `PATCH/DELETE /goals/{id}`; `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly`; mỗi chỉ số tối đa một mục tiêu đang hoạt động (trùng trả 409) | Đã có |
 | Thống kê | `GET /stats/summary?date=` (số liệu trong ngày và tiến độ mục tiêu), `GET /stats/trend?metric=&range=` | Đã có |
 | Nhắc nhở | `GET/POST /reminders`, `PATCH/DELETE /reminders/{id}`; `kind`: `water`, `medication`, `sleep`, `meal`, `running`; `at_time`: giờ địa phương `HH:MM:SS`; `enabled`: bật/tắt | Đã có |
-| Buổi tập ngoài trời (Phase 8) | `GET /workouts?limit&before`, `GET/PUT/DELETE /workouts/{id}`; JSON camelCase theo [docs/14](14-hop-dong-du-lieu-workout.md) | Đã có |
+| Buổi tập ngoài trời (Phase 8) | `GET /workouts?limit&before`, `GET/PUT/DELETE /workouts/{id}`, `GET /workouts/stats`, `GET /workouts/{id}/gpx`; JSON camelCase theo [docs/14](14-hop-dong-du-lieu-workout.md) | Đã có |
 
 ## Quy ước chung
 
@@ -80,6 +80,20 @@ Access token hết hạn sau 30 phút, refresh token sau 7 ngày (cấu hình tr
 | `DELETE /workouts/{id}` | Xóa, trả 204 |
 
 Kiểm tra dữ liệu (lỗi 422): `v` phải bằng 1; `id` chỉ gồm chữ, số, `-`, `_`, tối đa 64 ký tự; `sport` thuộc `run`, `walk`, `ride`; `endedAt` không trước `startedAt`; quãng đường, thời gian, độ cao, calo không âm; `lat` trong khoảng ±90, `lon` trong khoảng ±180; tối đa 50.000 điểm và 2.000 split. Buổi tập của người khác trả 404 cho mọi thao tác. Cùng một `id` của hai người dùng là hai bản ghi riêng (`id` chỉ duy nhất theo từng người dùng).
+
+### Thống kê, kỷ lục và xuất GPX (issue #248)
+
+`GET /workouts/stats?date=YYYY-MM-DD&tz_offset=420` (`date` mặc định là hôm nay theo `tz_offset`) trả, theo từng môn `run`, `walk`, `ride`:
+
+| Trường | Ý nghĩa |
+|---|---|
+| `weekStart`, `monthStart` | Thứ Hai của tuần và ngày đầu tháng chứa `date`, theo múi giờ người dùng |
+| `week`, `month` | Tổng theo môn của các buổi **bắt đầu** trong kỳ: `count`, `distanceM`, `movingSeconds`, `elevationGainM`, `kcal` (môn không có buổi nào trả 0) |
+| `records` | Kỷ lục cá nhân trên toàn bộ lịch sử, tách theo môn: `fastest1k`, `fastest5k`, `fastest10k` (`seconds`, `workoutId`, `startedAt`) và `longest` (`distanceM`, `workoutId`, `startedAt`); chưa đủ quãng đường thì `null` |
+
+Cách tính kỷ lục: nếu buổi tập có điểm GPS thì dùng cửa sổ trượt trên đường đi, chỉ cộng thời gian vận động và bỏ quãng giữa hai đoạn tạm dừng (điểm bắt đầu cửa sổ là một điểm GPS, điểm kết thúc nội suy). Nếu không có điểm GPS thì ghép các split 1 km đủ độ dài, liên tiếp, nên kết quả là xấp xỉ theo mốc km. Mỗi buổi chỉ cần đủ quãng đường của mốc đó mới được xét.
+
+`GET /workouts/{id}/gpx` trả tệp GPX 1.1 (`Content-Type: application/gpx+xml`, tải về dưới tên `<id>.gpx`): mỗi đoạn tạm dừng là một `trkseg`, mỗi điểm có `lat`, `lon`, `ele` (nếu có độ cao) và `time`. Buổi tập không có điểm GPS thì dùng `polyline` (không có `ele`, `time`). Không có cả hai trả 409; buổi của người khác trả 404.
 
 ## Ví dụ
 
