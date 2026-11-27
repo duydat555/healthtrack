@@ -1,5 +1,6 @@
 import '../features/workout/record_screen.dart';
 import '../features/workout/workout.dart';
+import '../features/workout/workout_summary_screen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -107,6 +108,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/add', builder: (c, s) => const AddScreen()),
+      GoRoute(
+        path: '/workout/:id',
+        builder: (c, s) => WorkoutSummaryScreen(id: s.pathParameters['id']!),
+      ),
       GoRoute(
         path: '/record',
         builder: (c, s) => RecordScreen(

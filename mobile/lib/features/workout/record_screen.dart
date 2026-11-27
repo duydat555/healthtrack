@@ -111,12 +111,11 @@ class _RecordScreenState extends ConsumerState<RecordScreen> {
         .read(workoutRecorderProvider.notifier)
         .finish(id: _newId());
     if (!mounted) return;
-    _toast(
-      w == null
-          ? 'Buổi tập quá ngắn nên không được lưu.'
-          : 'Đã lưu: ${(w.distanceM / 1000).toStringAsFixed(2)} km trong ${wm.formatDuration(w.movingSeconds)}.',
-    );
-    if (w != null) context.pop();
+    if (w == null) {
+      _toast('Buổi tập quá ngắn nên không được lưu.');
+      return;
+    }
+    context.pushReplacement('/workout/${w.id}');
   }
 
   Future<bool> _confirmExit() async {
