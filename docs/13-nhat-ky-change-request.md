@@ -27,4 +27,4 @@ Hợp lệ khi có ít nhất 3 thành viên nhóm, trong đó có PM, và có �
 ## Nhật ký
 | Mã CR | Ngày | Nội dung | Ảnh hưởng | Quyết định | Issue |
 |---|---|---|---|---|---|
-| (chưa có) | | | | | |
+| CR-01 | 27/11/2026 | Thêm nhóm tính năng hoạt động ngoài trời: ghi quãng đường bằng Apple Maps, ảnh ghép chia sẻ, lịch sử, API, huy hiệu vận động | Thêm Phase 8 (14 task, 66 SP), rủi ro pin và GPS | Đề xuất bởi PM, chờ CCB (PM và Product Owner) xác nhận | #237 |

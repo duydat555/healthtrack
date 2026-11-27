@@ -34,6 +34,7 @@ dependencies:
     path: packages/liquid_glass
   activity_sensors:
     path: packages/activity_sensors
+  path_provider: ^2.1.6
   health_bridge:
     path: packages/health_bridge
 
