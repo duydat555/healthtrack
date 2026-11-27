@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/fake_backend.dart';
-
 import 'package:liquid_glass/liquid_glass.dart';
 
 Future<void> _openReminders(WidgetTester tester) async {
@@ -110,6 +109,49 @@ void main() {
       expect(find.text('Uống thuốc · Đang bật'), findsOneWidget);
     },
   );
+
+  testWidgets('tạo nhắc chạy bộ và đồng bộ thông báo cục bộ', (tester) async {
+    final rows = <Map<String, Object?>>[];
+    final app = await pumpApp(
+      tester,
+      overrides: {
+        'GET /reminders': (_) => FakeResponse(200, rows),
+        'POST /reminders': (req) {
+          final body = (req.data as Map).cast<String, Object?>();
+          final created = <String, Object?>{
+            'id': 20,
+            'kind': body['kind'],
+            'at_time': body['at_time'],
+            'enabled': body['enabled'],
+          };
+          rows.add(created);
+          return FakeResponse(201, created);
+        },
+      },
+    );
+    await _openReminders(tester);
+    await tester.tap(find.byTooltip('Thêm nhắc nhở'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Chạy bộ'));
+    await tester.pumpAndSettle();
+    final saveBtn = find.descendant(
+      of: find.byType(BottomSheet),
+      matching: find.widgetWithText(GlassButton, 'Thêm nhắc nhở'),
+    );
+    await tester.ensureVisible(saveBtn);
+    await tester.tap(saveBtn);
+    await tester.pumpAndSettle();
+
+    final post = app.backend.requests.firstWhere(
+      (r) => r.method == 'POST' && r.path == '/reminders',
+    );
+    expect((post.data as Map)['kind'], 'running');
+    expect(find.text('Chạy bộ · Đang bật'), findsOneWidget);
+    final scheduled = app.notificationGateway.scheduled.values.single;
+    expect(scheduled.kind.name, 'running');
+    expect(scheduled.hour, 8);
+    expect(scheduled.minute, 0);
+  });
 
   testWidgets(
     'bật/tắt và xóa nhắc nhở đồng bộ với PATCH và DELETE /reminders',

@@ -39,6 +39,13 @@ async def test_crud_flow_and_order(client: AsyncClient) -> None:
     assert (await client.delete(f"{URL}/{earlier['id']}", headers=headers)).status_code == 404
 
 
+async def test_running_reminder_is_supported(client: AsyncClient) -> None:
+    headers = await auth_headers(client)
+    reminder = await _create(client, headers, kind="running", at_time="06:15:00")
+    assert reminder["kind"] == "running"
+    assert reminder["at_time"] == "06:15:00"
+
+
 async def test_reminders_are_isolated_between_users(client: AsyncClient) -> None:
     owner = await auth_headers(client, "owner@example.com")
     other = await auth_headers(client, "other@example.com")

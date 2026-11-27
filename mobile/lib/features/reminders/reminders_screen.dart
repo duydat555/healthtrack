@@ -31,6 +31,7 @@ const _kindMetas = [
   ),
   _ReminderKindMeta('sleep', 'Đi ngủ', AppIcons.sleepFill, AppColors.sleep),
   _ReminderKindMeta('meal', 'Bữa ăn', AppIcons.mealFill, AppColors.meal),
+  _ReminderKindMeta('running', 'Chạy bộ', AppIcons.stepsFill, AppColors.steps),
 ];
 
 _ReminderKindMeta _metaFor(String kind) => _kindMetas.firstWhere(
@@ -588,7 +589,7 @@ class _EmptyView extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Đặt lịch nhắc uống nước, uống thuốc hoặc đi ngủ đúng giờ mỗi ngày.',
+                'Đặt lịch nhắc uống nước, uống thuốc, ăn uống, đi ngủ hoặc chạy bộ.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: context.colors.inkSoft, fontSize: 15),
               ),

@@ -1,7 +1,9 @@
 enum ReminderKind {
   water('water', 'Đến giờ uống nước', 'Đã đến giờ uống nước.'),
   medication('medication', 'Đến giờ uống thuốc', 'Đã đến giờ uống thuốc.'),
-  sleep('sleep', 'Đến giờ đi ngủ', 'Đã đến giờ chuẩn bị đi ngủ.');
+  sleep('sleep', 'Đến giờ đi ngủ', 'Đã đến giờ chuẩn bị đi ngủ.'),
+  meal('meal', 'Đến giờ ăn', 'Đã đến giờ ăn.'),
+  running('running', 'Đến giờ chạy bộ', 'Đã đến giờ chạy bộ.');
 
   const ReminderKind(this.apiValue, this.title, this.body);
 

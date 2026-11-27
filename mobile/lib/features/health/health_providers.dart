@@ -3,6 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../gamification/models.dart';
+import '../gamification/workout_badges.dart';
+import '../reminders/reminder_notification_scheduler.dart';
+import '../reminders/reminder_schedule.dart';
+import '../workout/workout_repository.dart';
 import 'health_repository.dart';
 import 'models.dart';
 
@@ -168,9 +172,24 @@ final sleepLogsProvider = FutureProvider.autoDispose<List<SleepLog>>(
   (ref) => ref.watch(healthRepositoryProvider).sleep(limit: 10),
 );
 
-final remindersProvider = FutureProvider.autoDispose<List<Reminder>>(
-  (ref) => ref.watch(healthRepositoryProvider).reminders(),
-);
+final remindersProvider = FutureProvider.autoDispose<List<Reminder>>((
+  ref,
+) async {
+  final repository = ref.watch(healthRepositoryProvider);
+  final scheduler = ref.watch(reminderNotificationSchedulerProvider);
+  final reminders = await repository.reminders();
+  await scheduler.sync([
+    for (final reminder in reminders)
+      ReminderSchedule(
+        id: reminder.id,
+        kind: ReminderKind.parse(reminder.kind),
+        hour: reminder.hour,
+        minute: reminder.minute,
+        enabled: reminder.enabled,
+      ),
+  ]);
+  return reminders;
+});
 
 final trendSeriesProvider = FutureProvider.autoDispose
     .family<TrendSeries, ({String metric, String range})>(
@@ -183,9 +202,13 @@ final gamificationProvider = FutureProvider.autoDispose<GamificationSummary>(
   (ref) => ref.watch(healthRepositoryProvider).gamificationSummary(),
 );
 
-final achievementsProvider = FutureProvider.autoDispose<List<Achievement>>(
-  (ref) => ref.watch(healthRepositoryProvider).achievements(),
-);
+final achievementsProvider = FutureProvider.autoDispose<List<Achievement>>((
+  ref,
+) async {
+  final remoteAchievements = ref.watch(healthRepositoryProvider).achievements();
+  final workouts = ref.watch(workoutsProvider.future);
+  return [...await remoteAchievements, ...workoutBadges(await workouts)];
+});
 
 /// Làm mới mọi dữ liệu hiển thị sau khi ghi thêm.
 void refreshHealthData(WidgetRef ref) {
