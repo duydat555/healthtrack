@@ -18,6 +18,7 @@
 | [12-trien-khai.md](12-trien-khai.md) | Triển khai lên cloud | Đạt |
 | [13-nhat-ky-change-request.md](13-nhat-ky-change-request.md) | Nhật ký thay đổi phạm vi | Đạt |
 | [14-hop-dong-du-lieu-workout.md](14-hop-dong-du-lieu-workout.md) | Hợp đồng dữ liệu buổi tập (Phase 8) | Đạt |
+| [15-ke-hoach-uat.md](15-ke-hoach-uat.md) | Kịch bản, biểu mẫu và tổng kết UAT với stakeholder | Tài |
 | [bien-ban/](bien-ban/) | Mẫu biên bản họp Sprint, Retrospective | Cả nhóm |
 
 Các tài liệu này được viết dần theo issue của từng phase. Mục nào còn ghi "cần bổ sung" là việc của issue tương ứng.
