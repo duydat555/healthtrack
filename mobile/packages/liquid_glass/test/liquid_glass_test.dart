@@ -51,6 +51,47 @@ void _moreTests() {
     expect(added, isTrue);
   });
 
+  testWidgets(
+    'nút thêm nhanh nằm giữa và nhô lên trên thanh, tab chia đều hai bên',
+    (tester) async {
+      const four = [
+        GlassTabItem(title: 'A', symbol: 'a', icon: Icons.home),
+        GlassTabItem(title: 'B', symbol: 'b', icon: Icons.favorite),
+        GlassTabItem(title: 'C', symbol: 'c', icon: Icons.star),
+        GlassTabItem(title: 'D', symbol: 'd', icon: Icons.person),
+      ];
+      await tester.binding.setSurfaceSize(const Size(390, 300));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: LiquidGlassTabBar(
+                forceFallback: true,
+                items: four,
+                currentIndex: 0,
+                onTap: (_) {},
+                onAdd: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      final add = tester.getRect(find.byIcon(Icons.add));
+      final a = tester.getCenter(find.text('A')).dx;
+      final b = tester.getCenter(find.text('B')).dx;
+      final c = tester.getCenter(find.text('C')).dx;
+      final d = tester.getCenter(find.text('D')).dx;
+      expect(add.center.dx, closeTo(195, 1)); // giữa màn hình
+      expect(a, lessThan(b));
+      expect(b, lessThan(add.center.dx));
+      expect(add.center.dx, lessThan(c));
+      expect(c, lessThan(d));
+      // Nút nhô lên: tâm nút cao hơn tâm các tab
+      expect(add.center.dy, lessThan(tester.getCenter(find.text('A')).dy));
+    },
+  );
+
   testWidgets('tab bar không có onAdd thì ẩn nút nổi', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
