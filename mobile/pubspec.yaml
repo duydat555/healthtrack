@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   liquid_glass:
     path: packages/liquid_glass
+  route_tracker:
+    path: packages/route_tracker
   activity_sensors:
     path: packages/activity_sensors
   path_provider: ^2.1.6

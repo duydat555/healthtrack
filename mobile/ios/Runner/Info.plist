@@ -26,6 +26,14 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>HealthTrack dùng vị trí để vẽ đường đi và tính quãng đường khi bạn chạy, đi bộ hoặc đạp xe.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Cho phép HealthTrack tiếp tục ghi đường đi khi bạn khóa màn hình hoặc chuyển sang app khác trong lúc đang tập.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
 	<key>NSMotionUsageDescription</key>
 	<string>HealthTrack dùng cảm biến chuyển động để đếm bước chân, ước lượng giấc ngủ và năng lượng tiêu hao mà không cần Apple Health.</string>
 	<key>NSHealthShareUsageDescription</key>

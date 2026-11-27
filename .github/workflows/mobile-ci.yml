@@ -23,7 +23,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed lib test integration_test packages/liquid_glass/lib packages/liquid_glass/test packages/health_bridge/lib packages/health_bridge/test packages/activity_sensors/lib packages/activity_sensors/test
+      - run: dart format --output=none --set-exit-if-changed lib test integration_test packages/liquid_glass/lib packages/liquid_glass/test packages/health_bridge/lib packages/health_bridge/test packages/activity_sensors/lib packages/activity_sensors/test packages/route_tracker/lib packages/route_tracker/test
       - run: flutter analyze
       - run: flutter test
       - name: Test plugin liquid_glass
@@ -34,6 +34,9 @@ jobs:
         run: flutter pub get && flutter test
       - name: Test plugin activity_sensors
         working-directory: mobile/packages/activity_sensors
+        run: flutter pub get && flutter test
+      - name: Test plugin route_tracker
+        working-directory: mobile/packages/route_tracker
         run: flutter pub get && flutter test
 
   build-android:
