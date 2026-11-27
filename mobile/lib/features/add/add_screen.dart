@@ -302,6 +302,8 @@ class _AddScreenState extends ConsumerState<AddScreen> {
               _Kind.meal => _mealForm(),
             },
             if (_kind != _Kind.medicine) ErrorText(_error),
+            const SizedBox(height: 28),
+            const _OutdoorCard(),
           ],
         ),
       ),
@@ -1160,4 +1162,68 @@ class _MedicationFormState extends State<_MedicationForm> {
       ),
     ],
   );
+}
+
+/// Lối vào ghi hoạt động ngoài trời có bản đồ.
+class _OutdoorCard extends StatelessWidget {
+  const _OutdoorCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    Widget item(String label, String sport, IconData icon) => Expanded(
+      child: Semantics(
+        button: true,
+        label: 'Ghi $label ngoài trời',
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => context.push('/record?sport=$sport'),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              children: [
+                Icon(icon, color: c.brandText, size: 28),
+                const SizedBox(height: 6),
+                Text(label, style: context.text.caption),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Semantics(
+            header: true,
+            child: Text(
+              'Hoạt động ngoài trời',
+              style: TextStyle(
+                color: c.ink,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text('Ghi đường đi trên bản đồ', style: context.text.caption),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              item('Chạy bộ', 'run', AppIcons.runFill),
+              item('Đi bộ', 'walk', AppIcons.walkFill),
+              item('Đạp xe', 'ride', AppIcons.rideFill),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

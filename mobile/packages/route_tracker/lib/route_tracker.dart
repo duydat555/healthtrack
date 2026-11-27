@@ -118,6 +118,24 @@ class RouteTracker {
     }
   }
 
+  /// Giữ màn hình luôn sáng (khi đang ghi buổi tập). Nhớ tắt khi xong.
+  Future<void> setKeepAwake(bool on) async {
+    try {
+      await _channel.invokeMethod<void>('setKeepAwake', {'on': on});
+    } on MissingPluginException {
+      // Nền tảng không hỗ trợ
+    }
+  }
+
+  /// Mở màn Cài đặt của app để người dùng cấp lại quyền vị trí đã bị từ chối.
+  Future<void> openSettings() async {
+    try {
+      await _channel.invokeMethod<void>('openSettings');
+    } on MissingPluginException {
+      // Nền tảng không hỗ trợ
+    }
+  }
+
   /// Vị trí gần nhất hệ thống biết (có thể cũ), để căn bản đồ trước khi bắt đầu ghi.
   Future<RawFix?> lastKnown() async {
     try {

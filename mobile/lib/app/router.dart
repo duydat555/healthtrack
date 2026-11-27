@@ -1,3 +1,6 @@
+import '../features/workout/record_screen.dart';
+import '../features/workout/workout.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -104,6 +107,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/add', builder: (c, s) => const AddScreen()),
+      GoRoute(
+        path: '/record',
+        builder: (c, s) => RecordScreen(
+          initialSport: Sport.values
+              .where((x) => x.name == s.uri.queryParameters['sport'])
+              .firstOrNull,
+        ),
+      ),
       GoRoute(path: '/coach', builder: (c, s) => const CoachScreen()),
       GoRoute(
         path: '/achievements',
