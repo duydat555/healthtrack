@@ -18,6 +18,7 @@ from app.api.v1 import (
     users,
     water,
     weights,
+    workouts,
 )
 
 api_router = APIRouter()
@@ -36,3 +37,4 @@ api_router.include_router(stats.router)
 api_router.include_router(gamification.router)
 api_router.include_router(sync.router)
 api_router.include_router(coach.router)
+api_router.include_router(workouts.router)
