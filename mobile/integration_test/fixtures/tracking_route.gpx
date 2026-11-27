@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="HealthTrack QA" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>HealthTrack tracking QA route</name>
+    <desc>Synthetic route: steady running, a stationary pause, then one GPS outlier.</desc>
+  </metadata>
+  <!-- Chặng chạy đều: các waypoint cách nhau khoảng 10–12 m. -->
+  <wpt lat="10.775100" lon="106.700000"><name>RUN-01</name><time>2026-11-27T08:00:00Z</time></wpt>
+  <wpt lat="10.775190" lon="106.700025"><name>RUN-02</name><time>2026-11-27T08:00:10Z</time></wpt>
+  <wpt lat="10.775280" lon="106.700050"><name>RUN-03</name><time>2026-11-27T08:00:20Z</time></wpt>
+  <wpt lat="10.775370" lon="106.700075"><name>RUN-04</name><time>2026-11-27T08:00:30Z</time></wpt>
+  <wpt lat="10.775460" lon="106.700100"><name>RUN-05</name><time>2026-11-27T08:00:40Z</time></wpt>
+  <wpt lat="10.775550" lon="106.700125"><name>RUN-06</name><time>2026-11-27T08:00:50Z</time></wpt>
+  <!-- Đoạn dừng: tọa độ giữ nguyên trong 90 giây. -->
+  <wpt lat="10.775550" lon="106.700125"><name>STOP-01</name><time>2026-11-27T08:01:20Z</time></wpt>
+  <wpt lat="10.775550" lon="106.700125"><name>STOP-02</name><time>2026-11-27T08:01:50Z</time></wpt>
+  <wpt lat="10.775550" lon="106.700125"><name>STOP-03</name><time>2026-11-27T08:02:20Z</time></wpt>
+  <!-- Một điểm nhiễu lệch vài trăm mét; các điểm sau quay lại tuyến. -->
+  <wpt lat="10.778200" lon="106.702700"><name>NOISE-01</name><time>2026-11-27T08:02:30Z</time></wpt>
+  <wpt lat="10.775640" lon="106.700150"><name>RUN-07</name><time>2026-11-27T08:02:40Z</time></wpt>
+  <wpt lat="10.775730" lon="106.700175"><name>RUN-08</name><time>2026-11-27T08:02:50Z</time></wpt>
+  <wpt lat="10.775820" lon="106.700200"><name>RUN-09</name><time>2026-11-27T08:03:00Z</time></wpt>
+  <wpt lat="10.775910" lon="106.700225"><name>RUN-10</name><time>2026-11-27T08:03:10Z</time></wpt>
+</gpx>

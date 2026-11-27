@@ -129,3 +129,33 @@ Mobile CI hiện chạy format, analyze và unit/widget test trên Ubuntu; bư�
 ## Cập nhật ảnh golden (widget test)
 Ảnh trong `mobile/test/goldens/` phải sinh trên **Linux** (cùng môi trường với CI). Sinh trên macOS sẽ lệch khoảng 1% điểm ảnh nên CI báo đỏ, và chạy `flutter test` trên máy Mac cũng sẽ báo lệch với ảnh đã commit. Khi giao diện đổi và cần cập nhật ảnh: chạy `flutter test --update-goldens test/foundation_widgets_test.dart` trong Docker/WSL (Linux), hoặc cho một workflow tạm chạy lệnh đó trên `ubuntu-latest` rồi tải ảnh về.
 
+## Kế hoạch kiểm thử tracking và GPX giả lập (Issue #249)
+
+### Tài nguyên mô phỏng
+
+File `mobile/integration_test/fixtures/tracking_route.gpx` là tuyến giả lập, không chứa dữ liệu vị trí người dùng. GPX có 14 waypoint được đánh dấu để dễ đối chiếu:
+
+- `RUN-01`–`RUN-06` và `RUN-07`–`RUN-10`: hai chặng chạy đều, các điểm cách nhau khoảng 10–12 m.
+- `STOP-01`–`STOP-03`: cùng tọa độ trong 90 giây để kiểm tra dừng.
+- `NOISE-01`: một điểm lệch vài trăm mét; waypoint kế tiếp quay lại tuyến.
+
+Tệp dùng GPX 1.1 với `<wpt>` để phát lại vị trí trên Xcode Simulator. Xcode có thể phát lại hành trình từ GPX, cập nhật vị trí, độ cao và vận tốc mô phỏng ([Apple: Simulating location in tests](https://developer.apple.com/documentation/xcode/simulating-location-in-tests)). Để cấu hình, mở `mobile/ios/Runner.xcworkspace` trong Xcode, chọn scheme `Runner` → `Edit Scheme` → `Run` → `Options` → `Core Location`, thêm GPX vào workspace rồi chọn `tracking_route.gpx`. Chạy app trên iOS Simulator và bắt đầu workout. Với test plan, chọn GPX tại `Test Plan` → `Configuration` → `Localization` → `Simulated Location`.
+
+### Kịch bản kiểm thử thủ công
+
+| Mã | Kịch bản | Thao tác | Kết quả cần ghi nhận |
+|---|---|---|---|
+| TRK-01 | Chạy đều | Phát GPX qua các waypoint `RUN-*` | Các điểm được nhận theo thứ tự; quãng đường, thời lượng và đường vẽ không lỗi. Ghi số liệu thực tế; không đặt ngưỡng sai số khi tracking chưa có tiêu chí riêng. |
+| TRK-02 | Dừng giữa buổi | Phát tuyến qua `STOP-*` (90 giây cùng vị trí) | Không cộng quãng đường đáng kể trong lúc đứng yên; xác nhận `movingSeconds`/`distanceM` theo hợp đồng Workout. Nếu app đánh dấu pause thành segment mới, phép tính không cộng thời gian/quãng đường băng qua segment. |
+| TRK-03 | GPS nhiễu | Phát `NOISE-01`, rồi tiếp tục đến `RUN-07` | App không crash/treo; ghi lại việc điểm nhiễu có bị loại khỏi points/polyline/distance hay không. Đối chiếu kết quả với chính sách lọc nhiễu do task tracking quy định, không suy diễn ngưỡng lọc từ GPX. |
+| TRK-04 | Chạy nền | Bắt đầu workout, đưa app về nền khi GPX đang phát, rồi mở lại | Ghi trạng thái phiên, thời gian và điểm nhận trong nền; so sánh trước/sau khi mở app và đối chiếu yêu cầu nền của Workout. |
+| TRK-05 | Khóa màn hình | Bắt đầu workout, khóa Simulator trong lúc phát tuyến, mở khóa và quay lại app | Ghi trạng thái workout, thời gian và điểm trước/sau khóa; kiểm tra phiên không mất hoặc bị nhân đôi. |
+| TRK-06 | Từ chối quyền vị trí | Trong Settings của Simulator, đặt Location của app thành `Never`; mở app và thử bắt đầu workout | App giải thích quyền cần thiết, không crash và không lưu tuyến như có GPS. Ghi thông báo, trạng thái workout và cách khôi phục quyền. |
+| TRK-07 | Mất rồi có lại GPS | Đang tracking, chọn vị trí mô phỏng `None` tại `Features` → `Location`; sau đó chọn lại GPX | Ghi nhận trạng thái mất/có lại vị trí; không vẽ đoạn giả khi không có vị trí; sau khi bật lại, tracking tiếp tục hoặc báo lỗi theo hợp đồng. |
+
+### Ghi bằng chứng và giới hạn
+
+Trước mỗi lượt, tạo workout mới hoặc xóa dữ liệu thử cũ. Ghi model Simulator, iOS/Xcode, commit, quyền vị trí, mã kịch bản, kết quả thực tế, ảnh/log và lỗi. Lặp mỗi kịch bản ít nhất hai lần để xem có tái lập được không. GPX chỉ cấp vị trí giả lập; các thao tác quyền, chạy nền, khóa màn hình và mất vị trí cần thực hiện riêng, GPX không mô phỏng chúng.
+
+Repo hiện có model/phép tính Workout theo `docs/14-hop-dong-du-lieu-workout.md`, nhưng chưa có luồng UI/native GPS tracking để thực thi E2E các kịch bản này. Do đó GPX và test plan đã sẵn sàng; chưa ghi nhận kịch bản chạy đạt. Khi task triển khai tracking hoàn tất, chạy các mã TRK và cập nhật bằng chứng thực tế trước khi nghiệm thu.
+
