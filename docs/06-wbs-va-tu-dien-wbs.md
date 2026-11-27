@@ -1,9 +1,9 @@
 # WBS và Từ điển WBS
 
 ## Quy tắc 100%
-Tổng các gói con bằng đúng phạm vi của gói cha, không thiếu và không thừa. Mỗi gói lá (dòng có mã 2 chữ số như 3.2) ứng với **một hoặc hai Epic** trên GitHub, và mỗi Epic nằm đúng một gói lá. Nhờ vậy 15 Epic (80 task) phủ hết cây WBS và không có việc nào nằm ngoài WBS.
+Tổng các gói con bằng đúng phạm vi của gói cha, không thiếu và không thừa. Mỗi gói lá (dòng có mã 2 chữ số như 3.2) ứng với **một hoặc hai Epic** trên GitHub, và mỗi Epic nằm đúng một gói lá. Nhờ vậy 16 Epic (94 task) phủ hết cây WBS và không có việc nào nằm ngoài WBS. Ngoại lệ: Epic #238 (Phase 8, do CR-01) chia thành bốn gói lá 7.1 đến 7.4 theo nhóm công việc; task của Epic gắn vào gói theo nhóm.
 
-Cách kiểm tra: mọi Epic ở cột "Epic" trong từ điển bên dưới phải xuất hiện đúng một lần. Hiện có 15 Epic, đủ #1 đến #15.
+Cách kiểm tra: mọi Epic ở cột "Epic" trong từ điển bên dưới phải xuất hiện đúng một lần. Hiện có 16 Epic: #1 đến #15 và #238 (riêng #238 xuất hiện ở bốn gói 7.1 đến 7.4).
 
 ## Cây WBS
 ```
@@ -28,8 +28,13 @@ Cách kiểm tra: mọi Epic ở cột "Epic" trong từ điển bên dưới ph
 │   └── 4.4 Dashboard và biểu đồ                       (Epic #8)
 ├── 5.0 Kiểm thử và chất lượng
 │   └── 5.1 Test tự động, E2E, bảo mật                 (Epic #12)
-└── 6.0 Nghiệm thu
-    └── 6.1 UAT và đóng dự án                          (Epic #14, phần UAT)
+├── 6.0 Nghiệm thu
+│   └── 6.1 UAT và đóng dự án                          (Epic #14, phần UAT)
+└── 7.0 Hoạt động ngoài trời (Phase 8, CR-01)
+    ├── 7.1 Ghi hoạt động và bản đồ (iOS, Mobile)      (Epic #238)
+    ├── 7.2 Ảnh ghép chia sẻ và lịch sử                (Epic #238)
+    ├── 7.3 Backend hoạt động                          (Epic #238)
+    └── 7.4 Kiểm thử và huy hiệu vận động              (Epic #238)
 ```
 Epic #14 gồm cả báo cáo/slide (1.3) và UAT (6.1). Task báo cáo, slide gắn vào 1.3, task UAT gắn vào 6.1.
 
@@ -55,4 +60,9 @@ Quy mô tính bằng story point (SP) cộng từ các task của Epic. Không �
 | 5.1 | Kiểm thử và chất lượng | Kế hoạch test, test tự động, E2E, review bảo mật | `docs/09`, test, báo cáo lỗi | #12 | Tài | 21 | Độ phủ backend từ 70%, E2E luồng chính pass |
 | 6.1 | UAT và đóng dự án | Cho người dùng thử, ký biên bản, bài học kinh nghiệm | Biên bản UAT | #14 | Cả nhóm | trong 38 | Stakeholder ký biên bản hoặc email nghiệm thu |
 
-Tổng cộng 323 SP trên 15 Epic, 80 task. Số SP của #14 (38) tính chung cho 1.3 và 6.1.
+| 7.1 | Ghi hoạt động và bản đồ | Hợp đồng dữ liệu Workout, plugin `route_tracker` (CoreLocation), bản đồ Apple Maps native, màn ghi, trang tổng kết, đồng bộ API, Live Activity, cập nhật tài liệu | `docs/14`, plugin `route_tracker`, màn `/record` và `/workout/:id`, `ApiWorkoutRepository` | #238 (#239 đến #244, #251, #252) | Đạt | 39 | Ghi được buổi tập có đường đi, lưu trên máy và đồng bộ lên máy chủ; test pass; Live Activity (P2) làm nếu còn thời gian |
+| 7.2 | Ảnh ghép chia sẻ và lịch sử | Bộ tạo ảnh ghép kiểu Strava (ảnh cá nhân, đường đi, số liệu); màn lịch sử hoạt động | Màn tạo ảnh, màn lịch sử | #238 (#245, #246) | Thuận | 13 | Xuất ảnh PNG đúng kích thước; lịch sử đọc từ `WorkoutRepository` |
+| 7.3 | Backend hoạt động | API `/workouts` (CRUD, lọc theo người dùng), thống kê tuần/tháng, kỷ lục cá nhân, xuất GPX | API, migration, test | #238 (#247, #248) | Tân | 10 | Mọi truy vấn lọc theo user, có test hai tài khoản (R04) |
+| 7.4 | Kiểm thử và huy hiệu vận động | Kế hoạch kiểm thử tracking và bộ GPX giả lập; huy hiệu vận động, nhắc nhở chạy bộ | `docs/09`, GPX, huy hiệu | #238 (#249, #250) | Tài | 6 | Có kịch bản kiểm thử tracking; huy hiệu và nhắc nhở hoạt động |
+
+Tổng cộng 391 SP trên 16 Epic, 94 task (Phase 8 thêm 68 SP, 14 task, theo CR-01). Số SP của #14 (38) tính chung cho 1.3 và 6.1.
