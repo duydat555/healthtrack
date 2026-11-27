@@ -1,6 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import 'src/route_map.dart';
+
+export 'src/route_map.dart';
+
 /// Quyền vị trí của app.
 enum LocationPermission {
   /// Chưa hỏi.
@@ -122,6 +126,32 @@ class RouteTracker {
     } on MissingPluginException {
       return null;
     }
+  }
+
+  /// Ảnh PNG bản đồ tĩnh bao trọn [points], đường đi đổi màu theo tốc độ (Apple Maps, chỉ iOS).
+  /// Dùng cho trang tổng kết và ảnh ghép chia sẻ. Ném [PlatformException] nếu không tạo được
+  /// (ví dụ không có mạng để tải bản đồ nền), [MissingPluginException] ở nền tảng không hỗ trợ.
+  Future<Uint8List> snapshotRoute(
+    List<MapPoint> points, {
+    int width = 1080,
+    int height = 1080,
+    bool dark = false,
+    RouteMapType mapType = RouteMapType.standard,
+    List<Color> gradient = defaultRouteGradient,
+    double? lineWidth,
+    double padding = 0.18,
+  }) async {
+    final data = await _channel.invokeMethod<Uint8List>('snapshotRoute', {
+      'points': flattenPoints(points),
+      'width': width.toDouble(),
+      'height': height.toDouble(),
+      'dark': dark,
+      'mapType': mapType.name,
+      'gradient': [for (final c in gradient) c.toARGB32()],
+      'lineWidth': ?lineWidth,
+      'padding': padding,
+    });
+    return data!;
   }
 
   /// Luồng vị trí thô; chỉ có dữ liệu sau [start].

@@ -6,7 +6,8 @@ import UIKit
 /// Dart (thuần Dart nên test được bằng dữ liệu mẫu).
 ///
 /// - Kênh phương thức `healthtrack/route`: `isAvailable`, `permission`, `requestPermission`,
-///   `start`, `stop`, `lastKnown`.
+///   `start`, `stop`, `lastKnown`, `snapshotRoute` (ảnh bản đồ tĩnh của một đường đi).
+/// - Platform view `healthtrack/route_map`: bản đồ Apple Maps (xem RouteMapView.swift).
 /// - Kênh sự kiện `healthtrack/route/fixes`: mỗi vị trí là một map (lat, lon, alt, speed, acc, course, t).
 ///
 /// Chạy nền cần khóa `UIBackgroundModes: location` trong Info.plist. Thiếu khóa này mà bật
@@ -23,6 +24,8 @@ public class RouteTrackerPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, 
         registrar.addMethodCallDelegate(instance, channel: channel)
         FlutterEventChannel(name: "healthtrack/route/fixes", binaryMessenger: registrar.messenger())
             .setStreamHandler(instance)
+        registrar.register(
+            RouteMapFactory(messenger: registrar.messenger()), withId: RouteMapFactory.viewType)
     }
 
     override init() {
@@ -47,6 +50,14 @@ public class RouteTrackerPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, 
             result(nil)
         case "lastKnown":
             result(manager.location.map(encode))
+        case "snapshotRoute":
+            RouteSnapshot.render(call.arguments as? [String: Any] ?? [:]) { data, error in
+                DispatchQueue.main.async {
+                    if let data { result(data) } else {
+                        result(FlutterError(code: "snapshot_failed", message: error, details: nil))
+                    }
+                }
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
