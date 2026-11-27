@@ -137,6 +137,17 @@ final dioProvider = Provider<Dio>((ref) {
   return dio;
 });
 
+/// Báo lỗi kết nối. Build không truyền API_URL thì trỏ vào localhost, nơi không có máy chủ, nên nói
+/// rõ để người test không nhầm với lỗi mạng.
+String _connectionMessage(DioException error) {
+  final host = Uri.tryParse(error.requestOptions.baseUrl)?.host ?? '';
+  if (host == 'localhost' || host == '127.0.0.1' || host == '10.0.2.2') {
+    return 'App đang trỏ vào máy chủ local ($host) nhưng không kết nối được. '
+        'Chạy `make up`, hoặc build lại với --dart-define=API_URL=https://...';
+  }
+  return 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.';
+}
+
 /// Chuyển lỗi mạng thành câu tiếng Việt để hiện cho người dùng.
 String apiErrorMessage(Object error) {
   if (error is DioException) {
@@ -145,7 +156,7 @@ String apiErrorMessage(Object error) {
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.connectionError:
-        return 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.';
+        return _connectionMessage(error);
       default:
         break;
     }
