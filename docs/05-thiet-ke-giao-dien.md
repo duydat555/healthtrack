@@ -440,6 +440,32 @@ Ghi nhanh 6 nhóm chỉ số (Nước, Cân nặng + BMI, Ngủ, Thuốc, Bướ
 
 ---
 
+## Hoạt động ngoài trời (Phase 8)
+
+Hai màn hình mới nằm ngoài thanh tab, mở từ thẻ "Hoạt động ngoài trời" ở cuối màn Thêm nhanh (`/add`). Dùng đúng quy chuẩn Calm Health: thẻ đục, số liệu dùng `AppFonts.number` (chữ số đều nhau), Liquid Glass chỉ cho lớp nổi và nút.
+
+### Màn ghi hoạt động (`RecordScreen`, `/record?sport=run|walk|ride`)
+- **Bản đồ Apple Maps toàn màn** (`RouteMapView`, platform view `healthtrack/route_map`): đường đi đổi màu theo tốc độ từ cam đậm sang vàng thương hiệu và vàng nhạt, camera bám người dùng. Bản không phải iPhone vẽ bản dự phòng bằng `RoutePainter`.
+- **Thanh trên:** nút đóng, chip tín hiệu GPS (Chưa có GPS, GPS yếu, khá, tốt; có màu và chữ), nút đổi kiểu bản đồ. Khi người dùng kéo bản đồ đi chỗ khác, hiện nút "về vị trí của tôi".
+- **Tấm kính số liệu** (`LiquidGlass`, nền tối ở Dark Mode): đồng hồ lớn 64 pt, quãng đường (km), nhịp (phút/km; đạp xe hiện km/h).
+- **Điều khiển:**
+  - Trước khi ghi: ba nút chọn môn tròn (chạy, đi bộ, đạp xe) và nút "Bắt đầu" (`GlassButton.prominent`, vàng).
+  - Bấm Bắt đầu: đếm ngược 3, 2, 1 toàn màn kèm haptic; chạm để hủy.
+  - Đang ghi: nút Tạm dừng/Tiếp tục tròn lớn, nút Kết thúc **nhấn giữ khoảng 1,2 giây** (vòng tiến trình đỏ) để tránh bấm nhầm. Người dùng trình đọc màn hình chạm hai lần là kết thúc.
+  - Tự tạm dừng khi đứng yên 10 giây, hiện dòng "Tự tạm dừng vì bạn đứng yên".
+- **Quyền vị trí:** chưa hỏi thì có nút "Cho phép vị trí"; bị từ chối thì "Mở Cài đặt"; đang ở quyền "Khi dùng app" thì nhắc chọn "Luôn luôn" để ghi được khi khóa máy.
+- **An toàn dữ liệu:** lưu bản nháp mỗi 20 giây; mở lại màn sau khi app bị tắt giữa chừng thì hỏi lưu hay bỏ. Thoát khi đang ghi có hộp xác nhận. Buổi dưới 20 m không được lưu.
+
+### Trang tổng kết (`WorkoutSummaryScreen`, `/workout/:id`)
+- Tên, môn, ngày giờ; **ảnh bản đồ tĩnh** (`MKMapSnapshotter`, theo sáng/tối) với đường đi đổi màu theo tốc độ, tỉ lệ 4:3. Không có mạng hoặc không phải iPhone thì vẽ bản dự phòng.
+- Quãng đường 56 pt, lưới số liệu: thời gian, nhịp trung bình (hoặc tốc độ), độ cao leo, năng lượng.
+- **Từng km:** thẻ đục, mỗi km một thanh (dài hơn là nhanh hơn), km nhanh nhất tô vàng đậm.
+- **Biểu đồ** nhịp (hoặc tốc độ) và độ cao theo quãng đường, vẽ bằng `CustomPainter` (đường vàng với vùng tô nhạt).
+- Nút "Chia sẻ" xuất ảnh bản đồ qua share sheet (bộ ảnh ghép của #245 sẽ thay bước này); nút thùng rác xóa buổi tập, có xác nhận.
+- Trình đọc màn hình: mỗi số liệu, mỗi km và mỗi biểu đồ có nhãn đọc được (ví dụ "Km 3, nhịp 5:21, nhanh nhất").
+
+Dữ liệu và API: xem [14-hop-dong-du-lieu-workout.md](14-hop-dong-du-lieu-workout.md).
+
 ## Tổng hợp vị trí áp dụng Liquid Glass
 
 | Vị trí | Widget | Áp dụng Liquid Glass? | Ghi chú |
@@ -448,6 +474,7 @@ Ghi nhanh 6 nhóm chỉ số (Nước, Cân nặng + BMI, Ngủ, Thuốc, Bướ
 | Nút thêm nhanh nổi `+` | `LiquidGlassTabBar` (`onAdd`) | **Có** (`interactive: true`) | Phản hồi chạm đàn hồi iOS 26 |
 | Nút icon tròn, nút chính, Hủy/Lưu | `GlassIconButton`, `GlassButton` | **Có** (UIButton `.glass()`/`.prominentGlass()`) | Nút điều hướng và nút hành động chính; hàng trong danh sách không dùng |
 | Nhóm thẻ màn Chỉ số | `LiquidGlassCardGroup` | **Không** (đã chuyển sang `MetricCard` đục) | Widget còn trong package `liquid_glass` nhưng app không dùng |
+| Tấm số liệu màn ghi hoạt động | `LiquidGlass` (nền tối) | **Có** | Lớp nổi trên bản đồ toàn màn, không phải thẻ nội dung |
 | Form sheet, action sheet | `showFormSheet`, `CupertinoActionSheet` | **Không** | Bề mặt đục; action sheet do hệ thống vẽ |
 | Thẻ nội dung | `AppCard`, `MetricCard`, `SettingsGroup` | **Không** (màu `card`) | Tối ưu GPU/FPS theo Apple HIG |
 
