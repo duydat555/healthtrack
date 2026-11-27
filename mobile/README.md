@@ -26,3 +26,9 @@ Lưu ý về múi giờ: backend gộp theo ngày UTC, còn app tính "hôm nay"
 Thanh tab Liquid Glass trên iOS 26 là view native nên test Flutter không "bấm" được; test điều hướng bằng router.
 
 Liquid Glass nằm trong plugin cục bộ [packages/liquid_glass](packages/liquid_glass/).
+
+## Lịch sử hoạt động
+
+Vào **Tổng quan → Lịch sử hoạt động** để xem các buổi đã ghi trên máy. Phần quãng đường tính từ thứ Hai và từ đầu tháng theo giờ địa phương. Bộ lọc môn áp dụng cho danh sách buổi tập.
+
+Để xem ba buổi tập tổng hợp trong bản debug, thêm `--dart-define=MOCK_WORKOUTS=true` vào lệnh `flutter run`. Sau khi đăng nhập, mở **Lịch sử hoạt động** để xem dữ liệu mẫu. Các thay đổi buổi tập trong chế độ này được giữ trong bộ nhớ cho đến khi khởi động lại ứng dụng.

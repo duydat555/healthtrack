@@ -1,5 +1,6 @@
 import '../features/workout/record_screen.dart';
 import '../features/workout/workout.dart';
+import '../features/workout/workout_history_screen.dart';
 import '../features/workout/workout_summary_screen.dart';
 
 import 'package:flutter/material.dart';
@@ -108,6 +109,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/add', builder: (c, s) => const AddScreen()),
+      GoRoute(
+        path: '/workouts',
+        builder: (c, s) => const WorkoutHistoryScreen(),
+      ),
       GoRoute(
         path: '/workout/:id',
         builder: (c, s) => WorkoutSummaryScreen(id: s.pathParameters['id']!),
