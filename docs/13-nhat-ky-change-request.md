@@ -25,8 +25,6 @@ Hợp lệ khi có ít nhất 3 thành viên nhóm, trong đó có PM, và có �
 - Task P0 đã đóng không được tự ý đổi AC; muốn đổi phải có CR.
 
 ## Nhật ký
-> Lưu ý CR-01: CCB hợp lệ cần có ý kiến của PO (xem phần trên). Đến ngày cập nhật chưa có ý kiến đó, nên quyết định mới là của PM; không ghi là CCB đã duyệt.
-
 | Mã CR | Ngày | Nội dung | Ảnh hưởng | Quyết định | Issue |
 |---|---|---|---|---|---|
-| CR-01 | 27/11/2026 | Thêm nhóm tính năng hoạt động ngoài trời: ghi quãng đường bằng Apple Maps, ảnh ghép chia sẻ, lịch sử, API, huy hiệu vận động | Thêm Phase 8 (14 task, 68 SP), nhánh WBS 7.0, rủi ro R16 đến R19 | **PM chấp thuận** (Lê Duy Đạt, 27/11/2026) và đã bắt đầu thực hiện; **chưa có ý kiến của Product Owner**, cần bổ sung vào issue #237 trước khi coi CCB đã đủ điều kiện | #237 |
+| CR-01 | 27/11/2026 | Thêm nhóm tính năng hoạt động ngoài trời: ghi quãng đường bằng Apple Maps, ảnh ghép chia sẻ, lịch sử, API, huy hiệu vận động | Thêm Phase 8 (14 task, 68 SP), nhánh WBS 7.0, rủi ro R16 đến R19 | **Chấp thuận** (27/11/2026): PM (Lê Duy Đạt) chấp thuận, Product Owner đã xác nhận; CCB đủ điều kiện theo quy trình | #237 |
