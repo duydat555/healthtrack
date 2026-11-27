@@ -39,8 +39,13 @@ void main() {
     expect(fix.alt, isNull);
     expect(fix.t.millisecondsSinceEpoch, 1000);
     await rt.start(distanceFilterM: 5);
+    await rt.setKeepAwake(true);
+    await rt.openSettings();
     await rt.stop();
-    expect(calls, containsAll(['start', 'stop']));
+    expect(
+      calls,
+      containsAll(['start', 'stop', 'setKeepAwake', 'openSettings']),
+    );
   });
 
   test('không có plugin thì báo không hỗ trợ thay vì lỗi', () async {
@@ -49,5 +54,7 @@ void main() {
     expect(await rt.permission(), LocationPermission.unavailable);
     expect(await rt.lastKnown(), isNull);
     await rt.stop();
+    await rt.setKeepAwake(true);
+    await rt.openSettings();
   });
 }

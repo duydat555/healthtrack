@@ -6,7 +6,7 @@ import UIKit
 /// Dart (thuần Dart nên test được bằng dữ liệu mẫu).
 ///
 /// - Kênh phương thức `healthtrack/route`: `isAvailable`, `permission`, `requestPermission`,
-///   `start`, `stop`, `lastKnown`, `snapshotRoute` (ảnh bản đồ tĩnh của một đường đi).
+///   `start`, `stop`, `lastKnown`, `setKeepAwake`, `openSettings`, `snapshotRoute` (ảnh bản đồ tĩnh).
 /// - Platform view `healthtrack/route_map`: bản đồ Apple Maps (xem RouteMapView.swift).
 /// - Kênh sự kiện `healthtrack/route/fixes`: mỗi vị trí là một map (lat, lon, alt, speed, acc, course, t).
 ///
@@ -50,6 +50,18 @@ public class RouteTrackerPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, 
             result(nil)
         case "lastKnown":
             result(manager.location.map(encode))
+        case "setKeepAwake":
+            // Giữ màn hình sáng khi đang ghi để người chạy luôn thấy số liệu
+            let on = (call.arguments as? [String: Any])?["on"] as? Bool ?? false
+            DispatchQueue.main.async { UIApplication.shared.isIdleTimerDisabled = on }
+            result(nil)
+        case "openSettings":
+            DispatchQueue.main.async {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+                result(nil)
+            }
         case "snapshotRoute":
             RouteSnapshot.render(call.arguments as? [String: Any] ?? [:]) { data, error in
                 DispatchQueue.main.async {

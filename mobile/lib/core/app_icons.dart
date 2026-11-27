@@ -122,6 +122,31 @@ abstract final class AppIcons {
   );
   static const IconData inbox = IconData(0xe4aa, fontFamily: 'PhosphorRegular');
   static const IconData cloud = IconData(0xe1aa, fontFamily: 'PhosphorRegular');
+
+  // Hoạt động ngoài trời
+  static const IconData pause = IconData(0xe39e, fontFamily: 'PhosphorFill');
+  static const IconData play = IconData(0xe3d0, fontFamily: 'PhosphorFill');
+  static const IconData stop = IconData(0xe46c, fontFamily: 'PhosphorFill');
+  static const IconData finishFlag = IconData(
+    0xea38,
+    fontFamily: 'PhosphorFill',
+  );
+  static const IconData layers = IconData(
+    0xe466,
+    fontFamily: 'PhosphorRegular',
+  );
+  static const IconData locate = IconData(0xe1d6, fontFamily: 'PhosphorBold');
+  static const IconData runFill = IconData(0xe730, fontFamily: 'PhosphorFill');
+  static const IconData run = IconData(0xe730, fontFamily: 'PhosphorRegular');
+  static const IconData walkFill = IconData(0xe73a, fontFamily: 'PhosphorFill');
+  static const IconData walk = IconData(0xe73a, fontFamily: 'PhosphorRegular');
+  static const IconData rideFill = IconData(0xe0d6, fontFamily: 'PhosphorFill');
+  static const IconData ride = IconData(0xe0d6, fontFamily: 'PhosphorRegular');
+  static const IconData route = IconData(0xe39c, fontFamily: 'PhosphorRegular');
+  static const IconData mapPin = IconData(0xe316, fontFamily: 'PhosphorFill');
+  static const IconData share = IconData(0xe408, fontFamily: 'PhosphorRegular');
+  static const IconData timer = IconData(0xe492, fontFamily: 'PhosphorRegular');
+
   static const IconData wifiOff = IconData(
     0xe4f2,
     fontFamily: 'PhosphorRegular',
