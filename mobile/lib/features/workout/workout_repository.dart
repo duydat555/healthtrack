@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'workout.dart';
+import 'workout_sync.dart';
 
 /// Nơi lưu buổi tập. Bản đầu lưu trên máy ([LocalWorkoutRepository]); bản gọi API `/workouts`
 /// (task #251) dùng cùng interface này, nên màn hình không cần đổi.
@@ -82,8 +83,11 @@ class LocalWorkoutRepository implements WorkoutRepository {
   }
 }
 
+/// Kho buổi tập đang dùng: lưu trên máy và đồng bộ với máy chủ khi đã đăng nhập (xem
+/// `workout_sync.dart`); chưa đăng nhập thì chỉ lưu trên máy.
 final workoutRepositoryProvider = Provider<WorkoutRepository>(
-  (ref) => LocalWorkoutRepository(),
+  (ref) =>
+      ref.watch(syncedWorkoutRepositoryProvider) ?? LocalWorkoutRepository(),
 );
 
 /// Danh sách buổi tập, mới nhất trước.

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/router.dart';
 import 'core/api_client.dart';
+import 'features/workout/workout_sync.dart';
 import 'core/theme.dart';
 
 /// Không tự thử lại provider lỗi: lỗi mạng hiện ra ngay để người dùng bấm "Thử lại".
@@ -18,6 +19,7 @@ class HealthTrackApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(workoutSyncProvider, (_, _) {}); // đồng bộ buổi tập khi mở app
     return MaterialApp.router(
       title: 'HealthTrack',
       debugShowCheckedModeBanner: false,

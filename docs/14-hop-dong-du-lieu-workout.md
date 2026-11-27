@@ -68,7 +68,11 @@ Một điểm: `lat`, `lon`, `t` (bắt buộc); `alt` (m), `speed` (m/s), `acc`
 ## Lưu trữ
 - **`WorkoutRepository`:** `list()` (mới nhất trước), `get(id)`, `save(workout)`, `delete(id)`.
 - **`LocalWorkoutRepository`:** mỗi buổi là một file `<id>.json` trong thư mục `workouts/` của app. Ghi qua file tạm rồi đổi tên.
-- **`ApiWorkoutRepository`** (task #251) sẽ dùng cùng interface, gọi API bên dưới.
+- **`ApiWorkoutRepository`** (`workout_sync.dart`): cùng interface, gọi API bên dưới. Danh sách phân trang theo `before` (100 buổi một trang) và không có `points`.
+- **`SyncedWorkoutRepository`:** là kho app thực sự dùng khi đã đăng nhập. Lưu trên máy trước (mỗi tài khoản một thư mục `u<id>`), rồi đẩy lên máy chủ ở nền; mất mạng thì để dành, thử lại ở lần mở app sau.
+  - Việc chờ và danh sách id đã lên máy chủ lưu trong `workout_sync.json`.
+  - Hai chiều: buổi ghi ở máy khác được tải về; buổi đã lên máy chủ mà nay không còn thì coi là đã xóa ở máy khác và xóa luôn ở máy này.
+  - Lỗi tạm thời (mạng, 5xx, 401, 408, 429) thì giữ lại để thử lại; lỗi 4xx khác (ví dụ 422) thì bỏ việc chờ, dữ liệu trên máy vẫn còn nguyên.
 
 ## API dự kiến cho backend (task #247)
 | Phương thức | Đường dẫn | Mô tả |
