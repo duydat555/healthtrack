@@ -18,6 +18,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Mọi e
 | Mục tiêu | `GET/POST /goals`, `PATCH/DELETE /goals/{id}`; `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly`; mỗi chỉ số tối đa một mục tiêu đang hoạt động (trùng trả 409) | Đã có |
 | Thống kê | `GET /stats/summary?date=` (số liệu trong ngày và tiến độ mục tiêu), `GET /stats/trend?metric=&range=` | Đã có |
 | Nhắc nhở | `GET/POST /reminders`, `PATCH/DELETE /reminders/{id}`; `kind`: `water`, `medication`, `sleep`, `meal`, `running`; `at_time`: giờ địa phương `HH:MM:SS`; `enabled`: bật/tắt | Đã có |
+| Buổi tập ngoài trời (Phase 8) | `GET /workouts?limit&before`, `GET/PUT/DELETE /workouts/{id}`; JSON camelCase theo [docs/14](14-hop-dong-du-lieu-workout.md) | Đã có |
 
 ## Quy ước chung
 
@@ -66,6 +67,19 @@ Access token hết hạn sau 30 phút, refresh token sau 7 ngày (cấu hình tr
 - `POST /medications`: `name`, `dosage?`, `schedule?`; `PATCH` thêm `is_active`.
 - `POST /medications/{id}/logs`: `taken_at?` (mặc định hiện tại), `taken` (mặc định `true`; `false` = bỏ lỡ liều). `GET` cùng đường dẫn trả nhật ký mới nhất trước.
 - Thuốc không thuộc người dùng trả `404` cho mọi thao tác, kể cả `logs`.
+
+## Buổi tập ngoài trời (Phase 8, issue #247)
+
+Định dạng dữ liệu một buổi tập nằm ở [docs/14](14-hop-dong-du-lieu-workout.md). Khác với các API còn lại, JSON dùng **camelCase** (`startedAt`, `distanceM`...) để dùng chung một định dạng với app.
+
+| Endpoint | Mô tả |
+|---|---|
+| `GET /workouts?limit=20&before=<ISO>` | Danh sách của người dùng, mới nhất trước (theo `startedAt`), **không kèm** `points`. `limit` từ 1 đến 100; `before` chỉ lấy buổi bắt đầu trước mốc đó, dùng để phân trang |
+| `GET /workouts/{id}` | Một buổi, kèm `points` (có thể `null` nếu app không gửi) |
+| `PUT /workouts/{id}` | Tạo (201) hoặc thay thế (200). `id` do app tạo nên gửi lại cùng `id` không nhân đôi. `id` trong đường dẫn phải trùng `id` trong body |
+| `DELETE /workouts/{id}` | Xóa, trả 204 |
+
+Kiểm tra dữ liệu (lỗi 422): `v` phải bằng 1; `id` chỉ gồm chữ, số, `-`, `_`, tối đa 64 ký tự; `sport` thuộc `run`, `walk`, `ride`; `endedAt` không trước `startedAt`; quãng đường, thời gian, độ cao, calo không âm; `lat` trong khoảng ±90, `lon` trong khoảng ±180; tối đa 50.000 điểm và 2.000 split. Buổi tập của người khác trả 404 cho mọi thao tác. Cùng một `id` của hai người dùng là hai bản ghi riêng (`id` chỉ duy nhất theo từng người dùng).
 
 ## Ví dụ
 
