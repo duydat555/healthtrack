@@ -103,7 +103,8 @@ class ReminderNotificationService implements ReminderNotificationGateway {
         android: AndroidNotificationDetails(
           'healthtrack_reminders',
           'Nhắc nhở sức khỏe',
-          channelDescription: 'Nhắc uống nước, uống thuốc và đi ngủ.',
+          channelDescription:
+              'Nhắc uống nước, uống thuốc, ăn uống, đi ngủ và chạy bộ.',
           importance: Importance.high,
           priority: Priority.high,
         ),

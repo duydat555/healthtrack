@@ -23,6 +23,10 @@ class AchievementsScreen extends ConsumerWidget {
     'sleep_goal': AppIcons.sleepFill,
     'steps_10k': AppIcons.stepsFill,
     'perfect_day': AppIcons.sparkleFill,
+    'workout_first': AppIcons.flagFill,
+    'run_5k': AppIcons.stepsFill,
+    'run_10k': AppIcons.medalFill,
+    'run_week_20k': AppIcons.fireFill,
   };
 
   @override

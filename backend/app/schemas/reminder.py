@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
-ReminderKind = Literal["water", "medication", "sleep"]
+ReminderKind = Literal["water", "medication", "sleep", "meal", "running"]
 
 
 class ReminderCreate(BaseModel):

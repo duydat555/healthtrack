@@ -10,6 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:healthtrack/core/api_client.dart';
 import 'package:healthtrack/core/token_storage.dart';
 import 'package:healthtrack/features/auth/auth_controller.dart';
+import 'package:healthtrack/features/reminders/reminder_notification_scheduler.dart';
+import 'package:healthtrack/features/reminders/reminder_schedule.dart';
 import 'package:healthtrack/main.dart';
 
 /// Phản hồi giả: mã HTTP và nội dung JSON.
@@ -21,6 +23,35 @@ class FakeResponse {
 }
 
 typedef FakeHandler = FutureOr<FakeResponse> Function(RequestOptions options);
+
+class FakeReminderNotificationGateway implements ReminderNotificationGateway {
+  final pendingIds = <int>{};
+  final scheduled = <int, ReminderSchedule>{};
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<bool> requestPermission() async => true;
+
+  @override
+  Future<Set<int>> pendingReminderNotificationIds() async => {...pendingIds};
+
+  @override
+  Future<void> scheduleDaily(
+    ReminderSchedule reminder,
+    int notificationId,
+  ) async {
+    pendingIds.add(notificationId);
+    scheduled[notificationId] = reminder;
+  }
+
+  @override
+  Future<void> cancel(int notificationId) async {
+    pendingIds.remove(notificationId);
+    scheduled.remove(notificationId);
+  }
+}
 
 /// Backend giả ở tầng HTTP: test chạy qua Dio, repository và interceptor thật.
 /// Khóa là "METHOD /đường-dẫn" (không gồm query), ví dụ "GET /users/me".
@@ -212,6 +243,7 @@ Future<
   ({
     FakeBackend backend,
     MemoryTokenStorage storage,
+    FakeReminderNotificationGateway notificationGateway,
     ProviderContainer container,
   })
 >
@@ -225,6 +257,7 @@ pumpApp(
   final storage = MemoryTokenStorage(
     loggedIn ? const Tokens(access: 'access-1', refresh: 'refresh-1') : null,
   );
+  final notificationGateway = FakeReminderNotificationGateway();
   final dio = Dio(
     BaseOptions(
       baseUrl: 'http://fake.test',
@@ -242,6 +275,9 @@ pumpApp(
     retry: noRetry,
     overrides: [
       tokenStorageProvider.overrideWithValue(storage),
+      reminderNotificationGatewayProvider.overrideWithValue(
+        notificationGateway,
+      ),
       ...providerOverrides,
       dioProvider.overrideWith((ref) {
         dio.interceptors.add(
@@ -262,5 +298,10 @@ pumpApp(
     tester.element(find.byType(MaterialApp)),
   );
   await tester.pumpAndSettle();
-  return (backend: backend, storage: storage, container: container);
+  return (
+    backend: backend,
+    storage: storage,
+    notificationGateway: notificationGateway,
+    container: container,
+  );
 }

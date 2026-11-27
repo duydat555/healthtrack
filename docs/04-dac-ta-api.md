@@ -17,7 +17,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Mọi e
 | Bữa ăn | `GET/POST /meals`, `PATCH/DELETE /meals/{id}`, `GET /meals/total` | Đã có |
 | Mục tiêu | `GET/POST /goals`, `PATCH/DELETE /goals/{id}`; `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly`; mỗi chỉ số tối đa một mục tiêu đang hoạt động (trùng trả 409) | Đã có |
 | Thống kê | `GET /stats/summary?date=` (số liệu trong ngày và tiến độ mục tiêu), `GET /stats/trend?metric=&range=` | Đã có |
-| Nhắc nhở | `GET/POST /reminders`, `PATCH/DELETE /reminders/{id}`; `kind`: `water`, `medication`, `sleep`; `at_time`: giờ địa phương `HH:MM:SS`; `enabled`: bật/tắt | Đã có |
+| Nhắc nhở | `GET/POST /reminders`, `PATCH/DELETE /reminders/{id}`; `kind`: `water`, `medication`, `sleep`, `meal`, `running`; `at_time`: giờ địa phương `HH:MM:SS`; `enabled`: bật/tắt | Đã có |
 
 ## Quy ước chung
 
@@ -30,7 +30,7 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Mọi e
 ### Nhắc nhở
 
 - `GET /reminders`: danh sách của người dùng hiện tại, sắp xếp theo `at_time` tăng dần; hỗ trợ `limit` (1-200, mặc định 50) và `offset`.
-- `POST /reminders`: body gồm `kind` (`water`, `medication`, `sleep`), `at_time` (giờ dạng `HH:MM:SS`) và `enabled` (mặc định `true`). Trả `201` cùng bản ghi đã tạo.
+- `POST /reminders`: body gồm `kind` (`water`, `medication`, `sleep`, `meal`, `running`), `at_time` (giờ dạng `HH:MM:SS`) và `enabled` (mặc định `true`). Trả `201` cùng bản ghi đã tạo.
 - `PATCH /reminders/{id}`: cập nhật một hoặc nhiều trường `kind`, `at_time`, `enabled`; body rỗng hoặc giá trị `null` không hợp lệ.
 - `DELETE /reminders/{id}`: xóa nhắc nhở của người dùng hiện tại, trả `204`. ID không tồn tại hoặc thuộc người dùng khác trả `404`.
 
