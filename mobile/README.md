@@ -26,3 +26,16 @@ Lưu ý về múi giờ: backend gộp theo ngày UTC, còn app tính "hôm nay"
 Thanh tab Liquid Glass trên iOS 26 là view native nên test Flutter không "bấm" được; test điều hướng bằng router.
 
 Liquid Glass nằm trong plugin cục bộ [packages/liquid_glass](packages/liquid_glass/).
+
+## Ảnh ghép buổi tập
+
+Trong trang **Tổng kết buổi tập**, bấm **Chia sẻ** để mở trình tạo ảnh ghép.
+Chọn **Thanh mờ**, **Đường đi lớn** hoặc **Nhãn dán**, rồi chọn khung
+**Story 1080×1920** hoặc **Post 1080×1350**. Hai mẫu đầu cho phép chọn ảnh từ
+thư viện hoặc camera. Mẫu nhãn dán xuất PNG nền trong suốt.
+Kéo hoặc chụm hai ngón trong khung xem trước để chỉnh đường đi.
+Bấm **Lưu ảnh** để thêm PNG vào thư viện Ảnh, hoặc **Chia sẻ** để mở bảng chia
+sẻ hệ thống.
+
+Widget test và unit test dùng các buổi mẫu tổng hợp trong
+`test/fixtures/workouts/` và chạy độc lập với tracking.
