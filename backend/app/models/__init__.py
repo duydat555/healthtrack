@@ -11,6 +11,7 @@ from app.models.step_log import StepLog
 from app.models.user import User
 from app.models.water_log import WaterLog
 from app.models.weight_log import WeightLog
+from app.models.workout import Workout
 
 __all__ = [
     "Achievement",
@@ -25,4 +26,5 @@ __all__ = [
     "User",
     "WaterLog",
     "WeightLog",
+    "Workout",
 ]
