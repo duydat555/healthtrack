@@ -13,6 +13,7 @@ erDiagram
     MEDICATIONS ||--o{ MEDICATION_LOGS : uong
     USERS ||--o{ GOALS : dat
     USERS ||--o{ REMINDERS : cai
+    USERS ||--o{ WORKOUTS : tap
     USERS {
         int id PK
         string email UK
@@ -34,6 +35,7 @@ erDiagram
     MEDICATION_LOGS { int id PK  int medication_id FK  datetime taken_at  bool taken  datetime created_at }
     GOALS { int id PK  int user_id FK  string metric  float target  string period  datetime created_at }
     REMINDERS { int id PK  int user_id FK  string kind  time at_time  bool enabled  datetime created_at }
+    WORKOUTS { int id PK  int user_id FK  string workout_id  string sport  string title  datetime started_at  datetime ended_at  float moving_seconds  float distance_m  float elevation_gain_m  float avg_pace_sec_per_km  float kcal  json splits  text polyline  json points  datetime created_at  datetime updated_at }
 ```
 
 ## Mô tả bảng
@@ -49,6 +51,7 @@ erDiagram
 | `medications` | Thuốc đang dùng | `schedule` mô tả lịch uống |
 | `medication_logs` | Nhật ký uống thuốc | liên kết `medications`, xóa thuốc thì xóa nhật ký |
 | `goals` | Mục tiêu theo chỉ số | `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly` |
+| `workouts` | Buổi tập ngoài trời (chạy bộ, đi bộ, đạp xe), Phase 8 | `workout_id` do app tạo, duy nhất theo (`user_id`, `workout_id`); `splits` và `points` lưu JSON, `polyline` mã hóa Google Encoded Polyline |
 | `reminders` | Nhắc nhở | `kind`: `water`, `medication`, `sleep`; `at_time` là giờ trong ngày; `enabled` bật/tắt; thuộc một `user` |
 
 ## Trạng thái triển khai (khớp migration thực tế)
@@ -64,6 +67,7 @@ erDiagram
 | `step_logs` | `0008` | `app/models/step_log.py`; unique index `(user_id, day)` |
 | `meal_logs` | `0009` | `app/models/meal_log.py`; chỉ mục `(user_id, logged_at)` |
 | `reminders` | `0010` | `app/models/reminder.py`; chỉ mục `(user_id, at_time)` |
+| `workouts` | `0014` | `app/models/workout.py`; unique `(user_id, workout_id)` và chỉ mục `(user_id, started_at)` |
 
 Chi tiết đã chốt khi triển khai:
 
@@ -97,6 +101,8 @@ Mọi truy vấn của API đều lọc theo `user_id` trước, rồi theo th�
 | `sleep_logs` | `ix_sleep_logs_user_id_end_at` | `0007` | thống kê theo ngày thức dậy (`/stats/*`) |
 | `step_logs` | `uq_step_logs_user_day` (unique) | `0008` | upsert một bản ghi mỗi user/ngày và lọc theo ngày |
 | `meal_logs` | `ix_meal_logs_user_id_logged_at` | `0009` | liệt kê và tính tổng calories theo ngày của user |
+| `workouts` | `uq_workouts_user_workout_id` (unique) | `0014` | upsert theo id do app tạo, kiểm tra sở hữu |
+| `workouts` | `ix_workouts_user_id_started_at` | `0014` | danh sách mới nhất trước, phân trang theo `before` |
 | `medications` | `ix_medications_user_id` | `0005` | danh sách thuốc của người dùng |
 | `medication_logs` | `ix_medication_logs_medication_id_taken_at` | `0005` | nhật ký uống thuốc |
 | `goals` | `uq_goals_user_metric_active` (unique một phần, `WHERE is_active`) | `0006` | mỗi chỉ số một mục tiêu đang hoạt động |
