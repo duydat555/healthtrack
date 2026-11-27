@@ -5,7 +5,12 @@ import UIKit
 ///
 /// Thấu kính chọn tab, hiệu ứng nhấn giữ phình ra và kéo qua các tab, khúc xạ ở rìa kính, haptic,
 /// trợ năng (VoiceOver, Giảm trong suốt, Giảm chuyển động) đều là hành vi có sẵn của hệ thống.
-/// Tự vẽ bằng SwiftUI không tái tạo được những thứ này. Nút thêm nhanh là một nút kính riêng.
+/// Tự vẽ bằng SwiftUI không tái tạo được những thứ này.
+///
+/// Nút thêm nhanh nằm GIỮA thanh, nổi lên phía trên mép thanh (kiểu nút giữa nổi của các app ví,
+/// ngân hàng). Để thanh tab hệ thống chừa chỗ ở giữa, ta thêm một tab giữ chỗ không chọn được vào
+/// vị trí giữa; nút kính phủ lên đúng vị trí đó. Chỉ số tab giữa Dart và hệ thống được đổi qua lại
+/// bằng `nativeIndex` và `dartIndex`.
 @available(iOS 26.0, *)
 final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
     private let controller = UITabBarController()
@@ -13,12 +18,18 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
     private let showsAdd: Bool
     private let channel: FlutterMethodChannel
 
-    private static let addSize: CGFloat = 56
-    private static let gap: CGFloat = 12
+    private static let addSize: CGFloat = 60
+    /// Vị trí của tab giữ chỗ (giữa các tab); nil khi không có nút thêm nhanh.
+    private let slot: Int?
+    /// Phần nút nhô lên phía trên thanh, Dart chừa sẵn chỗ này ở đầu platform view.
+    private let bump: CGFloat
 
     init(frame: CGRect, params: [String: Any], channel: FlutterMethodChannel) {
         self.showsAdd = params["showsAdd"] as? Bool ?? true
         self.channel = channel
+        let count = (params["items"] as? [[String: Any]] ?? []).count
+        self.slot = showsAdd ? count / 2 : nil
+        self.bump = CGFloat((params["bump"] as? Double) ?? 0)
         super.init(frame: frame)
         backgroundColor = .clear
         // tint: nền nút +; tabTint: icon và chữ tab đang chọn; onTint: glyph "+" trên nền tint
@@ -28,7 +39,7 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
         overrideUserInterfaceStyle = (params["dark"] as? Bool ?? false) ? .dark : .light
 
         let items = params["items"] as? [[String: Any]] ?? []
-        controller.viewControllers = items.enumerated().map { index, raw in
+        var controllers = items.enumerated().map { index, raw -> UIViewController in
             let vc = UIViewController()
             vc.view.backgroundColor = .clear
             vc.tabBarItem = UITabBarItem(
@@ -37,22 +48,31 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
                 tag: index)
             return vc
         }
-        controller.selectedIndex = min(max(params["selected"] as? Int ?? 0, 0), max(items.count - 1, 0))
+        if let slot {
+            // Tab giữ chỗ: để trống, không chọn được, nút thêm nhanh phủ lên đây
+            let vc = UIViewController()
+            vc.view.backgroundColor = .clear
+            vc.tabBarItem = UITabBarItem(title: " ", image: UIImage(), tag: -1)
+            vc.tabBarItem.isEnabled = false
+            controllers.insert(vc, at: slot)
+        }
+        controller.viewControllers = controllers
+        controller.selectedIndex = nativeIndex(min(max(params["selected"] as? Int ?? 0, 0), max(items.count - 1, 0)))
         controller.delegate = self
         controller.view.backgroundColor = .clear
         controller.tabBar.tintColor = tabTint
         addSubview(controller.view)
 
         if showsAdd {
-            // Kính thật (trong suốt, ánh sáng bẻ cong), chỉ nhuộm vàng nhẹ; glyph dùng màu chữ
-            // thương hiệu để vẫn đọc được trên kính ở cả nền sáng và tối.
-            var config = UIButton.Configuration.glass()
+            // Kính nổi bật (prominentGlass, giống nút chính khác trong app) màu vàng thương hiệu để nút
+            // nổi rõ khi nhô lên trên nội dung; glyph dùng onTint (chữ đậm) để đọc rõ trên nền vàng.
+            var config = UIButton.Configuration.prominentGlass()
             config.image = UIImage(
                 systemName: "plus",
                 withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .bold)
-            )?.withTintColor(tabTint, renderingMode: .alwaysOriginal)
-            config.baseForegroundColor = tabTint
-            config.baseBackgroundColor = tint.withAlphaComponent(0.4)
+            )?.withTintColor(onTint, renderingMode: .alwaysOriginal)
+            config.baseForegroundColor = onTint
+            config.baseBackgroundColor = tint
             config.cornerStyle = .capsule
             addButton.configuration = config
             addButton.accessibilityLabel = "Thêm nhanh"
@@ -65,23 +85,31 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
+    /// Chỉ số Dart -> chỉ số tab hệ thống (có tab giữ chỗ).
+    private func nativeIndex(_ dart: Int) -> Int {
+        guard let slot else { return dart }
+        return dart >= slot ? dart + 1 : dart
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
-        let reserved = showsAdd ? Self.addSize + Self.gap : 0
-        controller.view.frame = CGRect(x: 0, y: 0, width: bounds.width - reserved, height: bounds.height)
+        // Đầu platform view dành cho phần nút nhô lên; thanh tab nằm phía dưới
+        controller.view.frame = CGRect(x: 0, y: bump, width: bounds.width, height: bounds.height - bump)
         controller.view.layoutIfNeeded()
-        // Thanh tab hệ thống tự đặt vị trí trong view của nó (có lề dưới), nên căn nút + theo tâm
-        // của các nút tab thật thay vì giữa Platform View, nếu không hai bên sẽ lệch nhau.
-        let centerY = tabItemsMidY() ?? bounds.midY
+        // Nút + nằm giữa, tâm cách mép trên của viên kính một chút nên nhô lên khoảng nửa nút.
+        // Thanh tab hệ thống tự đặt vị trí (có lề dưới) nên căn theo viên kính thật, không theo
+        // platform view, nếu không hai bên sẽ lệch nhau.
+        let capsule = tabBarCapsule()
+        let top = capsule?.minY ?? bump
         addButton.frame = CGRect(
-            x: bounds.width - Self.addSize, y: centerY - Self.addSize / 2,
+            x: bounds.midX - Self.addSize / 2, y: top + 6 - Self.addSize / 2,
             width: Self.addSize, height: Self.addSize)
     }
 
-    /// Tâm dọc của viên kính thanh tab, theo hệ tọa độ của view này; nil nếu chưa dựng xong.
+    /// Khung viên kính thanh tab, theo hệ tọa độ của view này; nil nếu chưa dựng xong.
     /// Viên kính là view con rộng nhất, cao vừa phải (40 đến 100pt) trong thanh tab; chỉ dựa vào hình
-    /// học, không dựa vào tên lớp riêng tư. Không thấy thì dùng tâm hàng nút tab.
-    private func tabItemsMidY() -> CGFloat? {
+    /// học, không dựa vào tên lớp riêng tư. Không thấy thì dùng khung hợp của hàng nút tab.
+    private func tabBarCapsule() -> CGRect? {
         let bar = controller.tabBar
         var capsule: CGRect?
         var items: [CGRect] = []
@@ -100,15 +128,21 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
             }
         }
         walk(bar)
-        if let capsule { return capsule.midY }
+        if let capsule { return capsule }
         guard !items.isEmpty else { return nil }
-        return items.dropFirst().reduce(items[0]) { $0.union($1) }.midY
+        return items.dropFirst().reduce(items[0]) { $0.union($1) }
     }
 
     /// Dart đổi tab (go_router): cập nhật hệ thống mà không báo ngược lại Dart.
     func setSelected(_ index: Int) {
-        guard index != controller.selectedIndex, index < (controller.viewControllers?.count ?? 0) else { return }
-        controller.selectedIndex = index
+        let native = nativeIndex(index)
+        guard native != controller.selectedIndex, native < (controller.viewControllers?.count ?? 0) else { return }
+        controller.selectedIndex = native
+    }
+
+    /// Tab giữ chỗ (nút + phủ lên) không chọn được.
+    func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+        viewController.tabBarItem.tag >= 0
     }
 
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {

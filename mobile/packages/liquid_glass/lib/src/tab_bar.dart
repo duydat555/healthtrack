@@ -21,7 +21,9 @@ class GlassTabItem {
   final IconData icon;
 }
 
-/// Thanh tab dưới kiểu Liquid Glass kèm nút thêm nhanh nổi.
+/// Thanh tab dưới kiểu Liquid Glass kèm nút thêm nhanh nằm GIỮA thanh và nhô lên phía trên.
+/// Các tab chia đều hai bên nút: [items] đầu tiên nằm bên trái, phần còn lại bên phải
+/// (4 tab thì 2 trái, 2 phải).
 ///
 /// iOS 26+: vẽ bằng SwiftUI (`GlassEffectContainer`, `.glassEffect().interactive()`).
 /// Nơi khác: bản dự phòng bằng Flutter. Tab đang chọn do bên ngoài điều khiển qua
@@ -40,8 +42,17 @@ class LiquidGlassTabBar extends StatefulWidget {
     @visibleForTesting this.forceFallback = false,
   });
 
-  /// Chiều cao cố định của thanh, đủ chỗ cho nút nổi 56 và lề.
-  static const double height = 72;
+  /// Chiều cao của riêng thanh tab (viên kính).
+  static const double barHeight = 72;
+
+  /// Phần nút thêm nhanh nhô lên phía trên thanh.
+  static const double bump = 26;
+
+  /// Đường kính nút thêm nhanh ở giữa.
+  static const double addSize = 60;
+
+  /// Chiều cao cố định của cả khối: thanh cộng phần nút nhô lên.
+  static const double height = barHeight + bump;
 
   final List<GlassTabItem> items;
   final int currentIndex;
@@ -119,6 +130,7 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
               ],
               'selected': widget.currentIndex,
               'showsAdd': widget.onAdd != null,
+              'bump': LiquidGlassTabBar.bump,
               'tint': widget.tint.toARGB32(),
               'tabTint': (widget.tabTint ?? widget.tint).toARGB32(),
               'onTint': widget.onTint.toARGB32(),
@@ -148,53 +160,68 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
           ),
         );
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final compact = constraints.maxWidth < 360;
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.viewPaddingOf(context).bottom + 8,
-          ),
-          child: SizedBox(
-            height: LiquidGlassTabBar.height,
-            child: Row(
-              children: [
-                Expanded(
-                  child: glass(
-                    shape: const StadiumBorder(),
-                    child: Row(
-                      children: [
-                        for (var i = 0; i < widget.items.length; i++)
-                          Expanded(child: _fallbackTab(i)),
-                      ],
-                    ),
-                  ),
+    final hasAdd = widget.onAdd != null;
+    final mid = widget.items.length ~/ 2;
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.viewPaddingOf(context).bottom + 8,
+      ),
+      child: SizedBox(
+        height: LiquidGlassTabBar.height,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: LiquidGlassTabBar.barHeight,
+              child: glass(
+                shape: const StadiumBorder(),
+                child: Row(
+                  children: [
+                    for (var i = 0; i < widget.items.length; i++) ...[
+                      // Chừa chỗ cho nút ở giữa
+                      if (hasAdd && i == mid)
+                        const SizedBox(width: LiquidGlassTabBar.addSize),
+                      Expanded(child: _fallbackTab(i)),
+                    ],
+                  ],
                 ),
-                if (widget.onAdd != null) ...[
-                  SizedBox(width: compact ? 8 : 12),
-                  Semantics(
+              ),
+            ),
+            if (hasAdd)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Semantics(
                     button: true,
                     label: 'Thêm nhanh',
                     hint: 'Mở màn hình ghi chỉ số sức khỏe',
                     child: GestureDetector(
                       onTap: widget.onAdd,
                       child: Container(
-                        width: 56,
-                        height: 56,
+                        width: LiquidGlassTabBar.addSize,
+                        height: LiquidGlassTabBar.addSize,
                         decoration: BoxDecoration(
                           color: widget.tint,
                           shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            width: 2,
+                          ),
                         ),
-                        child: Icon(Icons.add, color: widget.onTint, size: 28),
+                        child: Icon(Icons.add, color: widget.onTint, size: 30),
                       ),
                     ),
                   ),
-                ],
-              ],
-            ),
-          ),
-        );
-      },
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
