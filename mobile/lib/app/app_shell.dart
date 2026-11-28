@@ -30,36 +30,30 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    // Giảm nhẹ lề ngang trên màn hình nhỏ (như iPhone SE 375pt) để đủ chỗ cho 4 tab + nút +
-    final horizontalPadding = width < 390 ? 12.0 : 16.0;
-
     return ColoredBox(
       color: context.colors.background,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBody: true,
         body: navigationShell,
-        // Không bọc SafeArea: thanh tab tự xử lý lề dưới (xem LiquidGlassTabBar)
-        bottomNavigationBar: Padding(
-          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          child: Semantics(
-            container: true,
-            label: 'Thanh điều hướng chính gồm 4 mục và nút thêm nhanh',
-            child: LiquidGlassTabBar(
-              items: _tabs,
-              tint: context.colors.brand,
-              tabTint: context.colors.brandText,
-              onTint: context.colors.onBrand,
-              dark: context.isDark,
-              currentIndex: navigationShell.currentIndex,
-              onTap: (i) => navigationShell.goBranch(
-                i,
-                // Chạm lại tab đang chọn thì quay về màn hình gốc của tab đó
-                initialLocation: i == navigationShell.currentIndex,
-              ),
-              onAdd: () => context.push('/add'),
+        // Không bọc SafeArea và không có lề ngang: thanh tab trải hết chiều ngang, sát đáy, tự xử lý
+        // lề an toàn dưới (xem LiquidGlassTabBar)
+        bottomNavigationBar: Semantics(
+          container: true,
+          label: 'Thanh điều hướng chính gồm 4 mục và nút thêm nhanh',
+          child: LiquidGlassTabBar(
+            items: _tabs,
+            tint: context.colors.brand,
+            tabTint: context.colors.brandText,
+            onTint: context.colors.onBrand,
+            dark: context.isDark,
+            currentIndex: navigationShell.currentIndex,
+            onTap: (i) => navigationShell.goBranch(
+              i,
+              // Chạm lại tab đang chọn thì quay về màn hình gốc của tab đó
+              initialLocation: i == navigationShell.currentIndex,
             ),
+            onAdd: () => context.push('/add'),
           ),
         ),
       ),

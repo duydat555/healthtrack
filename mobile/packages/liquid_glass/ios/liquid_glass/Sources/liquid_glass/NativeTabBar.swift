@@ -19,6 +19,11 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
     private let channel: FlutterMethodChannel
 
     private static let addSize: CGFloat = 60
+    private static let notchRadius: CGFloat = 38
+    private static let notchRise: CGFloat = 2
+    private let notchFill = CAShapeLayer()
+    private var notchColor: UIColor
+    private let rim = CAShapeLayer()
     /// Vị trí của tab giữ chỗ (giữa các tab); nil khi không có nút thêm nhanh.
     private let slot: Int?
     /// Phần nút nhô lên phía trên thanh, Dart chừa sẵn chỗ này ở đầu platform view.
@@ -30,6 +35,7 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
         let count = (params["items"] as? [[String: Any]] ?? []).count
         self.slot = showsAdd ? count / 2 : nil
         self.bump = CGFloat((params["bump"] as? Double) ?? 0)
+        self.notchColor = (params["notchColor"] as? Int).map { UIColor(argb: $0) } ?? .systemBackground
         super.init(frame: frame)
         backgroundColor = .clear
         // tint: nền nút +; tabTint: icon và chữ tab đang chọn; onTint: glyph "+" trên nền tint
@@ -64,6 +70,8 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
         addSubview(controller.view)
 
         if showsAdd {
+            layer.insertSublayer(notchFill, above: controller.view.layer)
+            layer.insertSublayer(rim, above: notchFill)
             // Kính nổi bật (prominentGlass, giống nút chính khác trong app) màu vàng thương hiệu để nút
             // nổi rõ khi nhô lên trên nội dung; glyph dùng onTint (chữ đậm) để đọc rõ trên nền vàng.
             var config = UIButton.Configuration.prominentGlass()
@@ -101,9 +109,43 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
         // platform view, nếu không hai bên sẽ lệch nhau.
         let capsule = tabBarCapsule()
         let top = capsule?.minY ?? bump
+        // Tâm rãnh và tâm nút trùng nhau, cao hơn mép trên viên kính một chút
+        let center = CGPoint(x: bounds.midX, y: top - Self.notchRise)
         addButton.frame = CGRect(
-            x: bounds.midX - Self.addSize / 2, y: top + 6 - Self.addSize / 2,
+            x: center.x - Self.addSize / 2, y: center.y - Self.addSize / 2,
             width: Self.addSize, height: Self.addSize)
+        if showsAdd { cutNotch(center: center, capsuleTop: top) }
+    }
+
+    /// Tạo rãnh lõm ở giữa mép trên của viên kính để ôm nút `+`: phủ một nửa đĩa màu nền của app lên
+    /// đúng chỗ đó (phần nằm dưới mép trên viên kính) rồi vẽ viền mảnh quanh rãnh.
+    ///
+    /// Không khoét bằng mặt nạ (`layer.mask`) vì mặt nạ buộc layer vẽ ra bộ đệm riêng và làm mất
+    /// hiệu ứng hòa màu của kính: icon tab đang chọn bị nhạt thành nâu, icon khác trắng hơn. Phủ
+    /// đĩa thì `UITabBar` được vẽ nguyên bản nên màu và thấu kính y như hệ thống.
+    private func cutNotch(center: CGPoint, capsuleTop: CGFloat) {
+        let r = Self.notchRadius
+        let a = asin(min(max((capsuleTop - center.y) / r, -1), 1))
+        // Cung từ trái xuống đáy rồi sang phải; closePath nối hai đầu bằng dây cung dọc mép trên
+        let arc = UIBezierPath(
+            arcCenter: center, radius: r, startAngle: .pi - a, endAngle: a, clockwise: false)
+        let fill = UIBezierPath(cgPath: arc.cgPath)
+        fill.close()
+        notchFill.path = fill.cgPath
+        notchFill.fillColor = notchColor.cgColor
+        notchFill.frame = bounds
+
+        rim.path = arc.cgPath
+        rim.strokeColor = UIColor.label.withAlphaComponent(0.18).cgColor
+        rim.fillColor = nil
+        rim.lineWidth = 1
+        rim.frame = bounds
+    }
+
+    /// Nền app đổi (sáng/tối): đổi màu đĩa theo.
+    func setNotchColor(_ color: UIColor) {
+        notchColor = color
+        notchFill.fillColor = color.cgColor
     }
 
     /// Khung viên kính thanh tab, theo hệ tọa độ của view này; nil nếu chưa dựng xong.
@@ -133,6 +175,11 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
         return items.dropFirst().reduce(items[0]) { $0.union($1) }
     }
 
+    /// Nền app đổi sáng/tối lúc đang chạy: kính và chữ đổi theo.
+    func setDark(_ dark: Bool) {
+        overrideUserInterfaceStyle = dark ? .dark : .light
+    }
+
     /// Dart đổi tab (go_router): cập nhật hệ thống mà không báo ngược lại Dart.
     func setSelected(_ index: Int) {
         let native = nativeIndex(index)
@@ -158,10 +205,17 @@ final class NativeTabBarPlatformView: NSObject, FlutterPlatformView {
         container = NativeTabBarContainer(frame: frame, params: params, channel: channel)
         super.init()
         channel.setMethodCallHandler { [weak container] call, result in
-            if call.method == "setSelected", let index = call.arguments as? Int {
-                container?.setSelected(index)
+            switch call.method {
+            case "setSelected":
+                if let index = call.arguments as? Int { container?.setSelected(index) }
                 result(nil)
-            } else {
+            case "setNotchColor":
+                if let argb = call.arguments as? Int { container?.setNotchColor(UIColor(argb: argb)) }
+                result(nil)
+            case "setDark":
+                if let dark = call.arguments as? Bool { container?.setDark(dark) }
+                result(nil)
+            default:
                 result(FlutterMethodNotImplemented)
             }
         }
