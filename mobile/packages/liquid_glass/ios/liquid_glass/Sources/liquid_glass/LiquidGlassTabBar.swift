@@ -16,175 +16,213 @@ final class TabBarModel: ObservableObject {
     let tabTint: Color
     let onTint: Color
     let showsAdd: Bool
+    /// Phần nút thêm nhanh nhô lên phía trên mép thanh (Dart chừa sẵn ở đầu platform view).
+    let bump: CGFloat
+    /// Lề an toàn dưới (home indicator): thanh kéo dài xuống sát đáy, các tab nằm phía trên lề này.
+    let bottomInset: CGFloat
     var onSelect: (Int) -> Void = { _ in }
     var onAdd: () -> Void = {}
 
-    init(items: [TabItem], selected: Int, tint: Color, tabTint: Color, onTint: Color, showsAdd: Bool) {
+    init(
+        items: [TabItem], selected: Int, tint: Color, tabTint: Color, onTint: Color, showsAdd: Bool,
+        bump: CGFloat, bottomInset: CGFloat
+    ) {
         self.items = items
         self.selected = selected
         self.tint = tint
         self.tabTint = tabTint
         self.onTint = onTint
         self.showsAdd = showsAdd
+        self.bump = bump
+        self.bottomInset = bottomInset
     }
 }
 
-/// Thanh tab dưới kiểu Liquid Glass + nút thêm nhanh nổi.
-///
-/// iOS 26+: toàn bộ nằm trong một `GlassEffectContainer`. Thanh tab là một viên kính, tab đang
-/// chọn là một "thấu kính" kính thứ hai dùng `glassEffectID` nên khi đổi tab, hệ thống tự làm kính
-/// chảy và hòa từ vị trí cũ sang vị trí mới (không phải hoạt hình phóng to/làm mờ giả).
-/// Các cài đặt Giảm trong suốt và Giảm chuyển động do hệ thống tự áp dụng cho kính; phần chuyển
-/// động lò xo của ta tắt khi bật Giảm chuyển động.
+/// Thân thanh tab trải hết chiều ngang, bo hai góc trên, có rãnh lõm tròn ở giữa mép trên để ôm
+/// nút thêm nhanh nổi (kiểu thanh tab của các app ví, ngân hàng).
+struct NotchedBarShape: Shape {
+    var cornerRadius: CGFloat = 26
+    var notchRadius: CGFloat = 38
+    /// Tâm rãnh nằm cao hơn mép trên chừng này, nên rãnh sâu `notchRadius - notchRise`.
+    var notchRise: CGFloat = 4
+    var hasNotch: Bool = true
+
+    func path(in rect: CGRect) -> Path {
+        var p = Path()
+        let r = cornerRadius
+        p.move(to: CGPoint(x: rect.minX, y: rect.maxY))
+        p.addLine(to: CGPoint(x: rect.minX, y: rect.minY + r))
+        p.addQuadCurve(
+            to: CGPoint(x: rect.minX + r, y: rect.minY), control: CGPoint(x: rect.minX, y: rect.minY))
+
+        if hasNotch {
+            let cx = rect.midX
+            let big = notchRadius
+            let cy = rect.minY - notchRise
+            // Giao điểm của đường tròn rãnh với mép trên: sin(phi) = notchRise / R (hệ y hướng xuống)
+            let a = asin(notchRise / big)
+            let dx = big * cos(a)
+            let fillet: CGFloat = 16  // đoạn vê tròn nối mép phẳng vào rãnh cho mượt
+            let delta: CGFloat = 0.30
+            let left = CGFloat.pi - a - delta
+            let right = a + delta
+            func pt(_ phi: CGFloat) -> CGPoint {
+                CGPoint(x: cx + big * cos(phi), y: cy + big * sin(phi))
+            }
+            p.addLine(to: CGPoint(x: cx - dx - fillet, y: rect.minY))
+            p.addQuadCurve(to: pt(left), control: CGPoint(x: cx - dx, y: rect.minY))
+            // Cung đi từ trái xuống đáy rồi sang phải (ngược chiều kim đồng hồ trên màn hình)
+            p.addArc(
+                center: CGPoint(x: cx, y: cy), radius: big,
+                startAngle: .radians(Double(left)), endAngle: .radians(Double(right)), clockwise: true)
+            p.addQuadCurve(
+                to: CGPoint(x: cx + dx + fillet, y: rect.minY), control: CGPoint(x: cx + dx, y: rect.minY))
+        }
+
+        p.addLine(to: CGPoint(x: rect.maxX - r, y: rect.minY))
+        p.addQuadCurve(
+            to: CGPoint(x: rect.maxX, y: rect.minY + r), control: CGPoint(x: rect.maxX, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        p.closeSubpath()
+        return p
+    }
+}
+
+/// Thanh tab dưới kiểu Liquid Glass: thanh kính trải ngang có rãnh lõm, nút thêm nhanh kính nhô lên ở
+/// giữa. Tab đang chọn có một "thấu kính" kính nhỏ phía sau, dùng `glassEffectID` nên khi đổi tab
+/// kính chảy từ tab cũ sang tab mới. Giảm trong suốt và Giảm chuyển động do hệ thống áp dụng cho kính.
 struct LiquidGlassTabBarView: View {
     @ObservedObject var model: TabBarModel
     @Namespace private var glassNS
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var fingerX: CGFloat?
-    @State private var barHeight: CGFloat = 56
-    @State private var barWidth: CGFloat = 1
     private let haptic = UISelectionFeedbackGenerator()
+
+    private static let barHeight: CGFloat = 64
+    private static let addSize: CGFloat = 60
+    private static let notchRadius: CGFloat = 38
 
     private var spring: Animation? {
         reduceMotion ? nil : .spring(response: 0.42, dampingFraction: 0.78)
     }
 
+    private var split: Int { model.showsAdd ? model.items.count / 2 : model.items.count }
+    private var shape: NotchedBarShape {
+        NotchedBarShape(notchRadius: Self.notchRadius, hasNotch: model.showsAdd)
+    }
+
     var body: some View {
-        if #available(iOS 26.0, *) {
-            GlassEffectContainer(spacing: 14) {
-                HStack(spacing: 12) {
-                    tabs(native: true)
-                        .glassEffect(.regular.interactive(), in: .capsule)
-                        .glassEffectID("bar", in: glassNS)
-                    if model.showsAdd {
-                        addButton
-                            .glassEffect(.regular.tint(model.tint).interactive(), in: .circle)
-                            .glassEffectID("add", in: glassNS)
-                    }
-                }
-            }
-            .padding(.horizontal, 4)
-        } else {
-            HStack(spacing: 12) {
-                tabs(native: false).background(.ultraThinMaterial, in: Capsule())
-                if model.showsAdd { addButton.background(model.tint, in: Circle()) }
-            }
-            .padding(.horizontal, 4)
-        }
-    }
-
-    private var itemWidth: CGFloat { max(barWidth - 8, 1) / CGFloat(max(model.items.count, 1)) }
-
-    /// Tâm của thấu kính: bám ngón tay khi đang kéo (không vượt mép thanh), về giữa tab đang chọn
-    /// khi không kéo.
-    private var lensCenter: CGFloat {
-        let half = itemWidth / 2
-        if let x = fingerX { return min(max(x, 4 + half), barWidth - 4 - half) }
-        return 4 + itemWidth * (CGFloat(model.selected) + 0.5)
-    }
-
-    /// Tab nằm dưới thấu kính; dùng để tô sáng icon và chữ.
-    private var shownIndex: Int {
-        min(max(Int((lensCenter - 4) / itemWidth), 0), max(model.items.count - 1, 0))
-    }
-
-    private var pressing: Bool { fingerX != nil }
-
-    private func tabs(native: Bool) -> some View {
-        ZStack(alignment: .leading) {
-            // Thấu kính nằm dưới nhãn để icon và chữ luôn rõ
-            lens(native: native)
-            HStack(spacing: 0) {
-                ForEach(model.items) { item in
-                    tabLabel(item)
-                }
-            }
-            .padding(4)
-        }
-        .background(
-            GeometryReader { g in
-                Color.clear.task(id: g.size.width) { barWidth = g.size.width; barHeight = g.size.height }
-            }
-        )
-        .contentShape(Rectangle())
-        // Nhấn giữ rồi kéo: thấu kính phình ra và chạy theo ngón tay (có haptic khi qua tab),
-        // thả tay thì co lại vào tab gần nhất. Chạm nhanh cũng đi qua đây.
-        .gesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { value in
-                    let before = shownIndex
-                    fingerX = value.location.x
-                    if shownIndex != before { haptic.selectionChanged() }
-                }
-                .onEnded { value in
-                    let i = min(max(Int((value.location.x - 4) / itemWidth), 0), model.items.count - 1)
-                    fingerX = nil
-                    if i != model.selected {
-                        model.selected = i
-                        model.onSelect(i)
-                    }
-                }
-        )
-        .animation(pressing ? .interactiveSpring(response: 0.18, dampingFraction: 0.85) : spring, value: lensCenter)
-        .animation(spring, value: pressing)
-        .accessibilityElement(children: .contain)
+        content
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
     }
 
     @ViewBuilder
-    private func tabLabel(_ item: TabItem) -> some View {
-        let isSelected = item.id == shownIndex
-        VStack(spacing: 2) {
-            // Icon mang màu thương hiệu; chữ dùng màu chính để đủ tương phản trên kính
-            Image(systemName: item.symbol)
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(isSelected ? model.tabTint : Color.secondary)
-            Text(item.title)
-                .font(.system(size: 10, weight: isSelected ? .semibold : .medium))
-                .lineLimit(1)
-                .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+    private var content: some View {
+        let barTotal = Self.barHeight + model.bottomInset
+        if #available(iOS 26.0, *) {
+            GlassEffectContainer(spacing: 6) {
+                // Kính áp lên chính view chứa các tab để chữ và icon nằm TRÊN kính (kính của view anh em
+                // cùng cấp trong container sẽ vẽ đè lên chữ)
+                tabsRow(native: true)
+                    .padding(.bottom, model.bottomInset)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: barTotal, alignment: .top)
+                    .glassEffect(.regular, in: shape)
+                    .frame(height: barTotal + model.bump, alignment: .bottom)
+                    .overlay(alignment: .top) { addButton(native: true) }
+            }
+        } else {
+            ZStack(alignment: .bottom) {
+                shape.fill(.ultraThinMaterial).frame(height: barTotal)
+                tabsRow(native: false).padding(.bottom, model.bottomInset)
+            }
+            .frame(height: barTotal + model.bump, alignment: .bottom)
+            .overlay(alignment: .top) { addButton(native: false) }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
-        // Dưới thấu kính đang phình, nội dung tab được phóng to như qua kính lúp
-        .scaleEffect(isSelected && pressing ? 1.18 : 1)
-        .zIndex(isSelected ? 2 : 0)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(item.title)
-        .accessibilityAddTraits(item.id == model.selected ? [.isButton, .isSelected] : .isButton)
-        .accessibilityAction {
+    }
+
+    private func tabsRow(native: Bool) -> some View {
+        HStack(spacing: 0) {
+            ForEach(model.items.prefix(split)) { tab($0, native: native) }
+            if model.showsAdd { Color.clear.frame(width: Self.notchRadius * 2 - 4) }
+            ForEach(model.items.dropFirst(split)) { tab($0, native: native) }
+        }
+        .padding(.horizontal, 8)
+        .frame(height: Self.barHeight)
+        .animation(spring, value: model.selected)
+    }
+
+    @ViewBuilder
+    private func tab(_ item: TabItem, native: Bool) -> some View {
+        let isSelected = item.id == model.selected
+        Button {
+            guard item.id != model.selected else { return }
+            haptic.selectionChanged()
             model.selected = item.id
             model.onSelect(item.id)
-        }
-    }
-
-    /// Một thấu kính duy nhất. iOS 26+: kính thật, phình to ra ngoài thanh khi nhấn giữ.
-    @ViewBuilder
-    private func lens(native: Bool) -> some View {
-        let scale = pressing ? CGSize(width: 1.28, height: 1.2) : CGSize(width: 1, height: 1)
-        Group {
-            if #available(iOS 26.0, *), native {
-                Capsule().fill(Color.clear)
-                    .glassEffect(.regular.tint(model.tabTint.opacity(pressing ? 0.08 : 0.14)), in: .capsule)
-            } else {
-                Capsule().fill(model.tabTint.opacity(0.16))
+        } label: {
+            VStack(spacing: 2) {
+                Image(systemName: item.symbol)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(isSelected ? model.tabTint : Color.secondary)
+                Text(item.title)
+                    .font(.system(size: 10, weight: isSelected ? .semibold : .medium))
+                    .lineLimit(1)
+                    .foregroundStyle(isSelected ? Color.primary : Color.secondary)
             }
-        }
-        .frame(width: max(itemWidth - 2, 1), height: 48)
-        .scaleEffect(scale)
-        .offset(x: lensCenter - max(itemWidth - 2, 1) / 2)
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
-
-    private var addButton: some View {
-        Button { model.onAdd() } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 22, weight: .bold))
-                .foregroundStyle(model.onTint)
-                .frame(width: 56, height: 56)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .background {
+                if isSelected { lens(native: native) }
+            }
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Thêm nhanh")
+        .accessibilityLabel(item.title)
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+    }
+
+    /// Thấu kính của tab đang chọn.
+    @ViewBuilder
+    private func lens(native: Bool) -> some View {
+        if #available(iOS 26.0, *), native {
+            Capsule().fill(Color.clear)
+                .glassEffect(.regular.tint(model.tabTint.opacity(0.14)), in: .capsule)
+                .glassEffectID("lens", in: glassNS)
+                .padding(.horizontal, 2)
+        } else {
+            Capsule().fill(model.tabTint.opacity(0.16)).padding(.horizontal, 2)
+        }
+    }
+
+    @ViewBuilder
+    private func addButton(native: Bool) -> some View {
+        if model.showsAdd {
+            Button {
+                model.onAdd()
+            } label: {
+                Image(systemName: "plus")
+                    .font(.system(size: 26, weight: .bold))
+                    .foregroundStyle(model.onTint)
+                    .frame(width: Self.addSize, height: Self.addSize)
+            }
+            .buttonStyle(.plain)
+            .modifier(AddGlass(native: native, tint: model.tint))
+            .accessibilityLabel("Thêm nhanh")
+        }
+    }
+}
+
+/// Nền nút thêm nhanh: kính nổi bật nhuộm vàng thương hiệu (iOS 26+), nền đặc ở máy cũ hơn.
+private struct AddGlass: ViewModifier {
+    let native: Bool
+    let tint: Color
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *), native {
+            content.glassEffect(.regular.tint(tint).interactive(), in: .circle)
+        } else {
+            content.background(tint, in: Circle())
+        }
     }
 }
 
@@ -203,10 +241,6 @@ final class LiquidGlassTabBarFactory: NSObject, FlutterPlatformViewFactory {
             TabItem(id: index, title: raw["title"] as? String ?? "", symbol: raw["symbol"] as? String ?? "circle")
         }
         let channel = FlutterMethodChannel(name: "\(Self.viewType)/\(viewId)", binaryMessenger: messenger)
-        // iOS 26+: dùng UITabBar thật của hệ thống để có đủ hiệu ứng thấu kính của Apple
-        if #available(iOS 26.0, *) {
-            return NativeTabBarPlatformView(frame: frame, params: params, channel: channel)
-        }
         let tint = (params["tint"] as? Int).map { Color(argb: $0) } ?? .yellow
         let tabTint = (params["tabTint"] as? Int).map { Color(argb: $0) } ?? tint
         let onTint = (params["onTint"] as? Int).map { Color(argb: $0) } ?? .white
@@ -216,21 +250,32 @@ final class LiquidGlassTabBarFactory: NSObject, FlutterPlatformViewFactory {
             tint: tint,
             tabTint: tabTint,
             onTint: onTint,
-            showsAdd: params["showsAdd"] as? Bool ?? true
+            showsAdd: params["showsAdd"] as? Bool ?? true,
+            bump: CGFloat((params["bump"] as? Double) ?? 0),
+            bottomInset: CGFloat((params["bottomInset"] as? Double) ?? 0)
         )
         model.onSelect = { channel.invokeMethod("onSelect", arguments: $0) }
         model.onAdd = { channel.invokeMethod("onAdd", arguments: nil) }
-        // Dart báo tab đang chọn (khi đổi do go_router hoặc code), cập nhật lại giao diện.
-        channel.setMethodCallHandler { call, result in
-            if call.method == "setSelected", let index = call.arguments as? Int {
-                DispatchQueue.main.async { model.selected = index }
+        let hosted = HostedPlatformView(
+            frame: frame, rootView: LiquidGlassTabBarView(model: model), dark: params["dark"] as? Bool ?? false)
+        // Dart báo tab đang chọn (khi đổi do go_router hoặc code) hoặc nền app đổi sáng/tối.
+        channel.setMethodCallHandler { [weak hosted] call, result in
+            switch call.method {
+            case "setSelected":
+                if let index = call.arguments as? Int {
+                    DispatchQueue.main.async { model.selected = index }
+                }
                 result(nil)
-            } else {
+            case "setDark":
+                if let dark = call.arguments as? Bool {
+                    DispatchQueue.main.async { hosted?.setDark(dark) }
+                }
+                result(nil)
+            default:
                 result(FlutterMethodNotImplemented)
             }
         }
-        return HostedPlatformView(
-            frame: frame, rootView: LiquidGlassTabBarView(model: model), dark: params["dark"] as? Bool ?? false)
+        return hosted
     }
 
     func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {

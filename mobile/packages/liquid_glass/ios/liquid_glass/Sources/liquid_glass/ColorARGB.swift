@@ -29,6 +29,11 @@ final class HostedPlatformView<Content: View>: NSObject, FlutterPlatformView {
     }
 
     func view() -> UIView { host.view }
+
+    /// Đổi sáng/tối khi nền app đổi lúc đang chạy.
+    func setDark(_ dark: Bool) {
+        host.overrideUserInterfaceStyle = dark ? .dark : .light
+    }
 }
 
 extension UIColor {
