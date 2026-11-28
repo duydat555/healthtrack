@@ -226,7 +226,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Spacer(),
-          Icon(AppIcons.heartFill, color: context.colors.brand, size: 64),
+          Icon(AppIcons.heartFill, color: context.colors.brandText, size: 64),
           const SizedBox(height: 24),
           Semantics(
             header: true,
