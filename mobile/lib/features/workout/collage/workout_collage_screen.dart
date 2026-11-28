@@ -350,17 +350,19 @@ class _WorkoutCollageScreenState extends ConsumerState<WorkoutCollageScreen> {
       ),
     ],
     const SizedBox(height: AppSpacing.sm),
-    _heading(context, 'Màu chữ'),
-    _colors(
-      const [
-        ('Trắng', AppColors.ink),
-        ('Đen', AppColors.onBrand),
-        ('Vàng', AppColors.brand),
-      ],
-      _textColor,
-      (color) => setState(() => _textColor = color),
-    ),
-    if (_template != CollageTemplate.sticker) ...[
+    if (_template.hasText) ...[
+      _heading(context, 'Màu chữ'),
+      _colors(
+        const [
+          ('Trắng', AppColors.ink),
+          ('Đen', AppColors.onBrand),
+          ('Vàng', AppColors.brand),
+        ],
+        _textColor,
+        (color) => setState(() => _textColor = color),
+      ),
+    ],
+    if (_template != CollageTemplate.sticker && _template.hasText) ...[
       const SizedBox(height: AppSpacing.sm),
       _heading(context, 'Màu nền'),
       _colors(

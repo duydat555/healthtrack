@@ -66,6 +66,44 @@ void main() {
     );
   });
 
+  test('mẫu Đường cam giữ nguyên ảnh và chỉ vẽ nét cam', () async {
+    final workout = collageFixture('sample-ride-my-khe');
+    final photo = collageTestPhoto(AppColors.water);
+    addTearDown(photo.dispose);
+    final painter = WorkoutCollagePainter(
+      workout: workout,
+      route: collageRoutePath(workout),
+      template: CollageTemplate.route,
+      placement: (center: CollageTemplate.route.routeCenter, scale: 1),
+      photo: photo,
+      textColor: AppColors.ink,
+      backgroundColor: AppColors.card,
+      backgroundOpacity: 0.9,
+    );
+    final png = await painter.renderPng(CollageFormat.story);
+    final codec = await ui.instantiateImageCodec(png);
+    final decoded = (await codec.getNextFrame()).image;
+    try {
+      final data = (await decoded.toByteData())!;
+      final bytes = data.buffer.asUint8List(
+        data.offsetInBytes,
+        data.lengthInBytes,
+      );
+      // Độ mờ nền không có tác dụng: góc ảnh vẫn là màu gốc.
+      expect(bytes.take(4), [0x32, 0xD4, 0xE8, 255]);
+      var orange = 0;
+      for (var i = 0; i < bytes.length; i += 4) {
+        if (bytes[i] == 0xFF && bytes[i + 1] == 0x55 && bytes[i + 2] == 0) {
+          orange++;
+        }
+      }
+      expect(orange, greaterThan(500));
+    } finally {
+      decoded.dispose();
+      codec.dispose();
+    }
+  });
+
   test('PNG có kích thước chính xác và nền riêng cho từng mẫu', () async {
     final workout = collageFixture('sample-ride-my-khe');
     final route = collageRoutePath(workout);
