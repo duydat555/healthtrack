@@ -39,3 +39,9 @@ sẻ hệ thống.
 
 Widget test và unit test dùng các buổi mẫu tổng hợp trong
 `test/fixtures/workouts/` và chạy độc lập với tracking.
+
+## Lịch sử hoạt động
+
+Vào **Tổng quan → Lịch sử hoạt động** để xem các buổi đã ghi trên máy. Phần quãng đường tính từ thứ Hai và từ đầu tháng theo giờ địa phương. Bộ lọc môn áp dụng cho danh sách buổi tập.
+
+Để xem ba buổi tập tổng hợp trong bản debug, thêm `--dart-define=MOCK_WORKOUTS=true` vào lệnh `flutter run`. Sau khi đăng nhập, mở **Lịch sử hoạt động** để xem dữ liệu mẫu. Các thay đổi buổi tập trong chế độ này được giữ trong bộ nhớ cho đến khi khởi động lại ứng dụng.

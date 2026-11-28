@@ -108,6 +108,10 @@ class HomeScreen extends ConsumerWidget {
                 onRetry: () => ref.invalidate(todaySummaryProvider),
               ),
             ),
+            SectionHeader(
+              'Lịch sử hoạt động',
+              onTap: () => context.push('/workouts'),
+            ),
             const SizedBox(height: AppSpacing.sm),
             const HealthScoreCard(),
             const WeeklyInsightCard(),
