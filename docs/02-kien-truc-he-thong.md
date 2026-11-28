@@ -8,6 +8,9 @@ flowchart LR
     F -->|HTTPS REST + JWT| A[Backend FastAPI]
     A --> D[(PostgreSQL)]
     F --> N[Thông báo cục bộ iOS]
+    F -->|CoreLocation, MapKit| G[Ghi GPS và bản đồ<br/>route_tracker]
+    A -->|HTTPS| C[Claude API]
+    A -.->|tùy chọn, mạng riêng| L[AI local MLX<br/>trên Mac]
 ```
 
 ## Thành phần
@@ -19,6 +22,8 @@ flowchart LR
 | CSDL | PostgreSQL 16, Alembic | Lưu dữ liệu, quản lý migration |
 | Nhắc nhở | flutter_local_notifications (app), API reminders (backend) | Lưu lịch nhắc trên server, gửi thông báo cục bộ trên máy |
 | Hạ tầng | Docker Compose, GitHub Actions | Chạy backend local, CI |
+| Coach AI | Claude API hoặc server MLX trên Mac (`/coach/*`) | Trò chuyện, nhận xét tuần, ghi chỉ số bằng câu tự nhiên; nguồn chọn theo `provider` |
+| Plugin native | `liquid_glass`, `health_bridge`, `activity_sensors`, `route_tracker` | Kính lỏng, đọc HealthKit, đếm bước từ cảm biến, ghi lộ trình GPS (Phase 8) |
 
 ## Cấu trúc app Flutter
 ```
@@ -63,8 +68,9 @@ Tab đang chọn do go_router quyết định (`StatefulNavigationShell.currentI
 Chi tiết lớp token, HTTP, đăng nhập, điều hướng và dữ liệu ở [mobile/README.md](../mobile/README.md#kết-nối-backend). Điểm chính:
 - Access token ngắn hạn (30 phút) và refresh token (7 ngày) lưu trong Keychain. Interceptor tự làm mới phiên khi gặp 401 và chỉ thử lại một lần, nên hết hạn token không làm người dùng bị đăng xuất đột ngột.
 - Mở app: nếu có token thì gọi `/users/me` để khôi phục phiên; token hỏng thì về màn đăng nhập.
-- Màn Tổng quan lấy dữ liệu từ `/water`, `/sleep`, `/weights`, `/goals`, `/medications`; vòng Activity Rings tính từ mục tiêu của người dùng (mặc định 2 lít nước, 8 giờ ngủ).
-- Backend đã có API bước chân và bữa ăn; app chưa kết nối các API này nên chưa hiển thị hai chỉ số.
+- Màn Tổng quan lấy dữ liệu từ `/water`, `/sleep`, `/weights`, `/steps`, `/meals`, `/goals`, `/medications`; vòng Activity Rings tính từ mục tiêu của người dùng (mặc định 2 lít nước, 8 giờ ngủ).
+- Số bước, giấc ngủ và cân nặng có thể đồng bộ tự động qua `POST /sync/healthkit` (nguồn `healthkit` hoặc `device`); điểm sức khỏe và huy hiệu lấy từ `/gamification/*`; Coach dùng `/coach/*` (luồng SSE).
+- Buổi tập ngoài trời (Phase 8) lưu trên máy trước, đồng bộ lên `/workouts` sau (xem docs/14).
 
 ## Phân lớp backend
 `router (api/v1)` → `service (services)` → `crud` → `model (SQLAlchemy)`. Schema Pydantic ở `schemas/`.
@@ -103,7 +109,7 @@ Mỗi dòng đều có test trong `backend/tests/test_security.py`.
 | Hash sai định dạng trong CSDL trả về `False`, không làm lỗi 500 | Đạt |
 | CORS chỉ cho origin trong `CORS_ORIGINS`; production cấm `*` | Đạt |
 | CORS chỉ mở các method và header cần dùng (`Authorization`, `Content-Type`) | Đạt |
-| Thu hồi token (refresh token xoay vòng, danh sách chặn) | Chưa, làm cùng #34 (đăng nhập, refresh) |
+| Thu hồi token (refresh token xoay vòng, danh sách chặn) | Chưa có: `/auth/refresh` cấp cặp token mới nhưng token cũ vẫn dùng được đến khi hết hạn; hạn chế đã biết |
 | Giới hạn số lần đăng nhập sai (rate limit) | Đạt trong một tiến trình; 429 và `Retry-After` có test ở `backend/tests/test_rate_limit_timing.py` |
 
 ### Kiểm tra OWASP cơ bản (issue #76)

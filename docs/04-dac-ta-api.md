@@ -17,6 +17,9 @@ Tiền tố `/api/v1`. Tài liệu tương tác tại `/docs` (Swagger). Mọi e
 | Bữa ăn | `GET/POST /meals`, `PATCH/DELETE /meals/{id}`, `GET /meals/total` | Đã có |
 | Mục tiêu | `GET/POST /goals`, `PATCH/DELETE /goals/{id}`; `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly`; mỗi chỉ số tối đa một mục tiêu đang hoạt động (trùng trả 409) | Đã có |
 | Thống kê | `GET /stats/summary?date=` (số liệu trong ngày và tiến độ mục tiêu), `GET /stats/trend?metric=&range=` | Đã có |
+| Gamification (Phase 7) | `GET /gamification/summary`, `GET /gamification/achievements` | Đã có |
+| Đồng bộ (Phase 7) | `POST /sync/healthkit` | Đã có |
+| Coach AI (Phase 7) | `GET /coach/providers`, `POST /coach/chat` (SSE), `GET /coach/weekly` | Đã có |
 | Nhắc nhở | `GET/POST /reminders`, `PATCH/DELETE /reminders/{id}`; `kind`: `water`, `medication`, `sleep`, `meal`, `running`; `at_time`: giờ địa phương `HH:MM:SS`; `enabled`: bật/tắt | Đã có |
 | Buổi tập ngoài trời (Phase 8) | `GET /workouts?limit&before`, `GET/PUT/DELETE /workouts/{id}`, `GET /workouts/stats`, `GET /workouts/{id}/gpx`; JSON camelCase theo [docs/14](14-hop-dong-du-lieu-workout.md) | Đã có |
 
@@ -67,6 +70,36 @@ Access token hết hạn sau 30 phút, refresh token sau 7 ngày (cấu hình tr
 - `POST /medications`: `name`, `dosage?`, `schedule?`; `PATCH` thêm `is_active`.
 - `POST /medications/{id}/logs`: `taken_at?` (mặc định hiện tại), `taken` (mặc định `true`; `false` = bỏ lỡ liều). `GET` cùng đường dẫn trả nhật ký mới nhất trước.
 - Thuốc không thuộc người dùng trả `404` cho mọi thao tác, kể cả `logs`.
+
+## Gamification (Phase 7)
+
+Cả hai endpoint nhận `tz_offset` (phút lệch so với UTC, mặc định 0).
+
+- `GET /gamification/summary`: `score` (Health Score hôm nay, 0 đến 100), `components` (phần trăm hoàn thành từng chỉ số, tối đa 100), `streak` (số ngày liên tiếp đạt từ 70 điểm), `best_streak`, `challenge` (thử thách tuần: `code`, `title`, `progress`, `target`) và `new_achievements` (mã huy hiệu vừa đạt trong chính lần gọi này).
+- `GET /gamification/achievements`: toàn bộ huy hiệu gồm `code`, `title`, `description`, `earned_at` (`null` nếu chưa đạt). Huy hiệu lưu ở bảng `achievements`, mỗi người dùng một huy hiệu một lần.
+
+## Đồng bộ dữ liệu từ máy (Phase 7)
+
+`POST /sync/healthkit` nhận một lô dữ liệu để app đẩy lên không bị nhân đôi:
+
+| Trường | Ý nghĩa |
+|---|---|
+| `source` | `healthkit` (Apple Health, mặc định) hoặc `device` (cảm biến của máy: CoreMotion, cảm biến đếm bước Android) |
+| `steps` | Tối đa 400 phần tử `{day, steps}`; ghi đè số bước của ngày đó |
+| `sleep` | Tối đa 500 phần tử `{external_id, start_at, end_at}`; `end_at` phải sau `start_at` |
+| `weights` | Tối đa 500 phần tử `{external_id, weight_kg, logged_at}` |
+
+Giấc ngủ và cân nặng khử trùng theo `external_id` (UUID mẫu của HealthKit, chỉ mục duy nhất `(user_id, external_id)` khi có giá trị), nên gửi lại cùng một lô chỉ cập nhật. Kết quả là số bản ghi `created` và `updated` cho từng loại. Cột `source` (và `external_id` với giấc ngủ, cân nặng) được thêm ở migration `0012`.
+
+## Coach AI (Phase 7)
+
+Cần cấu hình `ANTHROPIC_API_KEY` (Claude) và/hoặc `LOCAL_LLM_URL` (AI local MLX); xem docs/12.
+
+- `GET /coach/providers`: `claude`, `local` (nguồn nào dùng được) và `default` (`local`, `claude` hoặc `null`).
+- `POST /coach/chat`: body `messages` (1 đến 30 tin, tin cuối phải của người dùng, mỗi tin tối đa 4.000 ký tự), `provider` (`auto`, `local`, `claude`) và `tz_offset`. Trả luồng SSE, mỗi dòng `data:` là JSON có `type`: `meta` (nguồn trả lời), `text`, `tool`, `logged` (Coach vừa ghi giúp một chỉ số), `done` hoặc `error`. Lỗi: 503 khi nguồn được chọn chưa sẵn sàng, 422 khi tin cuối không phải của người dùng, 429 khi vượt giới hạn (`COACH_RATE_LIMIT` mỗi `COACH_RATE_WINDOW_SECONDS`).
+- `GET /coach/weekly`: nhận xét tuần này (`week_start`, `content`, `model`). Lưu ở bảng `coach_insights` (một bản mỗi người dùng mỗi tuần) nên gọi lại trong tuần không tốn thêm lượt AI.
+
+Coach đọc số liệu của chính người dùng và không thay thế tư vấn y tế.
 
 ## Buổi tập ngoài trời (Phase 8, issue #247)
 

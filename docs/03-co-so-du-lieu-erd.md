@@ -14,6 +14,8 @@ erDiagram
     USERS ||--o{ GOALS : dat
     USERS ||--o{ REMINDERS : cai
     USERS ||--o{ WORKOUTS : tap
+    USERS ||--o{ ACHIEVEMENTS : dat
+    USERS ||--o{ COACH_INSIGHTS : nhan
     USERS {
         int id PK
         string email UK
@@ -35,6 +37,8 @@ erDiagram
     MEDICATION_LOGS { int id PK  int medication_id FK  datetime taken_at  bool taken  datetime created_at }
     GOALS { int id PK  int user_id FK  string metric  float target  string period  datetime created_at }
     REMINDERS { int id PK  int user_id FK  string kind  time at_time  bool enabled  datetime created_at }
+    ACHIEVEMENTS { int id PK  int user_id FK  string code  datetime earned_at }
+    COACH_INSIGHTS { int id PK  int user_id FK  date week_start  text content  string model  datetime created_at }
     WORKOUTS { int id PK  int user_id FK  string workout_id  string sport  string title  datetime started_at  datetime ended_at  float moving_seconds  float distance_m  float elevation_gain_m  float avg_pace_sec_per_km  float kcal  json splits  text polyline  json points  datetime created_at  datetime updated_at }
 ```
 
@@ -51,6 +55,8 @@ erDiagram
 | `medications` | Thuốc đang dùng | `schedule` mô tả lịch uống |
 | `medication_logs` | Nhật ký uống thuốc | liên kết `medications`, xóa thuốc thì xóa nhật ký |
 | `goals` | Mục tiêu theo chỉ số | `metric`: `weight`, `water`, `sleep`, `steps`, `calories`; `period`: `daily`, `weekly` |
+| `achievements` | Huy hiệu đã đạt (Phase 7) | `code` là mã huy hiệu; duy nhất theo (`user_id`, `code`) |
+| `coach_insights` | Nhận xét tuần của Coach AI (Phase 7) | `week_start` là thứ Hai của tuần; duy nhất theo (`user_id`, `week_start`) |
 | `workouts` | Buổi tập ngoài trời (chạy bộ, đi bộ, đạp xe), Phase 8 | `workout_id` do app tạo, duy nhất theo (`user_id`, `workout_id`); `splits` và `points` lưu JSON, `polyline` mã hóa Google Encoded Polyline |
 | `reminders` | Nhắc nhở | `kind`: `water`, `medication`, `sleep`; `at_time` là giờ trong ngày; `enabled` bật/tắt; thuộc một `user` |
 
@@ -67,6 +73,9 @@ erDiagram
 | `step_logs` | `0008` | `app/models/step_log.py`; unique index `(user_id, day)` |
 | `meal_logs` | `0009` | `app/models/meal_log.py`; chỉ mục `(user_id, logged_at)` |
 | `reminders` | `0010` | `app/models/reminder.py`; chỉ mục `(user_id, at_time)` |
+| `achievements` | `0011` | `app/models/achievement.py`; unique `(user_id, code)` |
+| `step_logs`, `sleep_logs`, `weight_logs` (cột mới) | `0012` | thêm `source` (`manual`, `healthkit`, `device`); giấc ngủ và cân nặng thêm `external_id` |
+| `coach_insights` | `0013` | `app/models/coach_insight.py`; unique `(user_id, week_start)` |
 | `workouts` | `0014` | `app/models/workout.py`; unique `(user_id, workout_id)` và chỉ mục `(user_id, started_at)` |
 
 Chi tiết đã chốt khi triển khai:
@@ -101,6 +110,9 @@ Mọi truy vấn của API đều lọc theo `user_id` trước, rồi theo th�
 | `sleep_logs` | `ix_sleep_logs_user_id_end_at` | `0007` | thống kê theo ngày thức dậy (`/stats/*`) |
 | `step_logs` | `uq_step_logs_user_day` (unique) | `0008` | upsert một bản ghi mỗi user/ngày và lọc theo ngày |
 | `meal_logs` | `ix_meal_logs_user_id_logged_at` | `0009` | liệt kê và tính tổng calories theo ngày của user |
+| `achievements` | `uq_achievements_user_code` (unique) | `0011` | mỗi huy hiệu đạt một lần mỗi người dùng |
+| `sleep_logs`, `weight_logs` | `uq_<bảng>_user_external_id` (unique một phần, `WHERE external_id IS NOT NULL`) | `0012` | khử trùng khi đồng bộ HealthKit |
+| `coach_insights` | `uq_coach_insights_user_week` (unique) | `0013` | một nhận xét mỗi tuần, lưu lại để không gọi AI lại |
 | `workouts` | `uq_workouts_user_workout_id` (unique) | `0014` | upsert theo id do app tạo, kiểm tra sở hữu |
 | `workouts` | `ix_workouts_user_id_started_at` | `0014` | danh sách mới nhất trước, phân trang theo `before` |
 | `medications` | `ix_medications_user_id` | `0005` | danh sách thuốc của người dùng |
