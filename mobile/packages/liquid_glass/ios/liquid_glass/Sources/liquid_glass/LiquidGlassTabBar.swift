@@ -320,6 +320,10 @@ final class LiquidGlassTabBarFactory: NSObject, FlutterPlatformViewFactory {
             TabItem(id: index, title: raw["title"] as? String ?? "", symbol: raw["symbol"] as? String ?? "circle")
         }
         let channel = FlutterMethodChannel(name: "\(Self.viewType)/\(viewId)", binaryMessenger: messenger)
+        // iOS 26+: UITabBar thật của hệ thống (thấu kính nảy), khoét rãnh lõm ôm nút +
+        if #available(iOS 26.0, *) {
+            return NativeTabBarPlatformView(frame: frame, params: params, channel: channel)
+        }
         let tint = (params["tint"] as? Int).map { Color(argb: $0) } ?? .yellow
         let tabTint = (params["tabTint"] as? Int).map { Color(argb: $0) } ?? tint
         let onTint = (params["onTint"] as? Int).map { Color(argb: $0) } ?? .white
