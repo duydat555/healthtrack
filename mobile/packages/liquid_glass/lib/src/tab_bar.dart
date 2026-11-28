@@ -98,6 +98,7 @@ class LiquidGlassTabBar extends StatefulWidget {
     this.tabTint,
     this.onTint = Colors.white,
     this.dark = false,
+    this.notchColor,
     @visibleForTesting this.forceFallback = false,
   });
 
@@ -135,6 +136,9 @@ class LiquidGlassTabBar extends StatefulWidget {
 
   /// Vẽ kính ở chế độ tối (dùng khi nền app tối, bất kể cài đặt hệ thống).
   final bool dark;
+
+  /// Màu nền của app, dùng tô phần rãnh lõm ôm nút giữa (iOS 26+). Null thì dùng màu nền hệ thống.
+  final Color? notchColor;
   final bool forceFallback;
 
   @override
@@ -152,6 +156,12 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
     }
     if (old.dark != widget.dark) {
       _channel?.invokeMethod<void>('setDark', widget.dark);
+    }
+    if (old.notchColor != widget.notchColor && widget.notchColor != null) {
+      _channel?.invokeMethod<void>(
+        'setNotchColor',
+        widget.notchColor!.toARGB32(),
+      );
     }
   }
 
@@ -201,6 +211,8 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
               'tabTint': (widget.tabTint ?? widget.tint).toARGB32(),
               'onTint': widget.onTint.toARGB32(),
               'dark': widget.dark,
+              if (widget.notchColor != null)
+                'notchColor': widget.notchColor!.toARGB32(),
             },
             creationParamsCodec: const StandardMessageCodec(),
             onPlatformViewCreated: _onCreated,
