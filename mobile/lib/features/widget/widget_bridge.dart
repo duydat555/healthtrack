@@ -42,6 +42,23 @@ class WidgetBridge {
       _call('waterActivity', {'current': currentMl, 'goal': goalMl});
 
   Future<void> endWaterActivity() => _call('endWaterActivity');
+
+  /// Live Activity buổi tập ngoài trời: thời gian vận động, quãng đường, nhịp.
+  Future<void> workoutActivity({
+    required String sport,
+    required double movingSeconds,
+    required double distanceM,
+    required double? paceSecPerKm,
+    required bool paused,
+  }) => _call('workoutActivity', {
+    'sport': sport,
+    'movingSeconds': movingSeconds,
+    'distanceM': distanceM,
+    'paceSecPerKm': ?paceSecPerKm,
+    'paused': paused,
+  });
+
+  Future<void> endWorkoutActivity() => _call('endWorkoutActivity');
 }
 
 final widgetBridgeProvider = Provider<WidgetBridge>(

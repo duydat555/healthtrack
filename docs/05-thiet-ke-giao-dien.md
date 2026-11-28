@@ -464,6 +464,14 @@ Hai màn hình mới nằm ngoài thanh tab, mở từ thẻ "Hoạt động ngo
 - Nút "Chia sẻ" xuất ảnh bản đồ qua share sheet (bộ ảnh ghép của #245 sẽ thay bước này); nút thùng rác xóa buổi tập, có xác nhận.
 - Trình đọc màn hình: mỗi số liệu, mỗi km và mỗi biểu đồ có nhãn đọc được (ví dụ "Km 3, nhịp 5:21, nhanh nhất").
 
+### Live Activity buổi tập (màn hình khóa và Dynamic Island)
+Khi đang ghi, số liệu hiện trên màn hình khóa và Dynamic Island (iOS 16.2 trở lên), thuộc cùng Widget Extension `HealthTrackWidget` với widget màn hình chính và Live Activity uống nước.
+- **Nội dung:** biểu tượng môn, trạng thái (Đang ghi, Đã tạm dừng), thời gian vận động, quãng đường (km), nhịp (phút/km; đạp xe hiện km/h). Dynamic Island: biểu tượng và quãng đường khi thu gọn; thời gian, quãng đường và nhịp khi mở rộng.
+- **Cập nhật:** app gửi số liệu mỗi 5 giây và ngay khi tạm dừng hoặc tiếp tục. Đồng hồ trên màn khóa tự đếm bằng `Text(_, style: .timer)` nên không cần gửi mỗi giây, đỡ tốn pin. Đang tạm dừng thì đồng hồ đứng yên.
+- **Dữ liệu cũ:** quá 60 giây không có cập nhật (ví dụ app bị hệ thống tắt) thì hệ thống đánh dấu "cũ" và màn khóa hiện "Mở app để cập nhật" thay vì đứng yên như vẫn đang chạy.
+- **Kết thúc:** tự tắt khi kết thúc, bỏ buổi tập hoặc đóng màn ghi.
+- **Giới hạn của bản cài lại (sideload):** Live Activity cần Widget Extension và App Group `group.vn.edu.vku.healthtrack` được ký đúng. Khi cài lại bằng công cụ ký lại (ví dụ AltStore, Sideloadly) bằng Apple ID miễn phí, App Group và extension có thể bị gỡ hoặc đổi định danh, khi đó Live Activity không hiện; app vẫn ghi buổi tập bình thường vì mọi lỗi Live Activity đều bị bỏ qua. Người dùng cũng có thể tắt Live Activity trong Cài đặt của iPhone. Chưa thử trên iPhone thật; trên Simulator chỉ xác nhận qua log hệ thống rằng Live Activity được tạo và nạp nội dung.
+
 Dữ liệu và API: xem [14-hop-dong-du-lieu-workout.md](14-hop-dong-du-lieu-workout.md).
 
 ## Tổng hợp vị trí áp dụng Liquid Glass

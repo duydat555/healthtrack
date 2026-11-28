@@ -44,3 +44,20 @@ struct WaterActivityAttributes: ActivityAttributes {
     var goalMl: Int
   }
 }
+
+/// Live Activity buổi tập ngoài trời: thời gian vận động, quãng đường và nhịp trên màn hình khóa
+/// và Dynamic Island. Để chung file này vì nó đã nằm trong cả app lẫn widget extension.
+@available(iOS 16.2, *)
+struct WorkoutActivityAttributes: ActivityAttributes {
+  struct ContentState: Codable, Hashable {
+    /// `run`, `walk` hoặc `ride`.
+    var sport: String
+    /// Thời gian vận động (không tính lúc tạm dừng) tại thời điểm [updatedAt].
+    var movingSeconds: Double
+    var distanceM: Double
+    /// Nhịp hiện tại (giây/km); nil khi chưa đủ dữ liệu.
+    var paceSecPerKm: Double?
+    var paused: Bool
+    var updatedAt: Date
+  }
+}
