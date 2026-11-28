@@ -36,6 +36,12 @@
 	</array>
 	<key>NSMotionUsageDescription</key>
 	<string>HealthTrack dùng cảm biến chuyển động để đếm bước chân, ước lượng giấc ngủ và năng lượng tiêu hao mà không cần Apple Health.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>HealthTrack dùng camera để chụp ảnh nền cho ảnh ghép buổi tập.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>HealthTrack cho phép bạn chọn ảnh nền cho ảnh ghép buổi tập.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>HealthTrack lưu ảnh ghép buổi tập vào thư viện Ảnh khi bạn yêu cầu.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>HealthTrack đọc bước chân, giấc ngủ và cân nặng từ Apple Health để bạn không phải nhập tay.</string>
 	<key>LSRequiresIPhoneOS</key>

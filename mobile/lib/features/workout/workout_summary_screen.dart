@@ -1,12 +1,9 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:route_tracker/route_tracker.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../core/app_icons.dart';
 import '../../core/format.dart';
@@ -18,11 +15,6 @@ import 'workout.dart';
 import 'workout_charts.dart';
 import 'workout_math.dart' as wm;
 import 'workout_repository.dart';
-
-/// Một buổi tập theo id, đọc từ [WorkoutRepository].
-final workoutProvider = FutureProvider.autoDispose.family<Workout?, String>(
-  (ref, id) => ref.watch(workoutRepositoryProvider).get(id),
-);
 
 /// Trang tổng kết một buổi tập: bản đồ, số liệu, split, biểu đồ nhịp và độ cao.
 class WorkoutSummaryScreen extends ConsumerWidget {
@@ -148,24 +140,6 @@ class _SummaryBodyState extends State<SummaryBody> {
     } on Object {
       return null; // không có mạng hoặc nền tảng chưa hỗ trợ: vẽ bản dự phòng
     }
-  }
-
-  Future<void> _share() async {
-    final bytes = await _image;
-    final text =
-        '${w.title}: ${formatNumber(w.distanceM / 1000, digits: 2)} km trong ${wm.formatDuration(w.movingSeconds)}';
-    if (bytes == null) {
-      await SharePlus.instance.share(ShareParams(text: text));
-      return;
-    }
-    final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/${w.id}.png')..writeAsBytesSync(bytes);
-    await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(file.path, mimeType: 'image/png')],
-        text: text,
-      ),
-    );
   }
 
   @override
@@ -316,7 +290,11 @@ class _SummaryBodyState extends State<SummaryBody> {
           ),
         ],
         const SizedBox(height: 28),
-        GlassButtonRow(onShare: _share),
+        PrimaryButton(
+          label: 'Chia sẻ',
+          onPressed: () =>
+              context.push('/workout/${Uri.encodeComponent(w.id)}/collage'),
+        ),
       ],
     );
   }
@@ -617,15 +595,4 @@ class _LinePainter extends CustomPainter {
   @override
   bool shouldRepaint(_LinePainter old) =>
       old.points != points || old.color != color || old.invert != invert;
-}
-
-/// Nút chia sẻ ảnh bản đồ. Bộ tạo ảnh ghép với ảnh cá nhân (task #245) sẽ thay bước này.
-class GlassButtonRow extends StatelessWidget {
-  const GlassButtonRow({super.key, required this.onShare});
-
-  final VoidCallback onShare;
-
-  @override
-  Widget build(BuildContext context) =>
-      PrimaryButton(label: 'Chia sẻ', onPressed: onShare);
 }

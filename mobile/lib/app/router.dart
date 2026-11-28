@@ -1,3 +1,4 @@
+import '../features/workout/collage/workout_collage_screen.dart';
 import '../features/workout/record_screen.dart';
 import '../features/workout/workout.dart';
 import '../features/workout/workout_history_screen.dart';
@@ -116,6 +117,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/workout/:id',
         builder: (c, s) => WorkoutSummaryScreen(id: s.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'collage',
+            builder: (c, s) => WorkoutCollagePage(id: s.pathParameters['id']!),
+          ),
+        ],
       ),
       GoRoute(
         path: '/record',

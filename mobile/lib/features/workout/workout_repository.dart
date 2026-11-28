@@ -90,6 +90,11 @@ final workoutRepositoryProvider = Provider<WorkoutRepository>(
       ref.watch(syncedWorkoutRepositoryProvider) ?? LocalWorkoutRepository(),
 );
 
+/// Một buổi tập theo id, đọc từ [WorkoutRepository].
+final workoutProvider = FutureProvider.autoDispose.family<Workout?, String>(
+  (ref, id) => ref.watch(workoutRepositoryProvider).get(id),
+);
+
 /// Danh sách buổi tập, mới nhất trước.
 final workoutsProvider = FutureProvider.autoDispose<List<Workout>>(
   (ref) => ref.watch(workoutRepositoryProvider).list(),
