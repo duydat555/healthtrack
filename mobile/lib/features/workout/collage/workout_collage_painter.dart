@@ -12,7 +12,9 @@ import '../workout_math.dart' as wm;
 enum CollageTemplate {
   glass('Thanh mờ', 0.58, 0.58, Offset(0.5, 0.43)),
   centered('Đường đi lớn', 0.82, 0.56, Offset(0.5, 0.49)),
-  sticker('Nhãn dán', 0.55, 0.30, Offset(0.5, 0.44));
+  sticker('Nhãn dán', 0.55, 0.30, Offset(0.5, 0.44)),
+  // Kiểu "route sticker" của Strava: ảnh giữ nguyên, chỉ một nét cam, không chữ.
+  route('Đường cam', 0.38, 0.14, Offset(0.5, 0.68));
 
   const CollageTemplate(
     this.label,
@@ -25,7 +27,13 @@ enum CollageTemplate {
   final double routeWidth;
   final double routeHeight;
   final Offset routeCenter;
+
+  /// Mẫu có chữ và lớp phủ màu; `route` để nguyên ảnh và không có chữ.
+  bool get hasText => this != route;
 }
+
+/// Cam thương hiệu Strava cho mẫu [CollageTemplate.route].
+const routeOrange = Color(0xFFFF5500);
 
 enum CollageFormat {
   story('Story 9:16', 1920),
@@ -144,6 +152,8 @@ class WorkoutCollagePainter extends CustomPainter {
     }
     _drawRoute(canvas, frame);
     switch (template) {
+      case CollageTemplate.route:
+        break;
       case CollageTemplate.glass:
         final bar = RRect.fromRectAndRadius(
           Rect.fromLTWH(16, height - 114, width - 32, 96),
@@ -167,6 +177,7 @@ class WorkoutCollagePainter extends CustomPainter {
     if (photo case final image?) {
       _drawPhoto(canvas, frame, image);
     }
+    if (!template.hasText) return;
     canvas.drawRect(
       frame,
       Paint()..color = backgroundColor.withValues(alpha: backgroundOpacity),
@@ -228,18 +239,27 @@ class WorkoutCollagePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
-    canvas.drawPath(
-      path,
-      stroke
-        ..color = AppColors.onBrand
-        ..strokeWidth = 8 / extent,
-    );
-    canvas.drawPath(
-      path,
-      stroke
-        ..color = AppColors.brand
-        ..strokeWidth = 4.5 / extent,
-    );
+    if (template == CollageTemplate.route) {
+      canvas.drawPath(
+        path,
+        stroke
+          ..color = routeOrange
+          ..strokeWidth = 4.2 / extent,
+      );
+    } else {
+      canvas.drawPath(
+        path,
+        stroke
+          ..color = AppColors.onBrand
+          ..strokeWidth = 8 / extent,
+      );
+      canvas.drawPath(
+        path,
+        stroke
+          ..color = AppColors.brand
+          ..strokeWidth = 4.5 / extent,
+      );
+    }
     canvas.restore();
   }
 
