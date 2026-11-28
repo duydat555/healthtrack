@@ -48,7 +48,6 @@ class WorkoutCollagePage extends ConsumerWidget {
 AppBar _collageAppBar(BuildContext context) => AppBar(
   title: Semantics(header: true, child: const Text('Tạo ảnh ghép')),
   leading: RoundIconButton(
-    size: 34,
     tooltip: 'Quay lại',
     symbol: 'chevron.left',
     icon: AppIcons.back,

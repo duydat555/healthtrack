@@ -108,7 +108,6 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> {
         ),
         actions: [
           RoundIconButton(
-            size: 34,
             tooltip: 'Thêm nhắc nhở',
             semanticLabel: 'Thêm nhắc nhở mới',
             symbol: 'plus',

@@ -69,7 +69,6 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: RoundIconButton(
-          size: 34,
           tooltip: 'Quay lại',
           symbol: 'chevron.left',
           icon: AppIcons.back,
@@ -85,7 +84,6 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
         actions: [
           if (state.messages.isNotEmpty)
             RoundIconButton(
-              size: 34,
               tooltip: 'Cuộc trò chuyện mới',
               symbol: 'arrow.counterclockwise',
               icon: AppIcons.restart,
