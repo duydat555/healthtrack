@@ -502,6 +502,15 @@ abstract final class AppTheme {
           textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
         ),
       ),
+      // Nhãn chip mặc định dùng màu thứ cấp của Material (xám tối), khó đọc trên nền chip đang chọn
+      // (màu nhấn pha loãng). Dùng chữ chính để đủ tương phản ở cả sáng và tối.
+      chipTheme: ChipThemeData(
+        labelStyle: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: p.ink,
+        ),
+      ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: p.cardHigh,
