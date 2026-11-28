@@ -30,7 +30,6 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
       appBar: AppBar(
         title: Semantics(header: true, child: const Text('Lịch sử hoạt động')),
         leading: RoundIconButton(
-          size: 34,
           tooltip: 'Quay lại',
           symbol: 'chevron.left',
           icon: AppIcons.back,

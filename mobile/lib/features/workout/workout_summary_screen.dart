@@ -31,7 +31,6 @@ class WorkoutSummaryScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Semantics(header: true, child: const Text('Tổng kết buổi tập')),
         leading: RoundIconButton(
-          size: 34,
           tooltip: 'Quay lại',
           semanticLabel: 'Quay lại',
           symbol: 'chevron.left',
@@ -43,7 +42,6 @@ class WorkoutSummaryScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: RoundIconButton(
-                size: 34,
                 tooltip: 'Xóa buổi tập',
                 semanticLabel: 'Xóa buổi tập',
                 symbol: 'trash',

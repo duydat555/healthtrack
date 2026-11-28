@@ -603,13 +603,16 @@ class RoundIconButton extends StatelessWidget {
     required this.symbol,
     required this.onTap,
     this.semanticLabel,
-    this.size = 40,
+    this.size = 44,
   });
 
   final String tooltip;
   final String? semanticLabel;
 
-  /// Đường kính phần kính nhìn thấy; vùng chạm luôn tối thiểu 44.
+  /// Đường kính phần kính nhìn thấy. Mặc định 44 pt: Apple quy định vùng chạm tối thiểu 44×44 pt
+  /// (Human Interface Guidelines) và nút trên thanh điều hướng iOS cao 44 pt; icon bên trong
+  /// tự lấy 0,4 × cỡ nút (khoảng 17,6 pt), gần cỡ glyph mặc định của thanh điều hướng (17 pt).
+  /// Vùng chạm luôn tối thiểu 44.
   final double size;
 
   /// Icon Phosphor dùng cho bản dự phòng (Android, iOS cũ).

@@ -91,7 +91,7 @@ Thẻ nội dung là bề mặt đục. Mọi màn dùng các thành phần dư�
 | `showFormSheet` + `FormSheetController` | Form dạng sheet: Hủy / tiêu đề / Lưu, Lưu tắt khi chưa hợp lệ, tránh bàn phím, hỏi "Bỏ thay đổi?" khi đã sửa. Mở ở navigator gốc để phủ cả thanh tab. Kéo xuống để đóng bị tắt vì Flutter không cho chặn thao tác này |
 | `adaptiveDialogAction` | Nút của `AlertDialog.adaptive`: `CupertinoDialogAction` trên iOS, `TextButton` nơi khác |
 | `AppTextField`, `PrimaryButton`, `SecondaryButton`, `ErrorText` | Bộ form: ô nhập bo 12 có hậu tố đơn vị, `helperText`, `errorText`; nút chính (`PrimaryButton` = `GlassButton.prominent`): kính nhuộm vàng chữ `onBrand`, cao 50 |
-| `RoundIconButton` | Nút icon tròn Liquid Glass ở đầu trang, vùng chạm 44 (cần tên SF Symbol `symbol` cho iOS và icon `AppIcons` cho bản dự phòng) |
+| `RoundIconButton` | Nút icon tròn Liquid Glass ở đầu trang: vòng kính 44 pt (đúng vùng chạm tối thiểu 44×44 pt của Apple HIG và chiều cao nút trên thanh điều hướng iOS), icon 0,4 × cỡ nút (khoảng 17,6 pt). Trước đây là 34 pt nên nhìn nhỏ (cần tên SF Symbol `symbol` cho iOS và icon `AppIcons` cho bản dự phòng) |
 | `AppActivityIndicator`, `AppRefreshList` | Kim quay kiểu iOS (`CupertinoActivityIndicator`) và danh sách kéo để làm mới kiểu Cupertino; nơi khác dùng vòng Material và `RefreshIndicator` |
 | `SkeletonGroup`, `SkeletonBlock` và `skeletons.dart` | Khung đặt chỗ kiểu "redacted" của SwiftUI theo hình nội dung thật (thẻ chỉ số, thẻ Hôm nay, nhóm cài đặt, Hồ sơ, Mục tiêu, Huy hiệu); cả nhóm thở nhẹ, đứng yên khi Giảm chuyển động |
 | `EmptyState`, `ErrorState`, `LoadingState`, `AppSkeleton` | Trạng thái rỗng (icon tròn và nút kính vàng), lỗi (Thử lại), đang tải |
