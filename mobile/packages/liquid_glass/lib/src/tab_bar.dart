@@ -157,6 +157,15 @@ class _LiquidGlassTabBarState extends State<LiquidGlassTabBar> {
     if (old.dark != widget.dark) {
       _channel?.invokeMethod<void>('setDark', widget.dark);
     }
+    if (old.tint != widget.tint ||
+        old.tabTint != widget.tabTint ||
+        old.onTint != widget.onTint) {
+      _channel?.invokeMethod<void>('setColors', {
+        'tint': widget.tint.toARGB32(),
+        'tabTint': (widget.tabTint ?? widget.tint).toARGB32(),
+        'onTint': widget.onTint.toARGB32(),
+      });
+    }
     if (old.notchColor != widget.notchColor && widget.notchColor != null) {
       _channel?.invokeMethod<void>(
         'setNotchColor',

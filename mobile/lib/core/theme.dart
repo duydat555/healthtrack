@@ -493,6 +493,17 @@ abstract final class AppTheme {
         ),
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
       ),
+      // `primary` của colorScheme là vàng tươi nên TextButton/OutlinedButton mặc định có chữ vàng,
+      // gần như vô hình trên nền sáng (1,4:1). Dùng `brandText` (vàng tươi ở tối, nâu vàng ở sáng).
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: p.brandText),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: p.brandText,
+          side: BorderSide(color: p.border),
+        ),
+      ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: p.brand,

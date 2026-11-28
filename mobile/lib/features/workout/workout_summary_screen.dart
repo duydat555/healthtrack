@@ -272,7 +272,7 @@ class _SummaryBodyState extends State<SummaryBody> {
             format: ride
                 ? (v) => '${formatNumber(v)} km/h'
                 : (v) => '${wm.formatPace(v)}/km',
-            color: c.brand,
+            color: c.brandText,
             summary: ride ? 'Tốc độ theo quãng đường' : 'Nhịp theo quãng đường',
           ),
         ],
@@ -431,8 +431,8 @@ class _Splits extends StatelessWidget {
                                   height: 10,
                                   decoration: BoxDecoration(
                                     color: s.paceSecPerKm == fastest
-                                        ? c.brand
-                                        : c.brand.withValues(alpha: 0.45),
+                                        ? c.brandText
+                                        : c.brandText.withValues(alpha: 0.45),
                                     borderRadius: BorderRadius.circular(5),
                                   ),
                                 ),

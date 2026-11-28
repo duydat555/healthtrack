@@ -190,6 +190,20 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
     }
 
     /// Nền app đổi sáng/tối lúc đang chạy: kính và chữ đổi theo.
+    /// Đổi sáng/tối thì màu nhấn cũng đổi (vàng tươi cho tối, nâu vàng cho sáng); chỉ gán lúc tạo
+    /// sẽ để chữ tab đang chọn mãi là vàng tươi, rất khó đọc trên nền sáng.
+    func setColors(tint: UIColor, tabTint: UIColor, onTint: UIColor) {
+        controller.tabBar.tintColor = tabTint
+        addFill.backgroundColor = tint
+        guard var config = addButton.configuration else { return }
+        config.image = UIImage(
+            systemName: "plus",
+            withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .bold)
+        )?.withTintColor(onTint, renderingMode: .alwaysOriginal)
+        config.baseForegroundColor = onTint
+        addButton.configuration = config
+    }
+
     func setDark(_ dark: Bool) {
         overrideUserInterfaceStyle = dark ? .dark : .light
     }
@@ -225,6 +239,13 @@ final class NativeTabBarPlatformView: NSObject, FlutterPlatformView {
                 result(nil)
             case "setNotchColor":
                 if let argb = call.arguments as? Int { container?.setNotchColor(UIColor(argb: argb)) }
+                result(nil)
+            case "setColors":
+                if let args = call.arguments as? [String: Int],
+                   let tint = args["tint"], let tabTint = args["tabTint"], let onTint = args["onTint"] {
+                    container?.setColors(
+                        tint: UIColor(argb: tint), tabTint: UIColor(argb: tabTint), onTint: UIColor(argb: onTint))
+                }
                 result(nil)
             case "setDark":
                 if let dark = call.arguments as? Bool { container?.setDark(dark) }
