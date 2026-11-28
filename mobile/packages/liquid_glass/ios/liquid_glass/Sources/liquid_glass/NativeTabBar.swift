@@ -15,6 +15,8 @@ import UIKit
 final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
     private let controller = UITabBarController()
     private let addButton = UIButton(type: .system)
+    // Nền vàng đặc đúng màu thương hiệu (kính làm đổi màu tint).
+    private let addFill = UIView()
     private let showsAdd: Bool
     private let channel: FlutterMethodChannel
 
@@ -74,13 +76,23 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
             layer.insertSublayer(rim, above: notchFill)
             // Kính nổi bật (prominentGlass, giống nút chính khác trong app) màu vàng thương hiệu để nút
             // nổi rõ khi nhô lên trên nội dung; glyph dùng onTint (chữ đậm) để đọc rõ trên nền vàng.
-            var config = UIButton.Configuration.prominentGlass()
+            addFill.backgroundColor = tint
+            addFill.isUserInteractionEnabled = false
+            addSubview(addFill)
+            // Mọi chất liệu kính (kể cả kính trong) đều làm sẫm màu ở chế độ tối (FFD60A -> A98F06),
+            // nên nút dùng nền vàng đặc đúng màu thương hiệu, thêm viền sáng mảnh và bóng đổ.
+            addFill.layer.borderWidth = 1
+            addFill.layer.borderColor = UIColor.white.withAlphaComponent(0.35).cgColor
+            addFill.layer.shadowColor = UIColor.black.cgColor
+            addFill.layer.shadowOpacity = 0.25
+            addFill.layer.shadowRadius = 6
+            addFill.layer.shadowOffset = CGSize(width: 0, height: 2)
+            var config = UIButton.Configuration.plain()
             config.image = UIImage(
                 systemName: "plus",
                 withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .bold)
             )?.withTintColor(onTint, renderingMode: .alwaysOriginal)
             config.baseForegroundColor = onTint
-            config.baseBackgroundColor = tint
             config.cornerStyle = .capsule
             addButton.configuration = config
             addButton.accessibilityLabel = "Thêm nhanh"
@@ -114,6 +126,8 @@ final class NativeTabBarContainer: UIView, UITabBarControllerDelegate {
         addButton.frame = CGRect(
             x: center.x - Self.addSize / 2, y: center.y - Self.addSize / 2,
             width: Self.addSize, height: Self.addSize)
+        addFill.frame = addButton.frame
+        addFill.layer.cornerRadius = Self.addSize / 2
         if showsAdd { cutNotch(center: center, capsuleTop: top) }
     }
 
