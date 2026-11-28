@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:healthtrack/features/workout/active_workout_store.dart';
 import 'package:healthtrack/features/workout/location_source.dart';
 import 'package:healthtrack/features/workout/workout.dart';
+import 'package:healthtrack/features/workout/workout_activity.dart';
 import 'package:route_tracker/route_tracker.dart';
 
 /// Nguồn vị trí giả: test tự đẩy vị trí vào [emit].
@@ -69,4 +70,28 @@ class MemoryActiveWorkoutStore implements ActiveWorkoutStore {
 
   @override
   Future<void> clear() async => draft = null;
+}
+
+/// Live Activity giả: ghi lại các lần cập nhật.
+class FakeWorkoutActivity implements WorkoutActivity {
+  final updates =
+      <({Sport sport, double movingSeconds, double distanceM, bool paused})>[];
+  int ended = 0;
+
+  @override
+  Future<void> update({
+    required Sport sport,
+    required double movingSeconds,
+    required double distanceM,
+    required double? paceSecPerKm,
+    required bool paused,
+  }) async => updates.add((
+    sport: sport,
+    movingSeconds: movingSeconds,
+    distanceM: distanceM,
+    paused: paused,
+  ));
+
+  @override
+  Future<void> end() async => ended++;
 }

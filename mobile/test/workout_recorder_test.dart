@@ -10,6 +10,7 @@ import 'package:healthtrack/features/workout/active_workout_store.dart';
 import 'package:healthtrack/features/workout/tracking_session.dart'
     show PauseReason;
 import 'package:healthtrack/features/workout/workout.dart';
+import 'package:healthtrack/features/workout/workout_activity.dart';
 import 'package:healthtrack/features/workout/workout_recorder.dart';
 import 'package:healthtrack/features/workout/workout_repository.dart';
 import 'package:route_tracker/route_tracker.dart';
@@ -34,6 +35,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized(); // HapticFeedback cần binding
   late FakeLocationSource source;
   late MemoryActiveWorkoutStore drafts;
+  late FakeWorkoutActivity activity;
   late Directory dir;
   late ProviderContainer container;
   late DateTime now;
@@ -46,11 +48,13 @@ void main() {
   }) {
     source = FakeLocationSource(perm: perm);
     drafts = MemoryActiveWorkoutStore();
+    activity = FakeWorkoutActivity();
     dir = Directory.systemTemp.createTempSync('rec');
     final c = ProviderContainer(
       overrides: [
         locationSourceProvider.overrideWithValue(source),
         activeWorkoutStoreProvider.overrideWithValue(drafts),
+        workoutActivityProvider.overrideWithValue(activity),
         workoutRepositoryProvider.overrideWithValue(
           LocalWorkoutRepository(baseDir: () async => dir),
         ),
@@ -151,6 +155,37 @@ void main() {
       expect(st().phase, RecordPhase.ready);
       expect(source.keepAwake, isFalse);
       expect(drafts.draft, isNull);
+    },
+  );
+
+  test(
+    'Live Activity: cập nhật mỗi 5 giây, ngay khi tạm dừng, kết thúc khi xong',
+    () async {
+      await startRecording();
+      expect(activity.updates, hasLength(1)); // lúc bắt đầu
+      expect(activity.updates.first.paused, isFalse);
+      final w = fixture('sample-run-han-river');
+      for (final p in w.points.take(60)) {
+        source.emit(raw(p));
+      }
+      // Đồng hồ khớp với thời điểm các điểm mẫu, để không bị coi là đứng yên
+      now = w.points[59].t.add(const Duration(seconds: 1));
+      rec().tick();
+      expect(activity.updates, hasLength(2)); // đồng hồ nhảy xa nên quá 5 giây
+      now = now.add(const Duration(seconds: 2));
+      rec().tick();
+      expect(activity.updates, hasLength(2)); // chưa đủ 5 giây kể từ lần trước
+      now = now.add(const Duration(seconds: 4));
+      rec().tick();
+      expect(activity.updates, hasLength(3));
+      expect(activity.updates.last.distanceM, greaterThan(100));
+      rec().pause();
+      expect(activity.updates, hasLength(4));
+      expect(activity.updates.last.paused, isTrue);
+      rec().resume();
+      expect(activity.updates.last.paused, isFalse);
+      await rec().finish(id: 'la-1');
+      expect(activity.ended, greaterThanOrEqualTo(1));
     },
   );
 

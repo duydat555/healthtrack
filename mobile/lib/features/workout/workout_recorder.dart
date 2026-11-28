@@ -10,6 +10,7 @@ import 'active_workout_store.dart';
 import 'location_source.dart';
 import 'tracking_session.dart';
 import 'workout.dart';
+import 'workout_activity.dart';
 import 'workout_math.dart' as wm;
 import 'workout_repository.dart';
 
@@ -131,11 +132,13 @@ class WorkoutRecorder extends Notifier<RecordState> {
   // Lưu sẵn khi dựng: riverpod không cho gọi ref.read trong onDispose
   late LocationSource _source;
   late ActiveWorkoutStore _drafts;
+  late WorkoutActivity _activity;
 
   TrackingSession? _session;
   StreamSubscription<RawFix>? _fixes;
   Timer? _ticker;
   var _lastDraftAt = DateTime.fromMillisecondsSinceEpoch(0);
+  var _lastActivityAt = DateTime.fromMillisecondsSinceEpoch(0);
 
   /// Đồng hồ và nhịp đếm ngược, để test điều khiển được (mặc định: giờ hệ thống, 1 giây).
   DateTime Function() clock = DateTime.now;
@@ -145,6 +148,7 @@ class WorkoutRecorder extends Notifier<RecordState> {
   RecordState build() {
     _source = ref.read(locationSourceProvider);
     _drafts = ref.read(activeWorkoutStoreProvider);
+    _activity = ref.read(workoutActivityProvider);
     ref.onDispose(_dispose);
     return const RecordState();
   }
@@ -153,6 +157,9 @@ class WorkoutRecorder extends Notifier<RecordState> {
     _fixes?.cancel();
     _ticker?.cancel();
     _source.setKeepAwake(false);
+    unawaited(
+      _activity.end(),
+    ); // màn ghi bị đóng: không để Live Activity chạy mãi trên màn khóa
   }
 
   /// Gọi khi mở màn: đọc quyền, xem có bản nháp chưa lưu không và bắt đầu nghe GPS để hiện tín hiệu.
@@ -254,6 +261,7 @@ class WorkoutRecorder extends Notifier<RecordState> {
       clearError: true,
     );
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) => tick());
+    _pushActivity(force: true);
   }
 
   /// Mỗi giây: phát hiện đứng yên, cập nhật số liệu và lưu bản nháp. Công khai để test gọi trực tiếp.
@@ -266,6 +274,7 @@ class WorkoutRecorder extends Notifier<RecordState> {
     if (s.state != before) HapticFeedback.mediumImpact();
     _publish();
     _saveDraftIfDue();
+    _pushActivity(force: s.state != before);
   }
 
   /// Lưu bản nháp mỗi 20 giây, không chặn giao diện.
@@ -275,6 +284,26 @@ class WorkoutRecorder extends Notifier<RecordState> {
     _lastDraftAt = now;
     final draft = _snapshot();
     if (draft != null) _drafts.save(draft);
+  }
+
+  /// Cập nhật Live Activity mỗi 5 giây (đủ để số liệu không cũ, không tốn pin); đổi trạng thái
+  /// (tạm dừng, tiếp tục) thì cập nhật ngay. Thời gian trên màn khóa tự đếm nên không cần gửi mỗi giây.
+  void _pushActivity({bool force = false}) {
+    final s = _session;
+    if (s == null) return;
+    final now = clock();
+    if (!force &&
+        now.difference(_lastActivityAt).abs() < const Duration(seconds: 5)) {
+      return;
+    }
+    _lastActivityAt = now;
+    _activity.update(
+      sport: s.sport,
+      movingSeconds: s.movingSeconds,
+      distanceM: s.distanceM,
+      paceSecPerKm: s.currentPaceSecPerKm(),
+      paused: s.state == SessionState.paused,
+    );
   }
 
   Workout? _snapshot() {
@@ -298,12 +327,14 @@ class WorkoutRecorder extends Notifier<RecordState> {
     _session?.pause();
     HapticFeedback.mediumImpact();
     _publish();
+    _pushActivity(force: true);
   }
 
   void resume() {
     _session?.resume();
     HapticFeedback.mediumImpact();
     _publish();
+    _pushActivity(force: true);
   }
 
   /// Kết thúc và lưu. Trả buổi tập đã lưu, hoặc null nếu quá ngắn (không có gì để lưu).
@@ -317,6 +348,7 @@ class WorkoutRecorder extends Notifier<RecordState> {
     await _source.stop();
     await _source.setKeepAwake(false);
     HapticFeedback.heavyImpact();
+    unawaited(_activity.end());
     final w = s.finish(id: id);
     _session = null;
     final worthSaving = w != null && w.distanceM >= 20;
@@ -340,6 +372,7 @@ class WorkoutRecorder extends Notifier<RecordState> {
     await _source.stop();
     await _source.setKeepAwake(false);
     await _drafts.clear();
+    unawaited(_activity.end());
     _session = null;
     state = const RecordState().copyWith(
       permission: state.permission,
